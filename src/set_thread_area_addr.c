@@ -17,7 +17,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/ptrace.h>
-#include <sys/reg.h>
+#ifdef __alpha__
+   #include <asm/reg.h>
+#else
+   #include <sys/reg.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
