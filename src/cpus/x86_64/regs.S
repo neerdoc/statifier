@@ -8,17 +8,56 @@
 # This code is processor depended !!!
 #
 
+#if 0
+r15
+r14
+r13
+r12
+rbp
+rbx
+r11
+r10
+r9
+r8
+rax
+rcx
+rdx
+rsi
+rdi
+orig_rax
+rip
+cs
+eflags
+rsp
+ss
+fs_base
+gs_base
+ds
+es
+fs
+gs
+#endif
 #include "regs.inc"
 
 	GET_DATA_ADDR %rax
 					# Let restore registers now
+	mov 	R15(%rax),	%r15
+	mov 	R14(%rax),	%r14
+	mov 	R13(%rax),	%r13
+	mov 	R12(%rax),	%r12
+	mov 	RBP(%rax),	%rbp	
 	mov 	RBX(%rax),	%rbx	
+	mov 	R11(%rax),	%r11
+	mov 	R10(%rax),	%r10
+	mov 	R9(%rax),	%r9
+	mov 	R8(%rax),	%r8
 	mov 	RCX(%rax),	%rcx	
 	mov 	RDX(%rax),	%rdx	
 	mov 	RSI(%rax),	%rsi	
 	mov 	RDI(%rax),	%rdi	
-	mov 	RBP(%rax),	%rbp	
 					# %rax should be restored last
+	#mov 	FS_BASE(%rax),	%fs_base # no idea what is fs_base
+	#mov 	GS_BASE(%rax),	%gs_base # no idea what is gs_base
 	mov 	DS(%rax),	%ds	
 	mov 	ES(%rax),	%es	
 	mov 	FS(%rax),	%fs	
