@@ -67,16 +67,16 @@ addr:
 					# %cs is ok and do not restore it.
 
 	pushl	EFLAGS(%eax)		# save it on the stack
-					# before return to %eip I'll 'popf' it.
+					# before return to %eip I will 'popf' it
 					# I think flags here pretty useless,
-					# but let's be on the safe side...
+					# but I want be on the safe side...
 
 					# %esp and %ss - stack pointer and stack
 					# segment - our stack already set
 					# somehow, live it as is
 
 	movl	EAX(%eax),	%eax	# Only register left to resore 
-	popf				# restore processor's flags
+	popfl				# restore processors flags
 
 	ret				# make two things:
 					# - restore %esp to the value which it
