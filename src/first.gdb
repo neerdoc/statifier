@@ -8,8 +8,13 @@
 # It's first command file for gdb.
 # Here I do some common settings
 
+# For gdb >= 6.0 
+# Prevent messages like:
+# <line:> <file>: No such file or directory
+set auto-solib-add off
+
 # Specify file to run
-file @EXECUTABLE_FILE@
+exec-file @EXECUTABLE_FILE@
 
 # I don't want debugger prompt me to type enter, 
 # so make gdb think a terminal is a very big.
