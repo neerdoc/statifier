@@ -26,7 +26,7 @@ function GetIgnoredSegments
 			# which contains
 			# ELF heasder of something (what is it ?)
 			# But gdb 6.1 (opposite to gdb 6.0) does not save
-			# this last elf-segment.
+			# this last elf-segment in the core file
 			# For this reason I can't relay on the kernel version
 			# So, if last dump file has elf-header,
 			# i need to ignore both it and stack segment,
@@ -112,7 +112,7 @@ function CreateNewExe
 	local NewExe="$2"
 
 	local STARTER=$WORK_OUT_DIR/starter
-	local FIRST_SEGMENT=$WORK_OUT_DIR/first.seg
+	local STARTER_SEGMENT=$WORK_OUT_DIR/starter.seg
 
 	local IGNORED_SEGMENTS
 	local DUMP_FILES
@@ -127,16 +127,16 @@ function CreateNewExe
 		$prop_starter_under_executable \
 		$IGNORED_SEGMENTS              \
 		$DUMP_FILES                    \
-	> $FIRST_SEGMENT || return
+	> $STARTER_SEGMENT || return
 	rm -f $NewExe || return
 	case "$prop_starter_under_executable" in
 		0)
-			cat $DUMP_FILES $FIRST_SEGMENT > $NewExe || return
-			$D/update_ehdr $NewExe $FIRST_SEGMENT || return
+			cat $DUMP_FILES $STARTER_SEGMENT > $NewExe || return
+			$D/copy_ehdr $STARTER_SEGMENT $NewExe || return
 		;;
 
 		1)
-			cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
+			cat $STARTER_SEGMENT $DUMP_FILES > $NewExe || return
 		;;
 	esac
 	chmod +x $NewExe || return
