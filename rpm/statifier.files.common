@@ -25,9 +25,12 @@
 
 %doc AUTHORS
 %doc ChangeLog
+%doc FAQ
 %doc INSTALL
 %doc LICENSE
 %doc NEWS
 %doc README
 %doc THANKS
 %doc TODO
+
+%doc doc
