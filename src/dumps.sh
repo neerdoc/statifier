@@ -8,7 +8,7 @@
 # See LICENSE file in the doc directory.
 
 [ $# -ne 3 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" ] && {
-	echo "Usage: $0 <map_file> <dir_for_dumps> <gdb_dump_commands_file>" 1>&2
+	echo "Usage: $0 <maps_file> <dir_for_dumps> <gdb_dump_commands_file>" 1>&2
 	exit 1
 }
 
@@ -18,22 +18,15 @@ Output=$3
 
 awk -vDumpsDir="$DumpsDir" '
 	BEGIN {
-   		NeedOutput = 0;
 		FileNumber = 1;
 	}
 	{
-   		if ($1 == "Start") { 
-			NeedOutput = 1; 
-			next; 
-		}
-   		if (NeedOutput) {
-			StartAddr = $1
-			EndAddr   = $2
-			ObjFile   = $5
-                        FileName  = sprintf("%s/%.6d.dmp", DumpsDir, FileNumber);
-			FileNumber++
-   			printf "my_dump %s %s %s %s\n", FileName, StartAddr, EndAddr, ObjFile;
-   		}
+		StartAddr = $1
+		EndAddr   = $2
+		ObjFile   = $5
+                FileName  = sprintf("%s/%.6d.dmp", DumpsDir, FileNumber);
+		FileNumber++
+   		printf "my_dump %s 0x%s 0x%s %s\n", FileName, StartAddr, EndAddr, ObjFile;
 	}
 ' < $Maps > $Output || exit
 exit 0 
