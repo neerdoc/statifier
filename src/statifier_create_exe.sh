@@ -125,7 +125,6 @@ function IsIgnoredSegment
 {
 	# This function set is_ignored to 1 if segment should be
 	# ignored, otherwise - to 0
-	#	[ "$is_ignored" = "1" ] && return 0
 	is_ignored=1
 
 	local is_stack is_linux_gate
@@ -152,7 +151,6 @@ function pt_load
 	set -- Dummy $WORK_DUMPS_DIR/* || return
 	local Start Stop Perm Offset Name Dummy
 	local is_ignored
-	#	is_ignored=0
 	PT_LOAD_FILES=""
 	while :; do
 		shift || return
