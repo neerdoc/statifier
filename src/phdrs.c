@@ -295,6 +295,7 @@ int main(int argc, char *argv[])
 	ehdr_exe.e_entry = phdrs_out[0].p_vaddr + sizeof(ehdr_exe) + num_seg_out * sizeof(*ph_out);
 	ehdr_exe.e_phoff  = sizeof(ehdr_exe);
 	ehdr_exe.e_shoff += starter_seg_size;
+		ehdr_exe.e_shnum = 0;  // temp
 	ehdr_exe.e_phnum  = num_seg_out;
 
 	/* Allocate space for the starter segment */
