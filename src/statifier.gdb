@@ -38,14 +38,6 @@ end
 
 # Set breakpoint just before 'set_thread_area' syscall 
 # I got this address from 'set_thread_area_addr' program
-# NOTE: 
-# I hope, hope, hope, that load address of dynamic loader does not
-# change from one invokation to another.
-# Otherwise i'll need to convert 'set_thread_area_addr' program
-# to something like mini-debugger - with breakpoint,
-# registers/memory dumps, etc.
-# It will be nice to get rid of gdb, but from other hand
-# support for breakpoint on different platforms is not an easy task. 
 
 # source set_thread_area file with define for set_thread_area command
 source @SET_THREAD_AREA_GDB@
