@@ -15,6 +15,7 @@
  *    - starter program, which restore registers
  *    - registers' values
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -105,20 +106,19 @@ static int get_ehdr_phdrs_and_shdrs(
 	const char *pgm_name,
 	ElfW(Ehdr) *ehdr,
 	ElfW(Phdr) **phdrs,
-	int        *first_load_segment,
 	ElfW(Shdr) **shdrs
 )
 {
 	FILE *file;
 	size_t result;
 	size_t phdrs_size, shdrs_size;
-	size_t index;
+	int    res = 0;
 
 	file = my_fopen(path, "r", pgm_name);
-	if (file == NULL) return 0;
+	if (file == NULL) goto err_open;
 
 	result = my_fread(ehdr, sizeof(*ehdr), file, "ehdr", path, pgm_name);
-	if (result == 0) return 0;
+	if (result == 0) goto err_opened;
 
 	if ( ehdr->e_phentsize == 0) {
 		fprintf(
@@ -126,7 +126,7 @@ static int get_ehdr_phdrs_and_shdrs(
 			"%s: in the file '%s' e_phentsize == 0\n",
 			pgm_name, path
 		);
-		return 0;
+		goto err_opened;
 	}
 
 	if ( ehdr->e_phnum == 0) {
@@ -135,34 +135,37 @@ static int get_ehdr_phdrs_and_shdrs(
 			"%s: in the file '%s' e_phnum == 0\n",
 			pgm_name, path
 		);
-		return 0;
+		goto err_opened;
 	}
-	phdrs_size = ehdr->e_phentsize * ehdr->e_phnum;
-	*phdrs = my_malloc(phdrs_size, "phdrs", pgm_name);
-	if (*phdrs == NULL) return 0;
+	if (phdrs != NULL) {
+		phdrs_size = ehdr->e_phentsize * ehdr->e_phnum;
+		*phdrs = my_malloc(phdrs_size, "phdrs", pgm_name);
+		if (*phdrs == NULL) goto err_opened;
 
-	if (my_fseek(file, ehdr->e_phoff, pgm_name, path) == -1) return 0;
-	if (my_fread(*phdrs, phdrs_size, file, "phdrs", pgm_name, path) == 0) return 0;
-	for (index = 0; index < ehdr->e_phnum; index++) {
-		if ( (*phdrs)[index].p_type == PT_LOAD) {
-			if (first_load_segment != NULL) {
-				*first_load_segment = index;
-			}
-			break;
-		}
+		if (my_fseek(file, ehdr->e_phoff, pgm_name, path) == -1) goto err_phdrs;
+		if (my_fread(*phdrs, phdrs_size, file, "phdrs", pgm_name, path) == 0) goto err_phdrs;
 	}
 
 	if (shdrs != NULL) {
 		shdrs_size = ehdr->e_shentsize * ehdr->e_shnum;
 		*shdrs = my_malloc(shdrs_size, "shdrs", pgm_name);
-		if (*shdrs == NULL) return 0;
+		if (*shdrs == NULL) goto err_phdrs;
 
-		if (my_fseek(file, ehdr->e_shoff, pgm_name, path) == -1) return 0;
-		if (my_fread(*shdrs, shdrs_size, file, "shdrs", pgm_name, path) == 0) return 0;
+		if (my_fseek(file, ehdr->e_shoff, pgm_name, path) == -1) goto err_shdrs;
+		if (my_fread(*shdrs, shdrs_size, file, "shdrs", pgm_name, path) == 0) goto err_shdrs;
 	}
+	res = 1;
+	goto ret_ok;
 
+err_shdrs:
+	if (shdrs != NULL) free(*shdrs); 
+err_phdrs:
+	if (phdrs != NULL) free(*phdrs); 
+err_opened:
+ret_ok:
 	fclose(file);
-	return 1;
+err_open:
+	return res;
 }
 
 static off_t my_file_size(const char *path, const char *pgm_name, int *err)
@@ -184,28 +187,40 @@ static off_t my_file_size(const char *path, const char *pgm_name, int *err)
 }
 int main(int argc, char *argv[])
 {
-	ElfW(Ehdr) ehdr_exe,   ehdr_core;
-	ElfW(Phdr) *phdrs_exe, *phdrs_core, *phdrs_out, *ph_in, *ph_out;
-	ElfW(Shdr) *shdrs_exe;
-	int first_load_segment;
+	const char *pgm_name = argv[0];	
+	const char *exe_in;   /* original exe filname */
+	const char *core;     /* gdb's core filename */ 
+	const char *starter;  /* starter's filename */
+	ElfW(Ehdr) ehdr_exe;  /* Ehdr for original exe */
+	ElfW(Ehdr) ehdr_core; /* Ehdr for core file */ 
+	ElfW(Phdr) *phdrs_exe; /* Phdrs for orig file */
+       	ElfW(Phdr) *phdrs_core; /* Phdrs for core file */ 
+	ElfW(Phdr) *phdrs_out;  /* Phdrs for output file */
+	ElfW(Shdr) *shdrs_exe;  /* Shdrs for orig exe */
+	ElfW(Phdr) *ph_starter; /* Phdr pointer for the starter segment */
+
+	int is_stack_under_executable   = 0;
+	int is_starter_under_executable = 1;
+	int first_load_segment = 0;
 	FILE *input;
 	FILE *output = stdout;
 	int result;
-	const char *pgm_name = argv[0];	
-	const char *exe_in, *core, *starter;
-	size_t ind_core, ind_out, num_seg_out;
+	size_t ind_out, num_seg_out;
 	size_t num_load_segment_in_core;
-	size_t align, rest;
 	off_t  starter_pgm_size, file_size, starter_seg_size;
 	static int err;
-	const char *s_ignored_segments;
-	int ignored_segments;
+	const char *s_ignored_segments; /* Ignored segments, as string */
+	int ignored_segments;           /* Ignored segments */ 
 	int arg_ind;
 	char *starter_segment, *cur_ptr;
 	size_t cur_size;
 
 	if (argc < 5) {
-		fprintf(stderr, "Usage: %s <exe_in> <gdb_core_file> <starter_program> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n", pgm_name);
+		fprintf(
+			stderr, 
+			"Usage: %s <exe_in> <gdb_core_file> <starter_program> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n",
+		       	pgm_name
+		);
 		exit(1);
 	}
 
@@ -231,7 +246,6 @@ int main(int argc, char *argv[])
 			pgm_name, 
 			&ehdr_exe,
 			&phdrs_exe,
-			&first_load_segment,
 			&shdrs_exe
 		) == 0
 	) exit(1);
@@ -242,35 +256,36 @@ int main(int argc, char *argv[])
 			pgm_name, 
 			&ehdr_core, 
 			&phdrs_core,
-			NULL,
 			NULL
 		) == 0
 	) exit(1);
 
-	phdrs_out = my_malloc(
-		ehdr_core.e_phentsize * ehdr_core.e_phnum,
-		"phdrs for output exe file",
-		pgm_name
-	);
-	if (phdrs_out == NULL) exit(1);
-
-	ph_out   = &phdrs_out[1]; /* leave place for starter segment */
+	/* How many LOAD segments have we in the core ? */
+	/* What's first load segment */
 	num_load_segment_in_core = 0;
-	for (
-		ind_core = 0, ph_in = phdrs_core; 
-		ind_core < ehdr_core.e_phnum;
-		ind_core++, ph_in++
-	) {
-		if (ph_in->p_type == PT_LOAD) {
-			ph_out->p_type  = PT_LOAD;
-			ph_out->p_vaddr = ph_in->p_vaddr;
-			ph_out->p_paddr = ph_in->p_vaddr;
-			ph_out->p_flags = ph_in->p_flags;
-			ph_out->p_align = 1; 	
-			num_load_segment_in_core++;
-			ph_out++;
+	{
+		int i;
+		for (i = 0; i < ehdr_core.e_phnum; i++) {
+			if (phdrs_core[i].p_type == PT_LOAD) {
+				if (num_load_segment_in_core == 0) {
+					first_load_segment = i;
+				}
+				num_load_segment_in_core++;
+			}
 		}
 	}
+
+	/* Sanity */
+	if (num_load_segment_in_core == 0) {
+		fprintf(
+			stderr,
+			"%s: there are no PT_LOAD segments in the core '%s'.\n",
+			pgm_name, core
+		);
+		exit(1);
+	}
+
+	/* Command line sanity */
 
 	/*
 	 * linux 2.5, 2.6 create one more segment
@@ -296,12 +311,74 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	/* Segments number in the output file */
 	num_seg_out = 
 		  (argc - arg_ind)
 		+ 1 /* My segment */
 	;
 
-	align = phdrs_exe[first_load_segment].p_align;
+	/* Get place for output phdrs */
+	phdrs_out = my_malloc(
+		ehdr_core.e_phentsize * num_seg_out,
+		"phdrs for output exe file",
+		pgm_name
+	);
+	if (phdrs_out == NULL) exit(1);
+
+	/* Fill appropriative entries in phdrs_out from the phdrs_core */ 
+	{
+		int i_core = first_load_segment + (is_stack_under_executable ? 1 : 0);
+		int i_out = is_starter_under_executable ? 1 : 0;
+
+		ElfW(Phdr) *ph_core = &phdrs_core[i_core];
+		ElfW(Phdr) *ph_out  = &phdrs_out [i_out];
+		for (; i_core < ehdr_core.e_phnum; i_core++, ph_core++) {
+			if (ph_core->p_type == PT_LOAD) {
+				ph_out->p_type   = PT_LOAD;
+				/* p_offset - to be fill later */
+				ph_out->p_vaddr  = ph_core->p_vaddr;
+				ph_out->p_paddr  = ph_core->p_vaddr;
+				ph_out->p_flags  = ph_core->p_flags;
+				/*
+				 * I have no information about alinment,
+				 * but because it's a dump from the memory
+				 * and loader had align it correctly,
+				 * I can not 're-align' it.
+				 * So, let say align = 1, i.e no align
+				 */ 
+				ph_out->p_align = 1; 	
+				ph_out++;
+			}
+		}
+		/* Fill more entries in phdrs_out */ 
+		ph_out  = &phdrs_out[i_out];
+		for (; arg_ind < argc; arg_ind++, ph_out++) {
+			file_size = my_file_size( /* get file size */
+					argv[arg_ind], 
+					pgm_name, 
+					&err
+			);
+			if (err != 0) exit(1);
+			ph_out->p_filesz = file_size;
+			ph_out->p_memsz  = file_size;
+		}
+	}
+
+	/* Fill data for the starter segment */
+	ph_starter = &phdrs_out[is_starter_under_executable ? 0 : (num_seg_out-1) ];
+	ph_starter->p_type = PT_LOAD; 
+	/* Find alignment for the executable code */
+	ph_starter->p_align = -1; /* no alignment */
+	{
+		int i;
+		for (i = 0; i < ehdr_exe.e_phnum; i++) {
+			if (phdrs_exe[i].p_type == PT_LOAD) {
+				if (phdrs_exe[i].p_flags & PF_X) {
+					ph_starter->p_align = phdrs_exe[i].p_align;
+				}
+			}
+		}
+	}
 
 	starter_pgm_size = my_file_size(starter, pgm_name, &err);
 	if (err != 0) exit(1);
@@ -309,36 +386,46 @@ int main(int argc, char *argv[])
 	/* Starter seg size is elf header size + size of all phdrs + 
 	 * + size of all shdrs + starter program size
 	 */
-	starter_seg_size =                                \
-		sizeof(ehdr_exe)                        + \
-		ehdr_exe.e_shnum * ehdr_exe.e_shentsize + \
-	       	num_seg_out      * sizeof(*ph_out)      + \
+	starter_seg_size =
+		sizeof(ehdr_exe)                        + 
+		ehdr_exe.e_shnum * ehdr_exe.e_shentsize +
+	       	num_seg_out      * sizeof(*ph_starter)  +
 		starter_pgm_size
 	;
 
 	/* Now round it up to the align boundary if needed*/
-	rest = starter_seg_size % align;
-	if (rest) starter_seg_size += (align - rest);
+	{
+		size_t rest;
+		rest = starter_seg_size % ph_starter->p_align;
+		if (rest) starter_seg_size += (ph_starter->p_align - rest);
+	}
 
-	/* Fill in first phdr */
-	phdrs_out[0].p_type   = PT_LOAD;
-	phdrs_out[0].p_offset = 0;
-	phdrs_out[0].p_vaddr  = phdrs_out[1].p_vaddr - starter_seg_size;
-	phdrs_out[0].p_paddr  = phdrs_out[1].p_vaddr - starter_seg_size;
-	phdrs_out[0].p_filesz = starter_seg_size;
-	phdrs_out[0].p_memsz  = starter_seg_size;
-	phdrs_out[0].p_flags  = PF_X | PF_R; 
-	phdrs_out[0].p_align  = 1;
+	ph_starter->p_filesz = starter_seg_size;
+	ph_starter->p_memsz  = starter_seg_size;
+	ph_starter->p_flags  = PF_X | PF_R; 
 
-	/* Fill Size and offset for others */
+	if (is_starter_under_executable) {
+		/* i.e ph_starter == &phdrs_out[0] */
+		ph_starter->p_vaddr = phdrs_out[1].p_vaddr - ph_starter->p_align;
+		ph_starter->p_paddr = ph_starter->p_vaddr;
+		ph_starter->p_offset = 0;
+	} else {
+		/* i.e ph_starter is last segment */
+		ph_starter->p_vaddr = 
+			phdrs_out[num_seg_out - 2].p_vaddr + 
+			phdrs_out[num_seg_out - 2].p_memsz
+		;
+		ph_starter->p_vaddr = ph_starter->p_paddr;
+		/* I guess here first exe segment contain also ehdr and phdrs */
+		phdrs_out[0].p_offset = 0;
+	}
+
+	/* Fill offset field  for all but first segment */
 	for (ind_out = 1; ind_out < num_seg_out; ind_out++) {
-		file_size = my_file_size(argv[arg_ind], pgm_name, &err);
-		arg_ind++;
-		if (err != 0) exit(1);
-
-		phdrs_out[ind_out].p_filesz = file_size;
-		phdrs_out[ind_out].p_memsz  = file_size;
-		phdrs_out[ind_out].p_offset = phdrs_out[ind_out - 1].p_offset + phdrs_out[ind_out - 1].p_filesz;
+		phdrs_out[ind_out].p_offset = 
+			phdrs_out[ind_out - 1].p_offset + 
+			phdrs_out[ind_out - 1].p_filesz
+		;
 	}
 
 	/* Adjust shdrs */
@@ -348,13 +435,13 @@ int main(int argc, char *argv[])
 
 	/* Adjust Ehdr */
 	ehdr_exe.e_entry = 
-		phdrs_out[0].p_vaddr                    +
+		ph_starter->p_vaddr                     +
 		sizeof(ehdr_exe)                        + 
-		num_seg_out * sizeof(*ph_out)           + 
+		num_seg_out * sizeof(*ph_starter)       + 
 		ehdr_exe.e_shentsize * ehdr_exe.e_shnum
 	;
-	ehdr_exe.e_phoff = sizeof(ehdr_exe);
-	ehdr_exe.e_shoff = ehdr_exe.e_phoff + num_seg_out * sizeof(*ph_out);
+	ehdr_exe.e_phoff = ph_starter->p_offset + sizeof(ehdr_exe);
+	ehdr_exe.e_shoff = ehdr_exe.e_phoff + num_seg_out * sizeof(*ph_starter);
 	ehdr_exe.e_phnum = num_seg_out;
 
 	/* Allocate space for the starter segment */
@@ -366,7 +453,7 @@ int main(int argc, char *argv[])
 	cur_size = sizeof(ehdr_exe);
 	memcpy(cur_ptr, &ehdr_exe, cur_size);
 	cur_ptr += cur_size;
-	cur_size = num_seg_out * sizeof(*ph_out);
+	cur_size = num_seg_out * sizeof(*ph_starter);
 	memcpy(cur_ptr, phdrs_out, cur_size);
 	/* Add schdrs */
 	cur_ptr += cur_size;
