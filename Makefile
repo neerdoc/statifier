@@ -39,8 +39,5 @@ extra-dist: config
 config: configure
 	/bin/sh ./configure
 
-clean-local:
-	$(RM) config
-
 TOP_DIR := .
 include Makefile.top
