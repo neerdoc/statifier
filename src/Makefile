@@ -174,19 +174,9 @@ VERSION: $(TOP_DIR)/VERSION
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
-# Building gdb_runner is a bit tricky.
-# First of all I compile .c file as usual.
-# second I link in everything, but startup files - I don't
-# want LD_PRELOAD affect gdb_runner.
-# last, I build exe. It's "dynamic", but all functions from libc
-# already in and resolved, so LD_PRELOAD will not affect it.
-# I create this executable as dynamic, because otherwise gdb
-# will write warning to the stderr.
+# gdb_runner should be static, because I need avoid LD_PRELOAD influence
 $(ELF_CLASS)/gdb_runner: gdb_runner.c
-	gcc $(FLAGS_ELF) -Wall -O2 -g -c $< -o $@.o
-	gcc -static -nostartfiles -L/usr/lib -Wl,-r $@.o -o $@.o.o
-	gcc $@.o.o -o $@
-	$(RM) $@.o $@.o.o
+	gcc $(FLAGS_ELF) -static -Wall -O2 -g $< -o $@
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@
