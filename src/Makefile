@@ -9,9 +9,15 @@ SOURCES =                                  \
    Makefile                                \
    $(addsuffix .c,$(UTILS))                \
    $(addsuffix .S,$(FILES_TO_BE_EMBEDDED)) \
+   $(INCLUDE_FILES)                        \
    $(SCRIPTS)                              \
    $(GDB_SCRIPTS)                          \
    $(RUNNERS)                              \
+
+INCLUDE_FILES = \
+   processor.h  \
+   start.S      \
+   end.S        \
 
 UTILS =                 \
    phdrs                \
@@ -19,6 +25,7 @@ UTILS =                 \
    strtoul              \
 
 FILES_TO_BE_EMBEDDED = \
+   dl-var              \
    set_thread_area     \
    starter             \
 
@@ -50,8 +57,8 @@ $(UTILS): %: %.c
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
-$(FILES_TO_BE_EMBEDDED): %: %.S
-	gcc $< -o $@ -Wl,--oformat,binary,--entry=0x0 -nostdlib
+$(FILES_TO_BE_EMBEDDED): %: %.S processor.h start.S end.S
+	gcc -o $@ -include ./processor.h -include ./start.S -include ./$< end.S -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 LIB_DIR = $(DESTDIR)/usr/lib/statifier
 BIN_DIR = $(DESTDIR)/usr/bin
