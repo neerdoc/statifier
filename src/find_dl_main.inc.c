@@ -115,29 +115,34 @@ int main(int argc, char *argv[], char *envp[])
                                * invocation to invocaton
                                */
 
-	const char *virt1_s;  /*
-                               * loaders's virtual address. (Usually 0)
+	const char *file_base_addr_s;  /*
+                               * loaders's virtual address from file. 
+				* (Usually 0)
                                */
 
-	const char *virt2_s;  /*
-                               * loader's READ/WRITE segment wirtual address
+	const char *file_rw_seg_addr_s;  /*
+                               * loader's READ/WRITE segment virtual address
+			       * from file
                                */
 
-	const char *size_s;   /* loader READ/WRITE segment's size */
+	const char *rw_size_s;   /* loader READ/WRITE segment's size */
 
 	/* Arguments'es converted value */
 	unsigned long found;
 	unsigned long base;
-	unsigned long virt1;
-	unsigned long virt2;
-	unsigned long size;
+	unsigned long file_base_addr;
+	unsigned long file_rw_seg_addr;
+	unsigned long rw_size;
 
-	unsigned long new_found; /* nw offset for pattern */
+	unsigned long new_found; /* new offset for pattern relative
+				    to RW segment start */
 
-	unsigned char *start_ptr; /* real start address of loader's READ/WRITE
-				     segment */
-	unsigned char *end_ptr;   /* real end address of loader's READ/WRITE
-				     degment */
+	unsigned char *start_ptr; /* "in memory" start address 
+				     for loader's READ/WRITE segment */
+				     
+	unsigned char *end_ptr;   /* "in memory" end address 
+				     for loader's READ/WRITE segment */
+				     
 	unsigned char *ptr;	  /* current pointer */
 
 	pgm_name = argv[0]; 
@@ -145,29 +150,29 @@ int main(int argc, char *argv[], char *envp[])
 	if (argc < 6) {
 		fprintf(
 			stderr,
-			"Usage: %s <found> <base> <virt1> <virt2> <size> <dummy 1> [ <dummy2> ...]\n",
+			"Usage: %s <found> <base> <file_base_addr> <file_rw_addr> <rw_size> <dummy 1> [ <dummy2> ...]\n",
 			pgm_name
 		);
 		exit(1);
 	}
 
-	found_s = argv[1];
-	base_s  = argv[2];
-	virt1_s = argv[3];
-	virt2_s = argv[4];
-	size_s  = argv[5];
+	found_s            = argv[1];
+	base_s             = argv[2];
+	file_base_addr_s   = argv[3];
+	file_rw_seg_addr_s = argv[4];
+	rw_size_s          = argv[5];
 
 			
-	found = my_strtoul(found_s);
-	base  = my_strtoul(base_s );
-	virt1 = my_strtoul(virt1_s);
-	virt2 = my_strtoul(virt2_s);
-	size  = my_strtoul(size_s );
+	found            = my_strtoul(found_s           );
+	base             = my_strtoul(base_s            );
+	file_base_addr   = my_strtoul(file_base_addr_s  );
+	file_rw_seg_addr = my_strtoul(file_rw_seg_addr_s);
+	rw_size          = my_strtoul(rw_size_s         );
 
 	/* Calculate real address for loader's READ/WRITE segment */
- 	start_ptr = (unsigned char *)(base + (virt2 - virt1));
+ 	start_ptr = (unsigned char *)(base + (file_rw_seg_addr - file_base_addr));
 	/* Address after the end of loader's READ/WRITE segment */
-	end_ptr   = start_ptr + size;
+	end_ptr   = start_ptr + rw_size;
 
 	if (found == (unsigned long)-1L) { /* first invocation */
 		ptr = start_ptr;
@@ -196,7 +201,7 @@ int main(int argc, char *argv[], char *envp[])
 	new_found = ptr - start_ptr; /* Calculate new offset */
 	if (new_found == found) { /* Pattern found at same offset !
 				     I find this address ! */
-		printf("%p\n", ptr);
+		printf("0x%lx\n", new_found + (file_rw_seg_addr - file_base_addr));
 		exit(0);
 	} 
 
