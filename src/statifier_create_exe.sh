@@ -111,37 +111,32 @@ function CreateNewExe
 	local OrigExe="$1"
 	local NewExe="$2"
 
+	local E_ENTRY=$[0x40000000 + 0x15000 - 384 - 4 ] # Dummy
+	local PT_LOAD_PHDRS=$WORK_OUT_DIR/pt_load_phdrs
+	local NON_PT_LOAD=$WORK_OUT_DIR/non_pt_load
 	local STARTER=$WORK_OUT_DIR/starter
-	local STARTER_SEGMENT=$WORK_OUT_DIR/starter.seg
-	local SECTIONS=$WORK_OUT_DIR/sections
 
 	local IGNORED_SEGMENTS
 	local DUMP_FILES
 
 	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
-	$D/phdrs                               \
-		$STARTER_SEGMENT               \
-		$SECTIONS                      \
-		$OrigExe                       \
-		$CORE_FILE                     \
-		$STARTER                       \
-		$prop_stack_under_executable   \
-		$prop_starter_under_executable \
-		$IGNORED_SEGMENTS              \
-		$DUMP_FILES                    \
-	|| return
-	rm -f $NewExe || return
-	case "$prop_starter_under_executable" in
-		0)
-			cat $DUMP_FILES $STARTER_SEGMENT $SECTIONS > $NewExe || return
-			$D/copy_ehdr $STARTER_SEGMENT $NewExe || return
-		;;
+	# Create file with PT_LOAD headers
+	rm -f $PT_LOAD_PHDRS || return
+	$D/pt_load.sh $val_stack_pointer < $MAPS_FILE > $PT_LOAD_PHDRS || return
 
-		1)
-			cat $STARTER_SEGMENT $DUMP_FILES $SECTIONS > $NewExe || return
-		;;
-	esac
+	# Create non-pt-load part of the executable
+	rm -f $NON_PT_LOAD || return
+	$D/non_pt_load $OrigExe $PT_LOAD_PHDRS $E_ENTRY > $NON_PT_LOAD || return
+
+	# Concatenate it with PT_LOAD part
+	rm -f $NewExe || return
+	cat $NON_PT_LOAD $DUMP_FILES > $NewExe || return
+
+	# Inject starter into executable
+	$D/inject_starter $STARTER $NewExe || return
+
+	# Set permission
 	chmod +x $NewExe || return
 	return 0
 }
@@ -151,6 +146,7 @@ function Main
 	set -e
 		source $OPTION_SRC || return
 		source $COMMON_SRC || return
+		source $MISC_SRC   || return
 	set +e
 
 	CreateNewExe $opt_orig_exe $opt_new_exe || return
@@ -170,22 +166,6 @@ source $D/properties.src    || exit
 }
 
 WORK_DIR=$1
-
-case "x$prop_stack_under_executable" in
-	x0 | x1) ;; # ok, do nothing
-	*)
-		Echo "$0: 'prop_stack_under_executable' has illegal value '$prop_stack_under_executable'
-		exit 1
-	;;
-esac
-
-case "x$prop_starter_under_executable" in
-	x0 | x1) ;; # ok, do nothing
-	*)
-		Echo "$0: 'prop_starter_under_executable' has illegal value '$prop_starter_under_executable'
-		exit 1
-	;;
-esac
 
 SetVariables $WORK_DIR || exit
 Main                   || exit
