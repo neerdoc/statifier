@@ -8,6 +8,7 @@
      /usr/lib/statifier/set_thread_area
      /usr/lib/statifier/starter
      /usr/lib/statifier/strtoul
+     /usr/lib/statifier/tls_test
      /usr/lib/statifier/dumps.sh
      /usr/lib/statifier/regs.sh
      /usr/lib/statifier/set_thread_area.sh
