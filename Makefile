@@ -31,7 +31,7 @@ CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
 all: config
 
-extra-dist: config
+dist-list-for-tar: config
 
 # It is simpler always re-make config and do not check dependencies.
 # Configure care not change config's timestamp if content was not changed
