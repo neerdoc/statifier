@@ -30,7 +30,7 @@ function CreateStarter
 	local STA_BIN=$WORK_OUT_DIR/set_thread_area
 	local TLS_LIST=
 
-	[ "$val_has_tls" = "yes" ] && {
+	[ "$val_has_tls" = "1" ] && {
 		# Create binary file with set_thread_area parameters
 		$D/set_thread_area.sh $WORK_GDB_OUT_DIR/set_thread_area $STA_BIN || return
 		TLS_LIST="$STA $STA_BIN"
