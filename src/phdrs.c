@@ -453,8 +453,11 @@ int main(int argc, char *argv[])
 	}
 
 	/* Adjust shdrs */
-	for (ind_out = 0; ind_out < ehdr_exe.e_shnum; ind_out++) {
-		shdrs_exe[ind_out].sh_offset += starter_seg_size;
+	/* Needed Only if starter_under_executable */
+	if (is_starter_under_executable) {
+		for (ind_out = 0; ind_out < ehdr_exe.e_shnum; ind_out++) {
+			shdrs_exe[ind_out].sh_offset += starter_seg_size;
+		}
 	}
 
 	/* Adjust Ehdr */
