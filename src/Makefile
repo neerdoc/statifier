@@ -10,14 +10,14 @@ include ../config
 Problem := yes
 INSTALL_COMMON := make install-common
 ifeq "$(ELF32)" "yes"
-   ALL_LOCAL_32     := ELF_CLASS=32 make all-local-32
-   INSTALL_LOCAL_32 := $(INSTALL_COMMON) && ELF_CLASS=32 make install-local-32
+   ALL_LOCAL_32     := make all-local-32
+   INSTALL_LOCAL_32 := $(INSTALL_COMMON) && make install-local-32
    INSTALL_COMMON   := :
    Problem := no
 endif
 ifeq "$(ELF64)" "yes"
-   ALL_LOCAL_64     := ELF_CLASS=64 make all-local-64
-   INSTALL_LOCAL_64 := $(INSTALL_COMMON) && ELF_CLASS=64 make install-local-64
+   ALL_LOCAL_64     := make all-local-64
+   INSTALL_LOCAL_64 := $(INSTALL_COMMON) && make install-local-64
    Problem := no
 endif
 
@@ -28,7 +28,7 @@ endif
 
 FLAGS_ELF     := $(FLAGS_$(ELF_CLASS))
 PROCESSOR_ELF := $(PROCESSOR_$(ELF_CLASS))
-CPU_DIR       := ./cpus/$(PROCESSOR_ELF)
+CPU_DIR       := cpus/$(PROCESSOR_ELF)
 
 SOURCES =                                  \
    Makefile                                \
@@ -87,11 +87,13 @@ all-local:
 	$(ALL_LOCAL_32)
 	$(ALL_LOCAL_64)
 	
-all-local-32 all-local-64: $(TARGETS)
+all-local-32 all-local-64:
+	ELF_CLASS=$(subst all-local-,,$@) && $(MKDIR) $$ELF_CLASS && make ELF_CLASS=$$ELF_CLASS all-local-internal
+
+all-local-internal: $(TARGETS)
 	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES) .
 
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
-	@$(MKDIR) $(ELF_CLASS)
 	gcc $(FLAGS_ELF) -Wall -O2 -g $< -o $@
 
 $(ELF_CLASS)/set_thread_area_addr: processor.h
@@ -120,7 +122,6 @@ $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S processor.h start.S end.S
-	@$(MKDIR) $(ELF_CLASS)
 	gcc -c -o $@ $(FLAGS_ELF) -nostdinc -I./$(CPU_DIR) -include ./processor.h -include ./start.S -include ./$< end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
@@ -140,6 +141,9 @@ install-common:
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
 
 install-local-32 install-local-64:
+	ELF_CLASS=$(subst install-local-,,$@) && make ELF_CLASS=$(ELF_CLASS) install-local-internal
+
+install-local-internal:
 	$(MKDIR)                  $(LIB_DIR_ELF)
 	$(INSTALL_RUN) $(TARGETS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN) $(LINK_NAMES) .
