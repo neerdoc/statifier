@@ -21,6 +21,7 @@ INCLUDE_FILES = \
 
 UTILS =                 \
    phdrs                \
+   readlink             \
    set_thread_area_addr \
    strtoul              \
 
