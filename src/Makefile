@@ -70,6 +70,8 @@ GDB_SCRIPTS =          \
    dumps.gdb           \
    first.gdb           \
    map_reg_core.gdb    \
+
+PER_CPU_GDB_SCRIPTS =  \
    set_thread_area.gdb \
 
 LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS))
@@ -144,8 +146,9 @@ install-local-32 install-local-64:
 	ELF_CLASS=$(subst install-local-,,$@) && make ELF_CLASS=$(ELF_CLASS) install-local-internal
 
 install-local-internal:
-	$(MKDIR)                  $(LIB_DIR_ELF)
-	$(INSTALL_RUN) $(TARGETS) $(LIB_DIR_ELF)
+	              $(MKDIR)                             $(LIB_DIR_ELF)
+	              $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
+	cd $(CPU_DIR) $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN) $(LINK_NAMES) .
 
 clean-local: clean-local-32 clean-local-64
