@@ -34,4 +34,4 @@ rpm rpmbuild: tar
 	$@ -ta $(RPM_DEFINES) $(TARFILE)
 	$(RMDIR) $(RPM_BUILD_DIR)
 
-include Makefile.include
+include $(TOP_DIR)/Makefile.common
