@@ -107,6 +107,7 @@ PER_CPU_SOURCES =         \
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
 LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS))
+PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
@@ -125,7 +126,8 @@ all-local-32 all-local-64:
 	ELF_CLASS=$(subst all-local-,,$@) && $(MKDIR) $$ELF_CLASS && make ELF_CLASS=$$ELF_CLASS all-local-internal
 
 all-local-internal: $(TARGETS)
-	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES) .
+	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES)         .
+	cd $(ELF_CLASS) && $(LN) $(PER_CPU_LINK_NAMES) .
 
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -Wall -O2 -g $< -o $@
