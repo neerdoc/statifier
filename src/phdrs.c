@@ -194,22 +194,36 @@ int main(int argc, char *argv[])
 	const char *pgm_name = argv[0];	
 	const char *exe_in, *core, *starter;
 	size_t ind_core, ind_out, num_seg_out;
+	size_t num_load_segment_in_core;
 	size_t align, rest;
 	off_t  starter_pgm_size, file_size, starter_seg_size;
 	static int err;
+	const char *s_ignored_segments;
+	int ignored_segments;
 	int arg_ind;
 	char *starter_segment, *cur_ptr;
 	size_t cur_size;
 
-	if (argc < 4) {
-		fprintf(stderr, "Usage: %s <exe_in> <gdb_core_file> <starter_program> <seg_file_1> [<seg_file_2>...]\n", pgm_name);
+	if (argc < 5) {
+		fprintf(stderr, "Usage: %s <exe_in> <gdb_core_file> <starter_program> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n", pgm_name);
 		exit(1);
 	}
 
-	arg_ind   = 1;
-	exe_in    = argv[arg_ind++];
-	core      = argv[arg_ind++];
-	starter   = argv[arg_ind++];
+	arg_ind            = 1;
+	exe_in             = argv[arg_ind++];
+	core               = argv[arg_ind++];
+	starter            = argv[arg_ind++];
+	s_ignored_segments = argv[arg_ind++];
+
+	ignored_segments = atoi(s_ignored_segments);
+	if (ignored_segments <= 0) {
+		fprintf(
+			stderr,
+			"%s: ignored_segment='%s', should be > 0\n",
+			pgm_name, s_ignored_segments
+		);
+		exit(1);
+	}
 
 	if ( 
 		get_ehdr_phdrs_and_shdrs(
@@ -240,24 +254,42 @@ int main(int argc, char *argv[])
 	);
 	if (phdrs_out == NULL) exit(1);
 
-	num_seg_out = 1; /*  have add my segment with starter */
-	ph_out   = &phdrs_out[num_seg_out];
+	ph_out   = &phdrs_out[1]; /* leave place for starter segment */
+	num_load_segment_in_core = 0;
 	for (
 		ind_core = 0, ph_in = phdrs_core; 
 		ind_core < ehdr_core.e_phnum;
 		ind_core++, ph_in++
 	) {
 		if (ph_in->p_type == PT_LOAD) {
-			ph_out->p_type = PT_LOAD;
+			ph_out->p_type  = PT_LOAD;
 			ph_out->p_vaddr = ph_in->p_vaddr;
 			ph_out->p_paddr = ph_in->p_vaddr;
 			ph_out->p_flags = ph_in->p_flags;
 			ph_out->p_align = 1; 	
-			num_seg_out++;
+			num_load_segment_in_core++;
 			ph_out++;
 		}
 	}
-	num_seg_out--; /* I need to ignore last segment with a stack */
+
+	if ((num_load_segment_in_core - ignored_segments) != (argc - arg_ind)) {
+		fprintf(
+			stderr,
+			"%s: mismatch: core file '%s' has %d LOAD segments but command line supply ignored_segments='%d' and %d files\n",
+			pgm_name,
+			core,
+			num_load_segment_in_core,
+			ignored_segments,
+			argc - arg_ind
+		);
+		exit(1);
+	}
+
+	num_seg_out = 
+		num_load_segment_in_core
+		+ 1 /* My segment */
+		- ignored_segments /* last segment with stack, etc */
+	;
 
 	align = phdrs_exe[first_load_segment].p_align;
 
@@ -290,7 +322,6 @@ int main(int argc, char *argv[])
 
 	/* Fill Size and offset for others */
 	for (ind_out = 1; ind_out < num_seg_out; ind_out++) {
-
 		file_size = my_file_size(argv[arg_ind], pgm_name, &err);
 		arg_ind++;
 		if (err != 0) exit(1);
