@@ -42,6 +42,8 @@ SOURCES =                 \
    $(INCLUDE_SCRIPTS)     \
    $(RUNNERS)             \
    $(AWK_FILES)           \
+   dl-var.c               \
+   dl-var.inc             \
 
 # Service files used to build 
 BUILD_FILES =       \
