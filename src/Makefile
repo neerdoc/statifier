@@ -10,16 +10,16 @@ TOP_DIR := ..
 include $(TOP_DIR)/config 
 
 Problem := yes
-INSTALL_COMMON := make install-common
+INSTALL_COMMON := $(MAKE) install-common
 ifeq "$(ELF32)" "yes"
-   ALL_LOCAL_32     := make all-local-32
-   INSTALL_LOCAL_32 := $(INSTALL_COMMON) && make install-local-32
+   ALL_LOCAL_32     := $(MAKE) all-local-32
+   INSTALL_LOCAL_32 := $(INSTALL_COMMON) && $(MAKE) install-local-32
    INSTALL_COMMON   := :
    Problem := no
 endif
 ifeq "$(ELF64)" "yes"
-   ALL_LOCAL_64     := make all-local-64
-   INSTALL_LOCAL_64 := $(INSTALL_COMMON) && make install-local-64
+   ALL_LOCAL_64     := $(MAKE) all-local-64
+   INSTALL_LOCAL_64 := $(INSTALL_COMMON) && $(MAKE) install-local-64
    Problem := no
 endif
 
@@ -141,7 +141,7 @@ all-local: VERSION
 	$(ALL_LOCAL_64)
 	
 all-local-32 all-local-64:
-	ELF_CLASS=$(subst all-local-,,$@) && $(MKDIR) $$ELF_CLASS && make ELF_CLASS=$$ELF_CLASS all-local-internal
+	ELF_CLASS=$(subst all-local-,,$@) && $(MKDIR) $$ELF_CLASS && $(MAKE) ELF_CLASS=$$ELF_CLASS all-local-internal
 
 all-local-internal: $(TARGETS)
 	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES)         .
@@ -204,7 +204,7 @@ install-common:
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
 
 install-local-32 install-local-64:
-	ELF_CLASS=$(subst install-local-,,$@) && make ELF_CLASS=$$ELF_CLASS install-local-internal
+	ELF_CLASS=$(subst install-local-,,$@) && $(MAKE) ELF_CLASS=$$ELF_CLASS install-local-internal
 
 install-local-internal:
 	                     $(MKDIR)                             $(LIB_DIR_ELF)
