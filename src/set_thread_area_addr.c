@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/syscall.h>
+#include "processor.h"
 
 #ifndef __NR_set_thread_area
 int main(int argc, char *argv[0])
@@ -35,24 +36,6 @@ int main(int argc, char *argv[0])
 	exit(1);
 }
 #else
-
-#undef REGISTER_SIZE
-#ifdef __i386__
-	#define REGISTER_SIZE 4
-	#define SYSCALL_REG   (ORIG_EAX)
-	#define PC_REG        (EIP)
-	#define PC_OFFSET_AFTER_SYSCALL 2
-#endif
-#ifdef __x86_64__
-	#define REGISTER_SIZE 8
-	#define SYSCALL_REG   (ORIG_RAX)
-	#define PC_REG        (RIP)
-	#define PC_OFFSET_AFTER_SYSCALL 2
-#endif
-
-#ifndef REGISTER_SIZE
-	#error This cpu not supported (yet)
-#endif
 
 void one_syscall(const char *name, pid_t child)
 {
