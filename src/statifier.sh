@@ -30,7 +30,7 @@ function Sanity
 
 function GetProgramInterpreter
 {
-	res="$(readelf --program-headers $OrigExe)" || return 
+	res="`readelf --program-headers $OrigExe`" || return 
 	echo "$res" | awk '{
 		if ($0 ~ "[[].*]") {
 			print substr($NF, 1, match($NF, "]") - 1);
@@ -49,7 +49,7 @@ function GetStartAddress
 	local Interp="$1"
 	local FuncName="$2"
 	local Dump
-	Dump=$(objdump --syms $Interp) || return
+	Dump=`objdump --syms $Interp` || return
 	echo "$Dump" | awk -vFuncName="$FuncName" '{ 
 		if ($NF == FuncName) {
 			print $1; 
@@ -62,13 +62,13 @@ function GetStartAddress
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	gdb                                             \
-		--batch                                 \
-		-n                                      \
-		-x "$WORK_GDB_CMD_DIR/first.gdb"        \
+	gdb                                                            \
+		--batch                                                \
+		-n                                                     \
+		-x "$WORK_GDB_CMD_DIR/first.gdb"                       \
 		${HAS_TLS:+-x "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
-		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb" \
-		-x "$DUMPS_GDB"                         \
+		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
+		-x "$DUMPS_GDB"                                        \
 	> $LOG_FILE || return
 	return 0
 }
@@ -139,12 +139,12 @@ function Main
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	# End of variables
 	Sanity || return
-	Interp=$(GetProgramInterpreter)
+	Interp=`GetProgramInterpreter`
 	[ "x$Interp" = "x" ] && {
 		echo "$0: Interpreter not found in the '$OrigExe'" 1>&2
 		return 1
 	}
-	StartAddr="$(GetStartAddress $Interp $StartFunc)" || return
+	StartAddr="`GetStartAddress $Interp $StartFunc`" || return
 	[ "x$StartAddr" = "x" ] && {
 		echo "$0: StartFunction '$StartFunc' not found in the interpreter '$Interp'" 1>&2
 		return 1
@@ -156,10 +156,7 @@ function Main
 		HAS_TLS="yes"
 		BREAKPOINT_THREAD="*`set_thread_area_addr $EXECUTABLE_FILE`" || return
 	}
-	#[ $? -eq 0 ] && { # System with TLS
-	#	echo "$0: TLS not supported yet." 1>&2
-	#	return 1
-	#}
+
 	# Prepare directory structure
 	mkdir -p $WORK_GDB_CMD_DIR || return
 	mkdir -p $WORK_GDB_OUT_DIR || return
