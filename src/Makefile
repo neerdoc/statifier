@@ -62,6 +62,7 @@ INCLUDE_FILES = \
 UTILS =                 \
    copy_ehdr            \
    elfinfo              \
+   elf_stripped         \
    loader_base_test     \
    phdrs                \
    set_thread_area_addr \
