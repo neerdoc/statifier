@@ -10,3 +10,7 @@
 # properties for alpha
 prop_stack_under_executable=1
 prop_starter_under_executable=0
+
+# pattern for _dl_start_user:
+# mov v0,s0
+prop_pattern_dl_start_user="0x09 0x04 0xe0 0x47"
