@@ -162,7 +162,6 @@ function Main
 
 	# Transform files for gdb
 	sed                                                         \
-        	-e "s#@CORE_FILE@#$CORE_FILE#g"                     \
         	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                     \
         	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                       \
         	-e "s#@LOG_FILE@#$LOG_FILE#g"                       \

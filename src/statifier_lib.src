@@ -40,7 +40,6 @@ function SetVariables
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 
 	REGISTERS_FILE=$WORK_GDB_OUT_DIR/registers
-	CORE_FILE=$WORK_GDB_OUT_DIR/core
 	MISC_SRC=$WORK_GDB_OUT_DIR/misc.src
 
 	# Directory for temp files built during new exe file constructions.

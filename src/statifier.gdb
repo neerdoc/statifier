@@ -69,7 +69,7 @@ end
 
 my_delete $val_has_tls
 
-# Debuggers command for dumping maps, registers and coredump to the files
+# Debuggers command for dumping maps and registers to the files
 
 # When hit this breakpoint real time loader will finish 
 # mapping exe itself and all needed .so library 
@@ -79,8 +79,7 @@ my_delete $val_has_tls
 break *($BREAKPOINT_START + $val_offset)
 commands
 	silent
-	# Save mappings. I need it for start/stop addreses of the segments
-	# debugers core-file has start address too, but it miss stop address
+	# Save process id. I need it to get memory mappings from the /proc
 	my_separator process
 		info proc
 	my_separator_end
@@ -90,22 +89,15 @@ commands
 		info registers
 	my_separator_end
 
-	# Save core dump - I need it to get maps permissions
-	generate-core-file @CORE_FILE@
-
 	# Here I'll run shell script, which got as input 
 	# - @MAP_FILE@ file
 	# and create as output file with dump command for gdb.
-	# this dumps command should save all programms memory mappings.
-	# show memory protection.
+	# this dumps command should save all program's memory mappings.
 	shell @SPLIT_SH@ @LOG_FILE@                               || kill $PPID
 	shell @MAPS_SH@  @PROCESS_FILE@ @MAPS_FILE@               || kill $PPID
 	shell @DUMPS_SH@ @MAPS_FILE@ @WORK_DUMPS_DIR@ @DUMPS_GDB@ || kill $PPID
 
-	# "Run" command for save memory a mappings
-	# Note, I create @DUMPS_GDB@ shell before running gdb,
-	# so if gdb for some reason failed create this file
-	# previous one will kill gdb
+	# "Run" command for save memory's mappings
 	source @DUMPS_GDB@
 
 	# This breakpoint should be last (in order of execution)
