@@ -6,6 +6,7 @@
      /usr/lib/statifier/strtoul
      /usr/lib/statifier/dumps.sh
      /usr/lib/statifier/regs.sh
+     /usr/lib/statifier/split.sh
      /usr/lib/statifier/statifier.sh
      /usr/lib/statifier/dumps.gdb
      /usr/lib/statifier/map_reg_core.gdb
