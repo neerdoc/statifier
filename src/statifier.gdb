@@ -30,7 +30,7 @@ end
 source @VAR_GDB@
 
 # Read in (optional) setenv commands
-source @GDB_ENV@
+source @ENV_GDB@
 
 ### Initialize some gdb variables ###
 
