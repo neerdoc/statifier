@@ -7,13 +7,23 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-# Calculate addresses for _dl variables
+# This script have to detect properties/addresses
+# which I need in order to dump statified process.
+# (now I am looking only for _dl_start_user address)
+# and
+# different addresses I need to create starter.
 
-function Main
+function ForDump
 {
-	set -e
-		source $COMMON_SRC || return
-	set +e
+	local val_breakpoint_start
+
+	val_breakpoint_start=`GetSymbol _dl_start_user 1`   || return
+	echo "val_breakpoint_start='$val_breakpoint_start'" || return
+	return 0
+}
+
+function ForStarter
+{
 	local Value 
 	local Var
 	local val_dl_list
@@ -55,6 +65,16 @@ function Main
 	echo "val_dl_list='$val_dl_list'" || return
 	return 0
 }
+
+function Main
+{
+	set -e
+		source $COMMON_SRC || return
+	set +e
+	ForDump    || return
+	ForStarter || return
+	return 0
+}
 #################### Main Part ###################################
 
 # Where Look For Other Programs
@@ -69,5 +89,5 @@ source $D/statifier_lib.src || exit
 WORK_DIR=$1
 
 SetVariables $WORK_DIR || exit
-Main > $STARTER_SRC    || exit
+Main > $LOADER_SRC     || exit
 exit 0

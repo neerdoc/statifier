@@ -104,9 +104,8 @@ HELPER_SCRIPTS =      \
 # Scripts which are implement "main logic" of statifier
 STATIFIER_PARTS =              \
    statifier_common.sh         \
-   statifier_before_dump.sh    \
+   statifier_loader.sh         \
    statifier_dump.sh           \
-   statifier_before_starter.sh \
    statifier_create_starter.sh \
    statifier_create_exe.sh     \
  

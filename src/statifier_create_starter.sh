@@ -17,8 +17,8 @@ function CreateStarter
 	}
 
 	set -e
-		source $COMMON_SRC  || return
-		source $STARTER_SRC || return
+		source $COMMON_SRC || return
+		source $LOADER_SRC || return
 	set +e
 	local Starter="$1"
 
