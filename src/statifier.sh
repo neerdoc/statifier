@@ -32,8 +32,8 @@ function GetProgramInterpreter
 {
 	res="$(readelf --program-headers $OrigExe)" || return 
 	echo "$res" | awk '{
-		if ($3 == "interpreter:") {
-			print substr($4, 1, match($4, "]") - 1);
+		if ($0 ~ "[[].*]") {
+			print substr($NF, 1, match($NF, "]") - 1);
 			exit 0;
 		}
 	}' || return
