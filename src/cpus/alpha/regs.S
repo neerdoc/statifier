@@ -7,7 +7,7 @@
  * See LICENSE file in the doc directory.
  */
 
-/*  This code is processor depended !!! */
+/* This code is processor depended !!! */
 
 /* Restore registers */
 
