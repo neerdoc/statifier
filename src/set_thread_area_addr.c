@@ -71,6 +71,7 @@ unsigned long my_strtoul(const char *string)
 }
 void one_syscall(const char *name, pid_t child)
 {
+	int stat;
 	long int res;
 	res = ptrace(PTRACE_SYSCALL, child, 0, 0);
 	if (res == -1) {
@@ -79,13 +80,15 @@ void one_syscall(const char *name, pid_t child)
 			"%s: can't ptrace syscall: errno=%d (%s)\n",
 			name, errno, strerror(errno)
 		);
-		ptrace(PTRACE_KILL, child, 0, 0);
+		ptrace(PTRACE_CONT, child, 0, 0);
+		wait(&stat);
 		exit(1);
 	}
 }
 
 void one_getreg(const char *name, pid_t child, long reg, unsigned long *result)
 {
+	int stat;
 	*result = ptrace(PTRACE_PEEKUSER, child, REGISTER_SIZE * reg, 0);
 	if (errno != 0) {
 		fprintf(
@@ -93,7 +96,8 @@ void one_getreg(const char *name, pid_t child, long reg, unsigned long *result)
 			"%s: can't ptrace peekuser: errno=%d (%s)\n",
 			name, errno, strerror(errno)
 		);
-		ptrace(PTRACE_KILL, child, 0, 0);
+		ptrace(PTRACE_CONT, child, 0, 0);
+		wait(&stat);
 		exit(1);
 	}
 }
@@ -153,7 +157,25 @@ void do_work(
 				if (syscall_val == syscall_num) {
 					one_get_pc_reg(name, child, &pc_val);
 					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL - (loader_entry_point - loader_file_entry_point));
-					ptrace(PTRACE_KILL, child, 0, 0);
+					/*
+					 * I got a trouble with 
+					 * ptrace(PTRACE_KILL, child, 0, 0);
+					 * on the RHEL3.2: 
+					 *    kernel 2.4.21-15.ELsmp
+					 *    glibc 2.3.2-95.20
+					 * When this program was invoked as
+					 * 32/set_thread_area_addr 32/tls_test
+					 * it's work ok, but when invoked as
+					 * addr=`32/set_thread_area_addr ...`
+					 * it's hang on the exit_group(0) 
+					 * syscall.
+					 * So, now I allow to tls_test program
+					 * to finish natively
+					 * (anyway it do nothing but exit(0))
+					 *
+					 */
+					ptrace(PTRACE_CONT, child, 0, 0);
+					wait(&stat);
 					exit(0);
 				}
 			}
