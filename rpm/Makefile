@@ -1,22 +1,18 @@
-PACKAGE := statifier
+TOP_DIR = ..
 
-SOURCES :=            \
+SOURCES =             \
    Makefile           \
    $(PACKAGE).files   \
    $(PACKAGE).spec.in \
 
 EXTRA_DIST = $(PACKAGE).spec
 
-TOP_DIR = ..
-
 all: 
 
 define SpecFile
-   VERSION=`cat $(TOP_DIR)/VERSION`                       && \
-   RELEASE=`cat $(TOP_DIR)/RELEASE`                       && \
    {                                                         \
-      echo "%define my_version $$VERSION"                 && \
-      echo "%define my_release $$RELEASE"                 && \
+      echo "%define my_version $(VERSION)"                && \
+      echo "%define my_release $(RELEASE)"                && \
       echo                                                && \
       cat  $(PACKAGE).spec.in                             && \
       echo && echo %files     && cat $(PACKAGE).files     && \
@@ -32,4 +28,4 @@ $(PACKAGE).spec: $(PACKAGE).spec.in $(PACKAGE).files $(TOP_DIR)/VERSION $(TOP_DI
 clean-local:
 	$(RM) $(EXTRA_DIST)
 
-include ../Makefile.include
+include $(TOP_DIR)/Makefile.common
