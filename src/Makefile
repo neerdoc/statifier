@@ -34,13 +34,14 @@ CPU_DIR       := cpus/$(PROCESSOR_ELF)
 
 SOURCES =                                  \
    $(BUILD_FILES)                          \
-   $(addsuffix .c,$(UTILS))                \
+   $(UTILS_SOURCES)                        \
    $(ALL_PER_CPU_SOURCES)                  \
    $(INCLUDE_FILES)                        \
    $(SCRIPTS)                              \
    $(GDB_SCRIPTS)                          \
    $(INCLUDE_SCRIPTS)                      \
    $(RUNNERS)                              \
+   $(AWK_FILES)                            \
 
 # Service files used to build 
 BUILD_FILES =       \
@@ -62,6 +63,11 @@ UTILS =                 \
    set_thread_area_addr \
    strtoul              \
    tls_test             \
+
+UTILS_SOURCES = $(addsuffix .c,$(UTILS))
+
+AWK_FILES = \
+   regs.awk \
 
 # Files which are built block for starter
 FILES_TO_BE_EMBEDDED = \
@@ -152,18 +158,16 @@ $(ELF_CLASS)/set_thread_area_addr: processor.h
 
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
 
-$(ELF_CLASS)/AT.h: /usr/include/elf.h elf2at.make.sh
+# Dependencies should be in correct order
+$(ELF_CLASS)/AT.h:     elf2at.make.sh  /usr/include/elf.h
+$(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
+$(ELF_CLASS)/regs.awk: regs2awk.make.sh $(CPU_DIR)/regs.list regs.awk
+$(ELF_CLASS)/AT.h $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
 	$(RM) $@
-	/bin/sh elf2at.make.sh $< $@ || { $(RM) $@; exit 1; }
+	/bin/sh $^ $@ || { $(RM) $@; exit 1; }
+
 
 $(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
-$(ELF_CLASS)/regs.inc: $(CPU_DIR)/regs.list regs2asm.make.sh
-	$(RM) $@
-	/bin/sh regs2asm.make.sh $< $@ || { $(RM) $@; exit 1; }
-
-$(ELF_CLASS)/regs.awk: $(CPU_DIR)/regs.list regs2awk.make.sh
-	$(RM) $@
-	/bin/sh regs2awk.make.sh $< $@ || { $(RM) $@; exit 1; }
 
 # I need embedded files as raw binary - no elf header, no link with libc,
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
