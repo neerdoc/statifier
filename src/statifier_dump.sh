@@ -16,6 +16,7 @@ function DumpRegistersAndMemory
 		--batch                                                \
 		-n                                                     \
 		-x "$WORK_GDB_CMD_DIR/first.gdb"                       \
+		-x "$GDB_ENV"                                          \
 		${HAS_TLS:+-x "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
 		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
 		-x "$DUMPS_GDB"                                        \
@@ -25,8 +26,9 @@ function DumpRegistersAndMemory
 
 function GDB_Name
 {
+	local Func=GDB_Name
 	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-		echo "$0: Usage: GDB_Name <ElfClass> <UnameM>" 1>&2
+		Echo "$0: Usage: $Func <ElfClass> <UnameM>"
 		return 1
 	}
 	local ElfClass=$1
@@ -43,7 +45,8 @@ function GDB_Name
 			GDB="gdb"
 		;;
 		*)
-			echo "$0: GDB_Name: ElfClass '$ElfClass'. Should be '32' or '64'" 1>&2 || return
+			Echo "$0: $Func: ElfClass '$ElfClass'. Should be '32' or '64'"
+			return 1
 		;;
 	esac || return
 
@@ -58,6 +61,7 @@ function Main
 	local UnameM
 
 	set -e
+		source $OPTION_SRC || return
 		source $COMMON_SRC || return
 		source $DUMP_SRC   || return
 	set +e
@@ -66,12 +70,13 @@ function Main
 	ElfClass=`basename $D` || return
 
 	# Different variables
-	EXECUTABLE_FILE=$Executable
+	EXECUTABLE_FILE=$opt_orig_exe
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 	DUMPS_SH="$D/dumps.sh"
 	SPLIT_SH="$D/split.sh"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
+	GDB_ENV="$WORK_GDB_CMD_DIR/env.gdb"
 	# End of variables
 
 	# Determine debugger name
@@ -98,21 +103,31 @@ function Main
                    -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                  \
 		< $D/$File > $WORK_GDB_CMD_DIR/$File || return
 	done || return
+
+	# Create file with environment to be set by gdb (may be empty)
+	local current=0
+	while [ $current -lt $opt_loader_num_var ]; do
+		current=$[current + 1]
+		eval echo "\$loader_var_$current"
+	done > $GDB_ENV || return
+			
 	DumpRegistersAndMemory || return
 	return 0
 }
 
 #################### Main Part ###################################
-[ $# -ne 1 -o "x$1" = "x" ] && {
-	echo "Usage: $0 <work_dir>" 1>&2
-	exit 1
-}
-
-WORK_DIR=$1
 
 # Where Look For Other Programs
 D=`dirname $0`              || exit
 source $D/statifier_lib.src || exit
 
-Main                        || exit
+[ $# -ne 1 -o "x$1" = "x" ] && {
+	Echo "Usage: $0 <work_dir>"
+	exit 1
+}
+
+WORK_DIR=$1
+
+SetVariables $WORK_DIR || exit
+Main                   || exit
 exit 0
