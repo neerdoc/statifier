@@ -71,6 +71,21 @@ function DumpRegistersAndMemory
 	return 0
 }
 
+function CreateStarter
+{
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		echo "$0: Usage: CreateStarter <Starter>" 1>&2
+		return 1
+	}
+	local Starter="$1"
+	local STARTER=$STATIFIER_ROOT_DIR/starter
+	local REGISTERS_BIN=$WORK_OUT_DIR/reg
+
+	# Create binary file with registers' values
+	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
+	cat $STARTER $REGISTERS_BIN > $Starter || return
+	return 0 
+}
 function CreateNewExe
 {
 	[ $# -ne 1 -o "x$1" = "x" ] && {
@@ -79,14 +94,13 @@ function CreateNewExe
 	}
 	local NewExe="$1"
 
-	STARTER=$STATIFIER_ROOT_DIR/starter
+	STARTER=$WORK_OUT_DIR/starter
 	FIRST_SEGMENT=$WORK_OUT_DIR/first.seg
-	REGISTERS_BIN=$WORK_OUT_DIR/reg
 
-	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
+	CreateStarter $STARTER || return
 	# All but last - I don't need previous stack
 	DUMP_FILES="`echo $WORK_DUMPS_DIR/* | awk '{$NF = ""; print $0;}'`" || return
-	$STATIFIER_ROOT_DIR/phdrs $EXECUTABLE_FILE $CORE_FILE $STARTER $REGISTERS_BIN $DUMP_FILES > $FIRST_SEGMENT || return
+	$STATIFIER_ROOT_DIR/phdrs $EXECUTABLE_FILE $CORE_FILE $STARTER $DUMP_FILES > $FIRST_SEGMENT || return
 	rm -f $NewExe || return
 	cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
 	chmod 555 $NewExe || return
