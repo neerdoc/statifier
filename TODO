@@ -21,4 +21,11 @@
 - handle case when there is no native room for starter.
 - adjust AT_PHDR value
 - support -PIE executables
-- update documentation about memory layout.
+- update documentation about memory layout. - DONE
+
+- now statified executable got (if any)  PT_GNU_STACK segment from original one.  usually it's ok, but if original exe has PT_GNU_STACK segment with permission
+  rw AND (at least) one of the executables DLL or preloaded DLL have no 
+  this segment or it has rwx permisssion (and really need executable stack)
+  It'll be a trouble: stack will be set to rw (as required by executable's
+  PT_GNU_STACK) and during library initialization / functions execution
+  should occurer SEGFAULT. For now let's wait and see is it a real scenario.

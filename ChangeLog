@@ -1,3 +1,9 @@
+* Wed Nov 24 2004 <valery_reznic@users.sourceforge.net> 1.6.2-1
+- added support for loaders (ld-2.3.3) which split stack into two segments
+  (statifier.gdb and statifier_create_exe.sh)
+- added support for __libc_stack_end
+- solved  segfault due to GNU_RELRO segment in the loader
+
 * Mon Sep 13 2004 <valery_reznic@users.sourceforge.net> 1.6.1-1
 - Documentation updated to reflect changes in the 1.6.0 
 - Fixed problem with set_thread_area_addr which can't exit
