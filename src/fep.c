@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		unsigned long total_space;
 		unsigned long used_space;
 		unsigned long unused_space;
-		unsigned long file_start_addr;
+		unsigned long file_start_addr = 0;
 		unsigned long e_entry;
 		unsigned long align;
 
@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
 		 * Ok, really I use mimimum of both of them.
 		 * I can't see how p_align may be < then getpagesize(),
 		 * just in case...
+		 */
 		align = (phdrs[i].p_align < page_size) ? phdrs[i].p_align : page_size;
 
 		total_space = used_space;
