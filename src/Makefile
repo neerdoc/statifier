@@ -63,6 +63,7 @@ INCLUDE_FILES = \
 UTILS =                 \
    elfinfo              \
    elf_data             \
+   fep                  \
    inject_starter       \
    non_pt_load          \
    pt_load_1            \
@@ -98,6 +99,7 @@ SCRIPTS =             \
 
 HELPER_SCRIPTS =      \
    dumps.sh           \
+   fep.sh             \
    maps.sh            \
    pt_load.sh         \
    regs.sh            \
