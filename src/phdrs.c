@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
 	if ((num_load_segment_in_core - ignored_segments) != (argc - arg_ind)) {
 		fprintf(
 			stderr,
-			"%s: mismatch: core file '%s' has %d LOAD segments but command line supply ignored_segments='%d' and %d files\n",
+			"%s: mismatch: core file '%s' has %lu LOAD segments but command line supply ignored_segments='%d' and %d files\n",
 			pgm_name,
 			core,
-			num_load_segment_in_core,
+			(unsigned long)num_load_segment_in_core,
 			ignored_segments,
 			argc - arg_ind
 		);
