@@ -9,6 +9,6 @@ PACKAGE := statifier
 VERSION := $(shell cat $(TOP_DIR)/VERSION)
 RELEASE := $(shell cat $(TOP_DIR)/RELEASE)
 
-SUPPORTED_CPU_LIST := i386 x86_64
+SUPPORTED_CPU_LIST := alpha i386 x86_64
 
 include $(TOP_DIR)/Makefile.include
