@@ -1,3 +1,6 @@
+* Mon Apr 19 2004 <valery_reznic@users.sourceforge.net> 1.2.0-1
+- examples added to the man
+
 * Sun Apr 18 2004 <valery_reznic@users.sourceforge.net> 1.2.0-1
 - now both elf32 and elf64 executables are supported.
 - added support for amd64 (x86_64) processor
