@@ -17,24 +17,45 @@ function GetIgnoredSegments
 		return 1
 	}
 
-	# For Linux before 2.5 I only need to ignore stack segment last
-	# In the 2.5-2.6 kernel ? create one more segment, which contains
-	# ELF heasder of something (what is it ?)
-	# So, if last dump file has elf-header, i need to ignore it and
-	# stack segment, i.e IgnoredSegments=2.
-	# Otherwis I need to ignore onle stack segment, i.e IgnoreSegment=1
-	# Let's implement it.
 	local IgnoredSegments
-	local LastFileName
-	local Output
-	while [ $# -ne 1 ]; do
-		shift || return
-	done
-	LastFileName=$1
-	Output=`$D/elfinfo $LastFileName` || return
-	case "x$Output" in
-		x[Ee][Ll][Ff]) IgnoredSegments=2;; # Kernel 2.5+
-		*)             IgnoredSegments=1;; # Kernel < 2.5
+	case "$prop_stack_under_executable" in
+		0) # platform like x86, x86_64
+			# For Linux before 2.5 I only need to ignore stack
+			# segment (last)
+			# In the 2.5-2.6 kernel create one more segment, 
+			# which contains
+			# ELF heasder of something (what is it ?)
+			# But gdb 6.1 (opposite to gdb 6.0) does not save
+			# this last elf-segment.
+			# For this reason I can't relay on the kernel version
+			# So, if last dump file has elf-header,
+			# i need to ignore both it and stack segment,
+			# i.e IgnoredSegments=2.
+	
+			# Otherwise I need to ignore only stack segment, 
+			# i.e IgnoredSegment=1
+
+			# Let's implement it.
+			local LastFileName
+			local Output
+			while [ $# -ne 1 ]; do
+				shift || return
+			done
+			LastFileName=$1
+			Output=`$D/elfinfo $LastFileName` || return
+			case "x$Output" in
+				x[Ee][Ll][Ff]) IgnoredSegments=2;; # Kernel 2.5+
+				*)             IgnoredSegments=1;; # Kernel <2.5
+			esac
+		;;
+
+		1) # platforms like alpha
+			# I have no alpha with 2.6 kernel
+			# and I have no idea were I should look 
+			# for additional segment (if any)
+			# So, for now IgnoredSegments is just 1
+			IgnoredSegments=1
+		;;
 	esac
 	echo "$IgnoredSegments" || return
 	return 0
@@ -63,11 +84,20 @@ function GetDumpFiles
 		Echo "$0: $Func: try to ignore more files ($IgnoredSegments) than supplied ($#)."
 		return 1
 	}
-	local DumpFiles=""
-	while [ $# -gt $IgnoredSegments ]; do
-		echo $1 || return
-		shift   || return
-	done || return
+	case "$prop_stack_under_executable" in
+		0)
+			local DumpFiles=""
+			while [ $# -gt $IgnoredSegments ]; do
+				echo $1 || return
+				shift   || return
+			done || return
+		;;
+
+		1)
+			shift # remove first(stack segment)
+			echo $@ || return
+		;;
+	esac
 	return 0
 }
 
@@ -89,9 +119,26 @@ function CreateNewExe
 
 	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
-	$D/phdrs $OrigExe $CORE_FILE $STARTER $IGNORED_SEGMENTS $DUMP_FILES > $FIRST_SEGMENT || return
+	$D/phdrs                               \
+		$OrigExe                       \
+		$CORE_FILE                     \
+		$STARTER                       \
+		$prop_stack_under_executable   \
+		$prop_starter_under_executable \
+		$IGNORED_SEGMENTS              \
+		$DUMP_FILES                    \
+	> $FIRST_SEGMENT || return
 	rm -f $NewExe || return
-	cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
+	case "$prop_starter_under_executable" in
+		0)
+			cat $DUMP_FILES $FIRST_SEGMENT > $NewExe || return
+			$D/update_ehdr $NewExe $FIRST_SEGMENT || return
+		;;
+
+		1)
+			cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
+		;;
+	esac
 	chmod +x $NewExe || return
 	return 0
 }
@@ -112,6 +159,7 @@ function Main
 # Where Look For Other Programs
 D=`dirname $0`              || exit
 source $D/statifier_lib.src || exit
+source $D/properties.src    || exit
 
 [ $# -ne 1 -o "x$1" = "x" ] && {
 	Echo "Usage: $0 <work_dir>"
@@ -119,6 +167,22 @@ source $D/statifier_lib.src || exit
 }
 
 WORK_DIR=$1
+
+case "x$prop_stack_under_executable" in
+	x0 | x1) ;; # ok, do nothing
+	*)
+		Echo "$0: 'prop_stack_under_executable' has illegal value '$prop_stack_under_executable'
+		exit 1
+	;;
+esac
+
+case "x$prop_starter_under_executable" in
+	x0 | x1) ;; # ok, do nothing
+	*)
+		Echo "$0: 'prop_starter_under_executable' has illegal value '$prop_starter_under_executable'
+		exit 1
+	;;
+esac
 
 SetVariables $WORK_DIR || exit
 Main                   || exit
