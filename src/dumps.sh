@@ -16,20 +16,13 @@ Maps=$1
 DumpsDir=$2
 Output=$3
 
-awk -vDumpsDir="$DumpsDir" '
-	BEGIN {
-		FileNumber = 1;
-	}
-	{
-		StartAddr = $1
-		EndAddr   = $2
-		ObjFile   = $5
-                FileName  = sprintf("%s/%.6d.dmp", DumpsDir, FileNumber);
-		FileNumber++
-   		printf "my_dump %s %s %s %s\n", FileName, StartAddr, EndAddr, ObjFile;
-	}
-' < $Maps > $Output || exit
+FileNumber=1 
+while :; do
+	read StartAddr EndAddr Permission Offset FileName || break
+	printf                                                      \
+		"my_dump %s/%.6d.dmp %s %s %s\n"                    \
+		$DumpsDir $FileNumber $StartAddr $EndAddr $FileName \
+	|| exit
+	FileNumber=$[FileNumber + 1]
+done < $Maps > $Output || exit
 exit 0 
-
-# This awk get input looks like following:
-# Start Stop Permission Offset FileName
