@@ -67,7 +67,12 @@ function GetSymbol
 			;;
 
 			_dl_start_user)
-				Value=`$D/elf_find_pattern $val_interpreter 0x89 0xc7` || return
+				PgmName="$D/elf_find_pattern"
+				Value=`                             \
+					$PgmName                    \
+					$val_interpreter            \
+					$prop_pattern_dl_start_user \
+				` || return
 			;;
 
 
@@ -184,6 +189,7 @@ function Main
 # Where Look For Other Programs
 D=`dirname $0`              || exit
 source $D/statifier_lib.src || exit
+source $D/properties.src    || exit
 
 [ $# -ne 1 -o "x$1" = "x" ] && {
 	Echo "Usage: $0 <work_dir>"
