@@ -9,14 +9,99 @@
 
 # This script finally create statified exe
 
+function IsInside
+{
+	[ $# -ne 3 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" ] && {
+		Echo "Usage: $0 IsInside <value> <low> <high>"
+		return 1
+	}
+	is_inside="no"
+	local Value=$1
+	local Low=$2
+	local High=$3
+	[[ $Value -lt $Low  ]] && return
+	[[ $Value -ge $High ]] && return
+	is_inside="yes"
+	return 0
+}
+
+function GetKernelStackStartStop
+{
+	local File=$WORK_GDB_OUT_DIR/init_maps
+	local Start Stop Dummy
+	local is_inside
+	while read Start Stop Dummy; do
+		case "Z$Start" in
+			Z0x*) # Look's like number
+				IsInside $val_stack_pointer $Start $Stop || return
+				[ "$is_inside" = "yes" ] && {
+					echo "$Start $Stop" 
+					return
+				}
+			;;
+
+			*)
+				: # do nothing
+			;;
+		esac
+	done < $File || return
+	Echo "$0: can't find kernel stack"
+	retrun 1
+}
+
+# Once function IsStack was very simple:
+# start <= $val_stack_pointer < stop
+# That's it.
+# But ld-2.3.3 is too wise:
+# if executable (or one of it's dynamic libraries) need executable stack
+# loader split stack segment, provided by the kernel to two ones:
+# with permissions 'rwx' and with 'rw-'.
+# But it's not all story ! loader also resize stack segment.
+# Add to it systems with stack growing down and stack growing up and you
+# get a full picture of the sad reality.
+# So, how I am going to find all stack segments ?
+# I use "original" stack segment which kernel provide to the process.
+#
+#       Stack Growing Up
+#       ------------------
+#       | original stack |
+#       ---------------------
+#       | stack 1 | stack 2 |
+#       ---------------------
+#
+#       Stack Growing Up
+#          ------------------
+#          | original stack |
+#       ---------------------
+#       | stack 1 | stack 2 |
+#       ---------------------
+# 
+# So in any case both of the stack segments can be detected as following:
+# if (SegmentStart inside original stack segment) 
+# OR (SegmentStop  inside original stack segment)
+# it's stack segment.
+# otherwise - not.
+#
+# As extra safetly i check also if a stack pointer inside segment
+# but i think it's redundant now.
 function IsStack
 {
-	if [[ $val_stack_pointer -ge $Start && $val_stack_pointer -lt $Stop ]]; then 
-		# It's stack seg
-		is_stack=1
-	else
-		is_stack=0
-	fi
+	# It's stack seg
+	is_stack=1
+
+	local is_inside
+
+	IsInside $val_stack_pointer $Start $Stop || return
+	[ "$is_inside" = "yes" ] && return
+
+	IsInside $Start $kernel_stack_start $kernel_stack_stop || return
+	[ "$is_inside" = "yes" ] && return
+
+	IsInside $Stop  $kernel_stack_start $kernel_stack_stop || return
+	[ "$is_inside" = "yes" ] && return
+
+	# No, it's not a stack segment
+	is_stack=0
 	return 0
 }
 
@@ -40,6 +125,7 @@ function IsIgnoredSegment
 {
 	# This function set is_ignored to 1 if segment should be
 	# ignored, otherwise - to 0
+	#	[ "$is_ignored" = "1" ] && return 0
 	is_ignored=1
 
 	local is_stack is_linux_gate
@@ -57,9 +143,16 @@ function pt_load
 	# This function create two outputs:
 	#  1) stdout
 	#  2) set PT_LOAD_FILES variable
+	local result kernel_stack_start kernel_stack_stop
+	result=`GetKernelStackStartStop` || return
+	set -- $result || return
+	kernel_stack_start=$1
+	kernel_stack_stop=$2
+
 	set -- Dummy $WORK_DUMPS_DIR/* || return
 	local Start Stop Perm Offset Name Dummy
 	local is_ignored
+	#	is_ignored=0
 	PT_LOAD_FILES=""
 	while :; do
 		shift || return
@@ -70,7 +163,7 @@ function pt_load
 		PT_LOAD_FILES="$PT_LOAD_FILES $1"
 	done || return
 
-	# number of lines in the stdif and $# (number of dump files)
+	# number of lines in the stdin and $# (number of dump files)
 	# should be same.
 	[ $# -ne 0 ] && {
 		echo "$0: internal problem: \$#=$#. should be 0" 1>&2
