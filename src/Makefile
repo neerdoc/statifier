@@ -53,7 +53,6 @@ BUILD_FILES =       \
    regs2awk.make.sh \
 
 INCLUDE_FILES = \
-   processor.h  \
    start.S      \
    end.S        \
 
@@ -121,6 +120,7 @@ PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 PER_CPU_SOURCES =         \
    $(PER_CPU_ASM_SOURCES) \
    $(PER_CPU_GDB_SCRIPTS) \
+   processor.h            \
    regs.list              \
 
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
@@ -154,9 +154,9 @@ VERSION: $(TOP_DIR)/VERSION
 	echo "VERSION='$(VERSION)'" > $@ || { $(RM) $@; exit 1; }
  
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
-	gcc $(FLAGS_ELF) -Wall -O2 -g $< -o $@
+	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
-$(ELF_CLASS)/set_thread_area_addr: processor.h
+$(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h
 
 #$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
 
@@ -188,11 +188,11 @@ OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WI
 # I need include start.S before and end.S after each .S file
 # Sure, I don't want write this includes into each source, so i use gcc flags
 # But, gcc have only -include flag, with means - "include before".
-# My workaround - pretend I am build end.S with -include start.S and
-# -include $<
+# My workaround - pretend I am build end.S 
+# with -include processor.h, start.S and $<
 # 
-$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S processor.h start.S end.S
-	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
+$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU_DIR)/processor.h start.S end.S
+	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include $(CPU_DIR)/processor.h -include ./start.S -include $< ./end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
 LIB_DIR_ELF = $(LIB_DIR)/$(ELF_CLASS)
