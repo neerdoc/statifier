@@ -59,8 +59,8 @@ function GetDataFromInterp
 	local Interp="$1"
 	local Dump
 	local Symbol
-	local SymList="_dl_start_user _dl_argc _dl_argv _environ"
-        local NameList="DL_START_USER DL_ARGC DL_ARGV DL_ENVIRON"
+	local SymList="_dl_start_user _dl_argc _dl_argv _environ _dl_auxv _dl_platform _dl_platformlen"
+        local NameList="DL_START_USER DL_ARGC DL_ARGV DL_ENVIRON DL_AUXV DL_PLATFORM DL_PLATFORMLEN"
 
 	Dump=`objdump --syms $Interp` || return
 	echo "$Dump" | 
@@ -168,7 +168,7 @@ function CreateStarter
 
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
-	local dl_var_list="$DL_BASE $DL_ARGC $DL_ARGV $DL_ENVIRON"
+	local dl_var_list="$DL_BASE $DL_ARGC $DL_ARGV $DL_ENVIRON $DL_AUXV $DL_PLATFORM $DL_PLATFORMLEN"
 	$STATIFIER_ROOT_DIR/strtoul $dl_var_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
