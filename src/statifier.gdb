@@ -103,12 +103,32 @@ commands
 	# This breakpoint should be last (in order of execution)
 	# so there is NO continue command here
 end
+# We got here when the program is stopped on it's very first instruction
 
 # Print stack pointer and loader's offset
 my_separator misc.src
 	printf "val_stack_pointer=0x%lx\n", $sp
 	printf "val_offset=0x%lx\n", $val_offset
 my_separator_end
+
+# The ld-linix (2.3.3) got a bad inhabit to split stack into to segments:
+# one with 'rwx' permissions and another one with  'rw-'.
+# Later I'll use $sp to find out stack segment, but it doesn't help
+# much if stack is splitted to two segments.
+# So, here I safe initial mappings, with stack segment created by kernel
+# and yet not modified by loader.
+# It'll help me later to find both of the stack segments.
+
+# Save initial mappings
+# I use 'info proc mappings' instaed of MAPS_SH, because at this point
+# I haven't got PROCESS_FILE.'
+# Anyway, from this mapping i need only addresses, not permissions,
+# so it's ok
+my_separator init_maps
+	info proc mappings
+my_separator_end
+
+
 # Do everything.
 # When program will be run, it will hit a first breakpoint, stopped
 # and gdb will execute all commands assotiaited with this breakpoint.
