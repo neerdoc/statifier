@@ -171,6 +171,7 @@ function Main
         	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"           \
         	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g" \
         	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                       \
+        	-e "s#@val_uname_m@#$val_uname_m#g"                 \
         	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"           \
 	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
 
