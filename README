@@ -12,6 +12,7 @@ Statifier use following software:
 | cat      |  textutils            | coreutils           |
 | chmod    |  fileutils            | coreutils           |
 | dirname  |  sh-utils             | coreutils           |
+| mkdir    |  fileutils            | coreutils           |
 | rm       |  fileutils            | coreutils           |
 | readelf  |  binutils             | binutils            |
 | sed      |  sed                  | sed                 |
