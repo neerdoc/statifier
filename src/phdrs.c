@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 		starter_pgm_size
 	;
 
-	/* Now round it up to the align boubary if needed*/
+	/* Now round it up to the align boundary if needed*/
 	rest = starter_seg_size % align;
 	if (rest) starter_seg_size += (align - rest);
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 	phdrs_out[0].p_offset = 0;
 	phdrs_out[0].p_vaddr  = phdrs_out[1].p_vaddr - starter_seg_size;
 	phdrs_out[0].p_paddr  = phdrs_out[1].p_vaddr - starter_seg_size;
-	phdrs_out[0].p_filesz = phdrs_out[0].p_memsz = starter_seg_size;
+	phdrs_out[0].p_filesz = starter_seg_size;
 	phdrs_out[0].p_memsz  = starter_seg_size;
 	phdrs_out[0].p_flags  = PF_X | PF_R; 
 	phdrs_out[0].p_align  = 1;
