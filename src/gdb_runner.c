@@ -27,15 +27,10 @@
  * Implementation notes.
  * 1) This program should be linked static for the following reason:
  *    LD_PRELOAD libraries may interfere It's not desirable.
- *    But if i link progam static, gdb will give warning to stderr:
- *    warning: shared library handle failed to enable breakpoint
- *    I want avoid it, so i play with partial link
+ *    I know, I got a huge executable for nothing. If one want one may
+ *    rewrite it in assembler (for each platform)
  *
- * 2) This program should be compiled with -g and should not be stripped
- *    Strictly speak it's needed only for alpha/mips, because otherwise
- *    gdb on this arch will give annoying warnings.
- *
- * 3) This program can't be run "standalone" - on the very begin it'll kill
+ * 2) This program can't be run "standalone" - on the very begin it'll kill
  *    itself with "QUIT" signal.
  *    I do it in order to help gdb get control without messing with 
  *    looking for address for set breakpoint on.
@@ -47,7 +42,7 @@
  *    "nopass" disable delivering signal to the program,
  *    so it will not be killed but coninue executing.
  *
- * 4) Syscall instructions mnemonic (and binary representation)
+ * 3) Syscall instructions mnemonic (and binary representation)
  *    are changed from one processor to another.
  *    So when gdb looking for this instruction, gdb should take it into account
  */
@@ -58,18 +53,19 @@
 #include <errno.h>
 #include <string.h>
 
-#define MY_WRITE(arg) write(STDERR_FILENO, arg, strlen(arg))
 int main(int argc, char *argv[], char *envp[])
 {
 	/* argv[1] - program to be execed. it can has an argument */
 
-	const char *msg1 = ": can't execve '";
-	const char *msg2 = "'\n";
 	raise(SIGQUIT);
 	execve(argv[1], &argv[1], envp);
-	MY_WRITE(argv[0]);
-	MY_WRITE(msg1);
-	MY_WRITE(argv[1]);
-	MY_WRITE(msg2);
+	fprintf(
+		stderr, 
+		"%s: can't execve '%s'. Errno=%d (%s).\n", 
+		argv[0],
+		argv[1],
+		errno,
+		strerror(errno)
+	);
 	_exit(1);
 }
