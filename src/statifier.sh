@@ -152,7 +152,7 @@ function Main
 
 	# Test if interpreter use TLS (thread local storage)
 	HAS_TLS=""
-	objdump --syms $Interp | grep -v "tls" >/dev/null && {
+	objdump --syms $Interp | grep "tls" >/dev/null && {
 		HAS_TLS="yes"
 		BREAKPOINT_THREAD="*`set_thread_area_addr $EXECUTABLE_FILE`" || return
 	}
