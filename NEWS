@@ -1,7 +1,10 @@
+1.6.3
+   support for kernel 2.6 (with thread local storage) on x86_64
+
 1.6.2
    statifier now work with loader ld-2.3.3
    Innovation in this loader, which affect statifier are:
-      (possible) spliiting stack to two segments (rw and rwx)
+      (possible) spliting stack to two segments (rw and rwx)
       GNU_RELRO segment - after data written to segment it's 
       permission changed to read-only
 
