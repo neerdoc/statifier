@@ -32,3 +32,8 @@ Porting ELF statifier to new cpu
                          and jump to _dl_start_user 
 
    properties.src      - define different system properties.
+
+6. In the rpm's specfile statifier.spec.in
+   - add ExlusiveArch for new arch
+   - add has_elf_32 and has_elf_64 defines for new arch.
+      
