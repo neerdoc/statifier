@@ -13,7 +13,7 @@
  * Pay attention: i hope this program use SAME interpreter as statified
  * executable.
  */
-#include <unistd.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
