@@ -3,6 +3,12 @@
      /usr/lib/statifier/@ELF_CLASS@/copy_ehdr
      /usr/lib/statifier/@ELF_CLASS@/dl-var
      /usr/lib/statifier/@ELF_CLASS@/elfinfo
+     /usr/lib/statifier/@ELF_CLASS@/elf_find_pattern
+     /usr/lib/statifier/@ELF_CLASS@/find_dl_argc
+     /usr/lib/statifier/@ELF_CLASS@/find_dl_argv
+     /usr/lib/statifier/@ELF_CLASS@/find_dl_auxv
+     /usr/lib/statifier/@ELF_CLASS@/find_dl_platform
+     /usr/lib/statifier/@ELF_CLASS@/find_environ
      /usr/lib/statifier/@ELF_CLASS@/loader_base_test
      /usr/lib/statifier/@ELF_CLASS@/phdrs
      /usr/lib/statifier/@ELF_CLASS@/regs
@@ -13,9 +19,8 @@
      /usr/lib/statifier/@ELF_CLASS@/properties.src
      /usr/lib/statifier/@ELF_CLASS@/statifier_lib.src
      /usr/lib/statifier/@ELF_CLASS@/statifier_common.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_before_dump.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_loader.sh
      /usr/lib/statifier/@ELF_CLASS@/statifier_dump.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_before_starter.sh
      /usr/lib/statifier/@ELF_CLASS@/statifier_create_starter.sh
      /usr/lib/statifier/@ELF_CLASS@/statifier_create_exe.sh
      /usr/lib/statifier/@ELF_CLASS@/dumps.sh

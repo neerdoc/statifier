@@ -6,9 +6,8 @@
      /usr/lib/statifier/statifier_lib.src
      /usr/lib/statifier/statifier_parser.src
      /usr/lib/statifier/statifier_common.sh
-     /usr/lib/statifier/statifier_before_dump.sh
+     /usr/lib/statifier/statifier_loader.sh
      /usr/lib/statifier/statifier_dump.sh
-     /usr/lib/statifier/statifier_before_starter.sh
      /usr/lib/statifier/statifier_create_starter.sh
      /usr/lib/statifier/statifier_create_exe.sh
      /usr/lib/statifier/dumps.sh
