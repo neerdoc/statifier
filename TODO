@@ -1,5 +1,10 @@
 - add TLS (thread local storage) support - DONE. 
 - fix section headers - DONE. RH9 very sensitive to correct section headers.
+  add section with strings to the statified exe ?
+- rework tls_test - I'll need to specify interpreter from real exe,
+  instead of hardcoded one.
+- do not use objdump for finding _dl variables - it's not work
+  for stripted /lib/ld-linux (for example some SuSE versions)
 - add support for RTLD environment variables.
 - support linux on the platforms other than x86
 - support other unixes.
