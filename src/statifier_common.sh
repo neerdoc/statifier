@@ -10,95 +10,9 @@
 # This script have to detect kernel/loader properties
 # 
 
-function GetProgramInterpreter
-{
-	[ $# -ne 1 -o "x$1" = "x" ] && {
-		Echo "$0: Usage: GetProgramInterpreter <executable>"
-		return 1
-	}
-	$D/$elf_class/elf_data -i $1 || return
-	return 0
-}
-
 function GetInterpreterBaseAddr
 {
 	$D/loader_base_test || return
-	return 0
-}
-
-function GetInterpreterVirtAddr
-{
-	local Func=GetInterpreterVirtAddr
-	[ $# -ne 1 -o "x$1" = "x" ] && {
-		Echo "$0: Usage: $Func <Interpreter>"
-		return 1
-	}
-	local Interpreter="$1"
-	awk -vInterpreter=$Interpreter -vName="$0 $Func: " -vAP="'" '
-		BEGIN {
-			err = 1;
-		}
-		{
-			if ($1 == "LOAD") {
-				err = 0;
-				if ($3 ~ ".*[1-9a-fA-F].*") {
-					print $3;
-				} else {
-					print "0x0";
-				}
-				exit(0);
-			}
-		}
-		END {
-			if (err == 1) {
-				Text=Name "no LOAD segment found in " AP Interpreter AP
-				system("echo " Text " 1>&2")
-				exit(1);
-			}
-		}
-	' < $LOADER_PHDRS || return
-	return 0
-}
-
-function GetInterpreterVirtAddr2
-{
-	local Func=GetInterpreterVirtAddr2
-	[ $# -ne 1 -o "x$1" = "x" ] && {
-		Echo "$0: Usage: $Func <Interpreter>"
-		return 1
-	}
-	local Interpreter="$1"
-	awk -vInterpreter=$Interpreter -vName="$0 $Func: " -vAP="'" '
-		BEGIN {
-			err = 2;
-		}
-		{
-			if ($1 == "LOAD") {
-				err--;
-				if (err > 0) next;
-
-				if ($3 ~ ".*[1-9a-fA-F].*") {
-					print $3;
-				} else {
-					print "0x0";
-				}
-				if (NF >= 6) {
-					print $6;
-				} else {
-					getline; 
-					print $2;
-				}
-				exit(0);
-			}
-		}
-		END {
-			if (err > 0) {
-				Text=Name "less then two LOAD segment found in " AP Interpreter AP
-				system("echo " Text " 1>&2")
-				exit(1);
-			}
-		}
-	' < $LOADER_PHDRS || return
 	return 0
 }
 
@@ -137,7 +51,7 @@ function Main
 	val_uname_m=`uname -m` || return
 
 	local val_interpreter
-	val_interpreter=`GetProgramInterpreter $opt_orig_exe`
+	val_interpreter=`$D/$elf_class/elf_data -i $opt_orig_exe` || return
 
 	readelf --syms            $val_interpreter > $LOADER_SYMBOLS || return
 
