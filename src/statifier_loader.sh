@@ -38,7 +38,6 @@ function GetSymbol
 	}
 	local Symbol=$1
 	local IsMandatory=$2
-	local IsValueAbsolute=""
 
 	local MsgNotFound="$0: Symbol '$Symbol' not found in the interpreter '$val_interpreter'"
 	local MsgNoIdea="$0: internal error: no idea how to find '$Symbol' in the interpreter '$val_interpreter' without symtab."
@@ -55,10 +54,6 @@ function GetSymbol
 	else
 		# No symtab in the interpreter. Not so good.
 		# I'll need for each symbol run it's autodetect test.
-		# One more thing:
-		# some tests  return offset from the interpreter's load address,
-		# and other - absolute address. 
-		# In the later case I need set variable IsValueAbsolute
 		local PgmName
 		case "$Symbol" in
 			
@@ -81,7 +76,6 @@ function GetSymbol
 			_dl_auxv     | \
 			_dl_platform | \
 			_environ) 
-				IsValueAbsolute="yes"
 				PgmName="$D/find$Symbol"
 				local Found=-1
 				Value=`                                   \
@@ -111,10 +105,8 @@ function GetSymbol
 		fi
 	else
 		# Symbol found
-		[ "x$IsValueAbsolute" = "x" ] && {
-			[ "x$val_interpreter_file_base_addr" = "x0x0" ] && {
-				Value=$[Value + $val_base_addr] || return
-			}
+		[ "x$val_interpreter_file_base_addr" = "x0x0" ] && {
+			Value=$[Value + $val_base_addr] || return
 		}
 	fi
 
