@@ -12,14 +12,14 @@
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	$GDB                                                           \
-		--batch                                                \
-		-n                                                     \
-		-x "$WORK_GDB_CMD_DIR/first.gdb"                       \
-		-x "$GDB_ENV"                                          \
-		${HAS_TLS:+-x "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
-		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
-		-x "$DUMPS_GDB"                                        \
+	$GDB                                                                  \
+		--batch                                                       \
+		-nx                                                           \
+		--command "$WORK_GDB_CMD_DIR/first.gdb"                       \
+		--command "$GDB_ENV"                                          \
+		${HAS_TLS:+--command "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
+		--command "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
+		--command "$DUMPS_GDB"                                        \
 	> $LOG_FILE || return
 	return 0
 }
@@ -106,9 +106,11 @@ function Main
 
 	# Create file with environment to be set by gdb (may be empty)
 	local current=0
+        local var
 	while [ $current -lt $opt_loader_num_var ]; do
-		current=$[current + 1]
-		eval echo "\$loader_var_$current"
+		current=$[current + 1]               || return
+		eval var="\$opt_loader_var_$current" || return
+		echo "$var"                          || return 
 	done > $GDB_ENV || return
 			
 	DumpRegistersAndMemory || return
