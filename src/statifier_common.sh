@@ -42,7 +42,6 @@ function GetInterpreterVirtAddr
 		return 1
 	}
 	local Interpreter="$1"
-	readelf --program-headers $Interpreter > $LOADER_PHDRS || return
 	awk -vInterpreter=$Interpreter -vName="$0 $Func: " -vAP="'" '
 		BEGIN {
 			err = 1;
@@ -61,6 +60,48 @@ function GetInterpreterVirtAddr
 		END {
 			if (err == 1) {
 				Text=Name "no LOAD segment found in " AP Interpreter AP
+				system("echo " Text " 1>&2")
+				exit(1);
+			}
+		}
+	' < $LOADER_PHDRS || return
+	return 0
+}
+
+function GetInterpreterVirtAddr2
+{
+	local Func=GetInterpreterVirtAddr2
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		Echo "$0: Usage: $Func <Interpreter>"
+		return 1
+	}
+	local Interpreter="$1"
+	awk -vInterpreter=$Interpreter -vName="$0 $Func: " -vAP="'" '
+		BEGIN {
+			err = 2;
+		}
+		{
+			if ($1 == "LOAD") {
+				err--;
+				if (err > 0) next;
+
+				if ($3 ~ ".*[1-9a-fA-F].*") {
+					print $3;
+				} else {
+					print "0x0";
+				}
+				if (NF >= 6) {
+					print $6;
+				} else {
+					getline; 
+					print $2;
+				}
+				exit(0);
+			}
+		}
+		END {
+			if (err > 0) {
+				Text=Name "less then two LOAD segment found in " AP Interpreter AP
 				system("echo " Text " 1>&2")
 				exit(1);
 			}
@@ -110,7 +151,8 @@ function Main
 		return 1
 	}
 
-	readelf --syms $val_interpreter > $LOADER_SYMBOLS || return
+	readelf --syms            $val_interpreter > $LOADER_SYMBOLS || return
+	readelf --program-headers $val_interpreter > $LOADER_PHDRS   || return
 
 	local val_virt_addr val_base_addr
 	val_virt_addr=`GetInterpreterVirtAddr $val_interpreter` || return
@@ -128,12 +170,23 @@ function Main
 		return 1
 	}
 
+	# These variables I need only in case when 
+	# autodetection used for dl variables
+	local val
+	val=`GetInterpreterVirtAddr2 $val_interpreter` || return
+	set -- $val
+	local val_virt_addr2=$1
+	local val_size2=$2
+	
+
 	{
 		echo "val_uname_m=$val_uname_m"           && \
 		echo "val_elf_class=$val_elf_class"       && \
 		echo "val_interpreter='$val_interpreter'" && \
 		echo "val_virt_addr='$val_virt_addr'"     && \
 		echo "val_base_addr='$val_base_addr'"     && \
+		echo "val_virt_addr2='$val_virt_addr2'"   && \
+		echo "val_size2='$val_size2'"             && \
 		CheckTls                                  && \
 		:
 	} || return 
