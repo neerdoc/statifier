@@ -26,6 +26,8 @@ Porting ELF statifier to new cpu
    regs.list           - list of processor's integer registers
    set_thread_area.gdb - command file for gdb to dump set_thread_area
                          parameters.
+   syscall.gdb         - syscall instruction number of bytes and bytes
+			 themselv
    dl-var.S            - module for set _dl variables
    set_thread_area.S   - module for invoke set_thread_area syscall
    regs.S              - module to restore registers 
