@@ -94,7 +94,7 @@ commands
 	# and create as output file with dump command for gdb.
 	# this dumps command should save all program's memory mappings.
 	shell @SPLIT_SH@ @LOG_FILE@                               || kill $PPID
-	shell @MAPS_SH@  @PROCESS_FILE@ @MAPS_FILE@               || kill $PPID
+	shell @MAPS_SH@  @PROCESS_FILE@ @MAPS_FILE@ @val_uname_m@ || kill $PPID
 	shell @DUMPS_SH@ @MAPS_FILE@ @WORK_DUMPS_DIR@ @DUMPS_GDB@ || kill $PPID
 
 	# "Run" command for save memory's mappings
