@@ -17,3 +17,8 @@
 - write de-statifier, which will re-create original exe file
 - write more tech documentation. - DONE
 - what about output file license
+
+- handle case when there is no native room for starter.
+- adjust AT_PHDR value
+- support -PIE executables
+- update documentation about memory layout.

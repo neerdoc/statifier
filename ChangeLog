@@ -1,3 +1,83 @@
+* Tue Aug 31 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- In the RHEL 3.1 gdb does not stop on the first loader's
+  instruction, instead of it stop on next one.
+  Now val_offset calculation take it in account. 
+
+* Mon Aug 30 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- elfinfo.c removed. elf_soname.c added instead of.
+- fixed compilation problem with dl-var.c for gcc-3.2.3. (RHEL 3)
+  (before it generated code was incorrect and statified exe got segfault)
+
+* Thu Aug 12 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- non_pt_load.c provide support for non-allocatable sections
+  and non PT_LOAD segments
+- pt_load.sh integrated into statifier_create_exe.sh
+  statifier_create_exe.sh simplified (it's not use
+  prop_stack_under_executable and prop_starter_under executable
+  anymore)
+- non_pt_load.c fixed for the case when page size != p_align
+- from the cpus/*/properties.src removed 
+   'prop_stack_under_executable' and
+   'prop_starter_under_executable'
+
+* Wed Aug 11 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- dumps.sh changed from using awk to plain sh
+
+* Thu Aug  5 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- fep.sh now find first "good" place instead of last
+- fep.c - fixed to work with p_align > getpagesize()
+
+* Wed Aug  4 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- statified file layout was changed, so instead of phdrs.c i use
+  non_pt_load.c, pt_load_1.c, pt_load.sh inject_starter.c
+  for executable's creation.
+- my_lib.inc.c - added new function my_fread_whole_file
+- src/Makefile was changed in order to decrease dl-var size on amd64
+- statifier.gdb statifier_dump.sh statifier_lib.src - CORE_FILE not used
+- added files fep.sh and fep.c - to find place for starter.
+
+* Mon Aug  2 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- switch from using gdb's "info proc mappings" to /proc/$$/maps.
+  (added maps.sh, 
+  changed statifier_dump.sh, dumps.sh, statifier.gdb, Makefile)
+
+* Sun Jul 25 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- fixed bug in the set_thread_area_addr.c - return address
+  was incorrect.
+- statifier_common.sh - adopted to pass val_loader_file_entry to
+  the set_thread_area_addr
+
+* Wed Jul 21 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- added files cpus/{alpha,i386,x86_64}/syscall.gdb with syscall
+  specific defines for gdb
+- fix gdb_runner.gdb to work on alpha too.
+- gdb_runner.c linked statically
+- statifier_dump.sh changed to filter warnings from gdb's stderr
+
+* Tue Jul 20 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- statifier.gdb - added my_dump macro. dumps.sh generate file for gdb
+  with 'my_dump' command instead of 'dump'. It'll allow use dumps.gdb
+  for the future processing.
+
+* Mon Jul 19 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- added gdb_runner.gdb and gdb_runner.c. now I do not assume
+  that loader's base address always same !
+- removed test_loader_base.c program
+- removed GetInterpreterBase function from statifier_common.sh
+- statifier_create_starter.sh now get val_offset from $MISC_SRC
+
+* Tue Jul 13 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- set_thread_area_addr.c changed to print offset instead of
+  absolute address.
+- statifier.gdb changed to work with offset + $val_offset
+- statifier_loader.sh put into val_dl_list offsets, not addresses
+- statifier_create_starter.sh convert val_dl_list offsets to
+  full_dl_list addreses
+
+* Mon Jul  5 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
+- added program elf_data, removed elf_stripped and a lot of
+  awk magic from the statifier_common.sh
+
 * Mon Jun 28 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
 - gdb has a bad habbit sometimes (for example auto-solib-add = on and
   LD_PRELOAD is set - at least on amd64) output messages, which

@@ -1,3 +1,13 @@
+1.6.0
+   statifier was adopted to work with RHEL 3 and 3.1
+   all phrdrs (except PT_INTERP and PT_PHDR) are copied to the
+   statified file, so it's preserve, for example PT_GNU_STACK,
+   which used by exec-shield.
+   Statifying now should be possible on the systems with exec-shield
+   and randomization enabled. 
+   Code now assume nothing about memory layout, so porting
+   will be easier.
+
 1.5.0
    Statifying now possible on system with stripped loader.
    Statified exe now more friendly to gdb, readelf, objdump, etc.
