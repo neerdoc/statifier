@@ -6,7 +6,11 @@
 # See LICENSE file in the doc directory.
 
 # This code is processor depended !!!
-
+#
+# RH9.0 used TLS - thread local storage.
+# It is why I got segfault
+# when I try write to %gs - I have to fix it.
+# 
 # x[3]86 has 32 bits registers 
 
 REG_SIZE = 4
@@ -51,6 +55,8 @@ addr:
 	movl	DS(%eax),	%ds	
 	movl	ES(%eax),	%es	
 	movl	FS(%eax),	%fs	
+	
+	# With RH9.0 (i.e with TLS I got segfault here)
 	movl	GS(%eax),	%gs	
 					# orig_eax - what is it ?
 	pushl	EIP(%eax)		# It is impossible put value to the %eip
