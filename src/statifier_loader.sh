@@ -84,13 +84,13 @@ function GetSymbol
 				IsValueAbsolute="yes"
 				PgmName="$D/find$Symbol"
 				local Found=-1
-				Value=`                 \
-					$PgmName        \
-					$Found          \
-					$val_base_addr  \
-					$val_virt_addr  \
-					$val_virt_addr2 \
-					$val_size2      \
+				Value=`                                   \
+					$PgmName                          \
+					$Found                            \
+					$val_base_addr                    \
+					$val_interpreter_file_base_addr   \
+					$val_interpreter_file_rw_seg_addr \
+					$val_interpreter_rw_seg_size      \
 				` || return
 			;;
 
@@ -112,7 +112,7 @@ function GetSymbol
 	else
 		# Symbol found
 		[ "x$IsValueAbsolute" = "x" ] && {
-			[ "x$val_virt_addr" = "x0x0" ] && {
+			[ "x$val_interpreter_file_base_addr" = "x0x0" ] && {
 				Value=$[Value + $val_base_addr] || return
 			}
 		}

@@ -83,11 +83,12 @@ function Main
 		echo "val_elf_class=$val_elf_class"
 		echo "val_interpreter='$val_interpreter'"
 		echo "val_base_addr='$val_base_addr'"
-		$D/$elf_class/elf_data                 \
-			-T val_interpreter_has_symtab= \
-			-B val_virt_addr=              \
-                   	-W val_virt_addr2=             \
-			-S val_size2=                  \
+		$D/$elf_class/elf_data                       \
+			-T val_interpreter_has_symtab=       \
+                   	-E val_interpreter_file_entry=       \
+			-B val_interpreter_file_base_addr=   \
+                   	-W val_interpreter_file_rw_seg_addr= \
+			-S val_interpreter_rw_seg_size=      \
 		$val_interpreter
 		CheckTls
 	) || return 
