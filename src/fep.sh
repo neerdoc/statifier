@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # Copyright (C) 2004 Valery Reznic
 # This file is part of the Elf Statifier project
@@ -41,6 +41,7 @@ FileAddr="`awk '
 `" || exit
 
 set -- $FileAddr
+
 [ $# -eq 0 ] && {
 	echo "$0: nothing found in the '$MapFile'" 1>&2
 	exit 1
@@ -50,6 +51,12 @@ while [ $# -ne 0 ]; do
 	File=$1;  shift || exit
 	Start=$1; shift || exit
 	Entry=`$D/fep $File $Start $Starter` || exit
+	# Found ?
+	[ "x$Entry" = "x" ] || {
+		# Yes !
+		echo $Entry || exit
+		exit 0
+	}
 done || exit
 
 [ "x$Entry" = "x" ] && {
@@ -57,5 +64,4 @@ done || exit
 	exit 1
 }
 
-echo $Entry || exit
 exit 0
