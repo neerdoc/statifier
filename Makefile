@@ -40,8 +40,8 @@ DOC_DOCS =                   \
    Porting.txt               \
    StatifiedLayout.alpha.txt \
    StatifiedLayout.x86.txt   \
-   StarterLayout.alpha.txt   \
-   StarterLayout.x86.txt     \
+   StatifiedLayout.txt       \
+   StarterLayout.txt         \
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
