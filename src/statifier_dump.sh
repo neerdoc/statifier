@@ -17,7 +17,7 @@ function DumpRegistersAndMemory
 		-nx                                                           \
 		--command "$WORK_GDB_CMD_DIR/first.gdb"                       \
 		--command "$GDB_ENV"                                          \
-		${HAS_TLS:+--command "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
+		${val_has_tls:+--command "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
 		--command "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
 		--command "$DUMPS_GDB"                                        \
 	> $LOG_FILE || return
@@ -67,8 +67,6 @@ function Main
 	set +e
 	UnameM=`uname -m` || return
 
-	ElfClass=`basename $D` || return
-
 	# Different variables
 	EXECUTABLE_FILE=$opt_orig_exe
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
@@ -80,27 +78,27 @@ function Main
 	# End of variables
 
 	# Determine debugger name
-	GDB=`GDB_Name $ElfClass $UnameM` || return
+	GDB=`GDB_Name $val_elf_class $UnameM` || return
 
 	# List of files to be transformed
-	FILE_LIST="first.gdb ${HAS_TLS:+set_thread_area.gdb} map_reg_core.gdb dumps.gdb"
+	FILE_LIST="first.gdb ${val_has_tls:+set_thread_area.gdb} map_reg_core.gdb dumps.gdb"
 
 	# Transform them
 	for File in $FILE_LIST; do
-		sed                                                 \
-                   -e "s#\$0#$0#g"                                  \
-                   -e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"      \
-                   -e "s#@BREAKPOINT_START@#*$BREAKPOINT_START#g"   \
-                   -e "s#@BREAKPOINT_THREAD@#*$BREAKPOINT_THREAD#g" \
-                   -e "s#@LOG_FILE@#$LOG_FILE#g"                    \
-                   -e "s#@MAPS_FILE@#$MAPS_FILE#g"                  \
-                   -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"        \
-                   -e "s#@CORE_FILE@#$CORE_FILE#g"                  \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                    \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                    \
-                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"                    \
-                   -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"        \
-                   -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                  \
+		sed                                                     \
+                   -e "s#\$0#$0#g"                                      \
+                   -e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
+                   -e "s#@BREAKPOINT_START@#*$val_breakpoint_start#g"   \
+                   -e "s#@BREAKPOINT_THREAD@#*$val_breakpoint_thread#g" \
+                   -e "s#@LOG_FILE@#$LOG_FILE#g"                        \
+                   -e "s#@MAPS_FILE@#$MAPS_FILE#g"                      \
+                   -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"            \
+                   -e "s#@CORE_FILE@#$CORE_FILE#g"                      \
+                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
+                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
+                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"                        \
+                   -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"            \
+                   -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
 		< $D/$File > $WORK_GDB_CMD_DIR/$File || return
 	done || return
 

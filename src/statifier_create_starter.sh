@@ -30,7 +30,7 @@ function CreateStarter
 	local STA_BIN=$WORK_OUT_DIR/set_thread_area
 	local TLS_LIST=
 
-	[ "$HAS_TLS" = "yes" ] && {
+	[ "$val_has_tls" = "yes" ] && {
 		# Create binary file with set_thread_area parameters
 		$D/set_thread_area.sh $WORK_GDB_OUT_DIR/set_thread_area $STA_BIN || return
 		TLS_LIST="$STA $STA_BIN"
@@ -38,7 +38,7 @@ function CreateStarter
 
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
-	$D/strtoul $DL_LIST > $DL_VAR_BIN || return
+	$D/strtoul $val_dl_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$D/regs.sh $REGISTERS_FILE $REGS_BIN || return
 	cat $DL_VAR $DL_VAR_BIN $TLS_LIST $REGS $REGS_BIN > $Starter || return

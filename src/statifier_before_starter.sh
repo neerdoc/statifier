@@ -15,21 +15,21 @@ function Main
 		source $COMMON_SRC || return
 	set +e
 	local Value
-	local DL_LIST="$BaseAddr"
-	Value=`GetSymbol _dl_argc        1 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
-	Value=`GetSymbol _dl_argv        1 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
-	Value=`GetSymbol _environ        1 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
-	Value=`GetSymbol _dl_auxv        1 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
-	Value=`GetSymbol _dl_platform    0 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
-	Value=`GetSymbol _dl_platformlen 0 $VirtAddr $BaseAddr` || return
-	DL_LIST="$DL_LIST $Value"
+	local val_dl_list="$val_base_addr"
+	Value=`GetSymbol _dl_argc        1 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
+	Value=`GetSymbol _dl_argv        1 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
+	Value=`GetSymbol _environ        1 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
+	Value=`GetSymbol _dl_auxv        1 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
+	Value=`GetSymbol _dl_platform    0 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
+	Value=`GetSymbol _dl_platformlen 0 $val_virt_addr $val_base_addr` || return
+	val_dl_list="$val_dl_list $Value"
 
-	echo "DL_LIST='$DL_LIST'" || return
+	echo "val_dl_list='$val_dl_list'" || return
 	return 0
 }
 #################### Main Part ###################################
