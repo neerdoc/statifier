@@ -16,42 +16,40 @@ function Main
 	set +e
 	local Value 
 	local Var
-	local Param
 	local val_dl_list
 
-	Param="$val_virt_addr $val_base_addr"
 	val_dl_list="$val_base_addr"
 	echo "#"
 	echo "# val_base_addr=$val_base_addr"
 	echo "#"
 
 	Var="_dl_argc"
-	Value=`GetSymbol $Var 1 $Param` || return
+	Value=`GetSymbol $Var 1` || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_dl_argv"
-	Value=`GetSymbol $Var 1 $Param` || return
-	echo "# $Var=$Value"            || return
+	Value=`GetSymbol $Var 1` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_environ"
-	Value=`GetSymbol $Var 1 $Param` || return
-	echo "# $Var=$Value"            || return
+	Value=`GetSymbol $Var 1` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_dl_auxv"
-	Value=`GetSymbol $Var 1 $Param` || return
-	echo "# $Var=$Value"            || return
+	Value=`GetSymbol $Var 1` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_dl_platform"
-	Value=`GetSymbol $Var 0 $Param` || return
-	echo "# $Var=$Value"            || return
+	Value=`GetSymbol $Var 0` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_dl_platformlen"
-	Value=`GetSymbol $Var 0 $Param` || return
-	echo "# $Var=$Value"            || return
+	Value=`GetSymbol $Var 0` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	echo "val_dl_list='$val_dl_list'" || return
