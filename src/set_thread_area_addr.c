@@ -9,7 +9,8 @@
 
 /*
  * This program should print to stdout 
- * address of system call __NR_set_thread_area
+ * offset to system call __NR_set_thread_area
+ * in the loader (offset is relative to the loader's base address
  */ 
 #include <stdio.h>
 #include <unistd.h>
@@ -79,7 +80,7 @@ void one_getreg(const char *name, pid_t child, long reg, unsigned long *result)
 void do_work(const char *name, const char *process, const pid_t child)
 {
 	int stat;
-	unsigned long pc_val, syscall_val;
+	unsigned long pc_val_base, pc_val, syscall_val;
 	const unsigned long syscall_num = __NR_set_thread_area;
 	static int first = 1;
 	while(1) {
@@ -114,11 +115,12 @@ void do_work(const char *name, const char *process, const pid_t child)
 		if (WIFSTOPPED(stat)) {
 			if (first) {
 				first = 0;
+				one_get_pc_reg(name, child, &pc_val_base);
 			} else {
 				one_get_syscall_reg(name, child, &syscall_val);
 				if (syscall_val == syscall_num) {
 					one_get_pc_reg(name, child, &pc_val);
-					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL);
+					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL - pc_val_base);
 					ptrace(PTRACE_KILL, child, 0, 0);
 					exit(0);
 				}
