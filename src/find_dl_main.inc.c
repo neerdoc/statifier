@@ -63,6 +63,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <elf.h>
+#include <link.h> /* For ElfW */
 
 static const char *pgm_name; 
 
@@ -109,12 +111,6 @@ int main(int argc, char *argv[], char *envp[])
                               * jump backward/forward forever
                               */
 
-	const char *base_s;   /* 
-                               * loader's base address (real address)
-                               * As always I hope it not changed from
-                               * invocation to invocaton
-                               */
-
 	const char *file_base_addr_s;  /*
                                * loaders's virtual address from file. 
 				* (Usually 0)
@@ -129,10 +125,11 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* Arguments'es converted value */
 	unsigned long found;
-	unsigned long base;
 	unsigned long file_base_addr;
 	unsigned long file_rw_seg_addr;
 	unsigned long rw_size;
+
+	unsigned long base = 0UL; /* real load address for loader */
 
 	unsigned long new_found; /* new offset for pattern relative
 				    to RW segment start */
@@ -147,27 +144,64 @@ int main(int argc, char *argv[], char *envp[])
 
 	pgm_name = argv[0]; 
 
-	if (argc < 6) {
+	if (argc < 5) {
 		fprintf(
 			stderr,
-			"Usage: %s <found> <base> <file_base_addr> <file_rw_addr> <rw_size> <dummy 1> [ <dummy2> ...]\n",
+			"Usage: %s <found> <file_base_addr> <file_rw_addr> <rw_size> <dummy 1> [ <dummy2> ...]\n",
 			pgm_name
 		);
 		exit(1);
 	}
 
 	found_s            = argv[1];
-	base_s             = argv[2];
-	file_base_addr_s   = argv[3];
-	file_rw_seg_addr_s = argv[4];
-	rw_size_s          = argv[5];
+	file_base_addr_s   = argv[2];
+	file_rw_seg_addr_s = argv[3];
+	rw_size_s          = argv[4];
 
 			
 	found            = my_strtoul(found_s           );
-	base             = my_strtoul(base_s            );
 	file_base_addr   = my_strtoul(file_base_addr_s  );
 	file_rw_seg_addr = my_strtoul(file_rw_seg_addr_s);
 	rw_size          = my_strtoul(rw_size_s         );
+
+	/*
+	 * How we are going to find loader's real base address ?
+	 * I can see only two options:
+	 *   - loader know it's by itself (i.e p_vaddr != 0).
+	 *     it's a rear case, but I saw it.
+	 *     In this case file_base_addr = loader_real_base
+	 *   - kernel should say to loader where it base.
+	 *     i.e, kernel will pass to interpreter this value
+	 *     in the auxv (AT_BASE)
+	 *
+	 * So, i do following:
+	 *    try to find AT_BASE, if fount and not 0, use it.
+	 *    otherwise if file_base_addr not 0 use it as base.
+	 *    othrewise - nothing to do. Give an error and exit.
+	 */
+	{
+		char **tmp;
+		ElfW(auxv_t) *auxv;
+		/* find end of environment */ 
+		for (tmp = envp; *tmp != NULL; tmp++); 
+		tmp++; /* start of auxv */
+		auxv = (ElfW(auxv_t) *) tmp; /* start of auxv */
+		for (; auxv->a_type != AT_NULL; auxv++) {
+			if (auxv->a_type == AT_BASE) {
+				base = (unsigned long)auxv->a_un.a_ptr;
+				break;
+			}
+		}
+		if (base == 0) base = file_base_addr;
+		if (base == 0) {
+			fprintf(
+				stderr,
+				"%s: can't determine loader's base addr.\n",
+				pgm_name
+			);
+			exit(1);
+		}
+	}
 
 	/* Calculate real address for loader's READ/WRITE segment */
  	start_ptr = (unsigned char *)(base + (file_rw_seg_addr - file_base_addr));
