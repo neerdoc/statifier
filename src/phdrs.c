@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
 	ph_starter = &phdrs_out[is_starter_under_executable ? 0 : (num_seg_out-1) ];
 	ph_starter->p_type = PT_LOAD; 
 
-	/* Calcilate starter_seg_size */
+	/* Calculate starter_seg_size */
 	{
 		size_t rest;
 		ElfW(Word) align = 0; 
@@ -467,11 +467,10 @@ int main(int argc, char *argv[])
 		if (err != 0) exit(1);
 
 		/* Starter seg size is elf header size + size of all phdrs + 
-	 	 * + size of all shdrs + starter program size
+	 	 * + starter program size
 	 	 */
 		starter_seg_size =
 			sizeof(ehdr_exe)                        + 
-			ehdr_exe.e_shnum * ehdr_exe.e_shentsize +
 	       		num_seg_out      * sizeof(*ph_starter)  +
 			starter_pgm_size
 		;
@@ -510,6 +509,7 @@ int main(int argc, char *argv[])
 		;
 	}
 
+#if 0
 	/* Adjust shdrs */
 	/* Needed Only if starter_under_executable */
 	if (is_starter_under_executable) {
@@ -517,17 +517,17 @@ int main(int argc, char *argv[])
 			shdrs_exe[ind_out].sh_offset += starter_seg_size;
 		}
 	}
-
+#endif
 	/* Adjust Ehdr */
 	ehdr_exe.e_entry = 
 		ph_starter->p_vaddr                     +
 		sizeof(ehdr_exe)                        + 
-		num_seg_out * sizeof(*ph_starter)       + 
-		ehdr_exe.e_shentsize * ehdr_exe.e_shnum
+		num_seg_out * sizeof(*ph_starter)       
 	;
 	ehdr_exe.e_phoff = ph_starter->p_offset + sizeof(ehdr_exe);
-	ehdr_exe.e_shoff = ehdr_exe.e_phoff + num_seg_out * sizeof(*ph_starter);
+	ehdr_exe.e_shoff = 0; // ehdr_exe.e_phoff + num_seg_out * sizeof(*ph_starter);
 	ehdr_exe.e_phnum = num_seg_out;
+	ehdr_exe.e_shnum = 0;
 
 	/* Allocate space for the starter segment */
 	starter_segment_memory = my_malloc(
@@ -549,10 +549,12 @@ int main(int argc, char *argv[])
 	memcpy(cur_ptr, phdrs_out, cur_size);
 	cur_ptr += cur_size;
 
+#if 0
 	/* Add schdrs */
 	cur_size = ehdr_exe.e_shentsize * ehdr_exe.e_shnum;
 	memcpy(cur_ptr, shdrs_exe, cur_size);
 	cur_ptr += cur_size;
+#endif
 
 	/* Open starter program */
 	input = my_fopen(starter, "r", pgm_name);
