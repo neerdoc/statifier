@@ -99,17 +99,18 @@ void *my_malloc(size_t size, const char *item, const char *pgm_name)
 	return result;
 }
 
-static int get_elf32_ehdr_and_phdrs(
+static int get_elf32_ehdr_phdrs_and_shdrs(
 	const char *path,
 	const char *pgm_name,
 	Elf32_Ehdr *ehdr,
 	Elf32_Phdr **phdrs,
-	int        *first_load_segment
+	int        *first_load_segment,
+	Elf32_Shdr **shdrs
 )
 {
 	FILE *file;
 	size_t result;
-	size_t phdrs_size;
+	size_t phdrs_size, shdrs_size;
 	size_t index;
 
 	file = my_fopen(path, "r", pgm_name);
@@ -135,7 +136,6 @@ static int get_elf32_ehdr_and_phdrs(
 		);
 		return 0;
 	}
-
 	phdrs_size = ehdr->e_phentsize * ehdr->e_phnum;
 	*phdrs = my_malloc(phdrs_size, "phdrs", pgm_name);
 	if (*phdrs == NULL) return 0;
@@ -147,12 +147,21 @@ static int get_elf32_ehdr_and_phdrs(
 			if (first_load_segment != NULL) {
 				*first_load_segment = index;
 			}
-			return 1;
+			break;
 		}
 	}
 
+	if (shdrs != NULL) {
+		shdrs_size = ehdr->e_shentsize * ehdr->e_shnum;
+		*shdrs = my_malloc(shdrs_size, "shdrs", pgm_name);
+		if (*shdrs == NULL) return 0;
+
+		if (my_fseek(file, ehdr->e_shoff, pgm_name, path) == -1) return 0;
+		if (my_fread(*shdrs, shdrs_size, file, "shdrs", pgm_name, path) == 0) return 0;
+	}
+
 	fclose(file);
-	return 0;
+	return 1;
 }
 
 static off_t my_file_size(const char *path, const char *pgm_name, int *err)
@@ -176,6 +185,7 @@ int main(int argc, char *argv[])
 {
 	Elf32_Ehdr ehdr_exe,   ehdr_core;
 	Elf32_Phdr *phdrs_exe, *phdrs_core, *phdrs_out, *ph_in, *ph_out;
+	Elf32_Shdr *shdrs_exe;
 	int first_load_segment;
 	FILE *input;
 	FILE *output = stdout;
@@ -202,21 +212,23 @@ int main(int argc, char *argv[])
 	registers = argv[arg_ind++];
 
 	if ( 
-		get_elf32_ehdr_and_phdrs(
+		get_elf32_ehdr_phdrs_and_shdrs(
 			exe_in, 
 			pgm_name, 
 			&ehdr_exe,
 			&phdrs_exe,
-			&first_load_segment
+			&first_load_segment,
+			&shdrs_exe
 		) == 0
 	) exit(1);
 
 	if ( 
-		get_elf32_ehdr_and_phdrs(
+		get_elf32_ehdr_phdrs_and_shdrs(
 			core, 
 			pgm_name, 
 			&ehdr_core, 
 			&phdrs_core,
+			NULL,
 			NULL
 		) == 0
 	) exit(1);
@@ -255,13 +267,14 @@ int main(int argc, char *argv[])
 	registers_file_size = my_file_size(registers, pgm_name, &err);
 	if (err != 0) exit(1);
 
-	/* Starter seg size is elf header size + size of all phdrs + starter
-	 * program size + registers_file_size
+	/* Starter seg size is elf header size + size of all phdrs + 
+	 * + size of all shdrs starter program size + registers_file_size
 	 */
-	starter_seg_size =                      \
-		sizeof(ehdr_exe)              + \
-	       	num_seg_out * sizeof(*ph_out) + \
-		starter_pgm_size              + \
+	starter_seg_size =                                \
+		sizeof(ehdr_exe)                        + \
+		ehdr_exe.e_shnum * ehdr_exe.e_shentsize + \
+	       	num_seg_out      * sizeof(*ph_out)      + \
+		starter_pgm_size                        + \
 		registers_file_size
 	;
 
@@ -291,12 +304,21 @@ int main(int argc, char *argv[])
 		phdrs_out[ind_out].p_offset = phdrs_out[ind_out - 1].p_offset + phdrs_out[ind_out - 1].p_filesz;
 	}
 
+	/* Adjust shdrs */
+	for (ind_out = 0; ind_out < ehdr_exe.e_shnum; ind_out++) {
+		shdrs_exe[ind_out].sh_offset += starter_seg_size;
+	}
+
 	/* Adjust Ehdr */
-	ehdr_exe.e_entry = phdrs_out[0].p_vaddr + sizeof(ehdr_exe) + num_seg_out * sizeof(*ph_out);
-	ehdr_exe.e_phoff  = sizeof(ehdr_exe);
-	ehdr_exe.e_shoff += starter_seg_size;
-		ehdr_exe.e_shnum = 0;  // temp
-	ehdr_exe.e_phnum  = num_seg_out;
+	ehdr_exe.e_entry = 
+		phdrs_out[0].p_vaddr                    +
+		sizeof(ehdr_exe)                        + 
+		num_seg_out * sizeof(*ph_out)           + 
+		ehdr_exe.e_shentsize * ehdr_exe.e_shnum
+	;
+	ehdr_exe.e_phoff = sizeof(ehdr_exe);
+	ehdr_exe.e_shoff = ehdr_exe.e_phoff + num_seg_out * sizeof(*ph_out);
+	ehdr_exe.e_phnum = num_seg_out;
 
 	/* Allocate space for the starter segment */
 	starter_segment = my_malloc(starter_seg_size, "starter_segment", pgm_name);
@@ -309,6 +331,10 @@ int main(int argc, char *argv[])
 	cur_ptr += cur_size;
 	cur_size = num_seg_out * sizeof(*ph_out);
 	memcpy(cur_ptr, phdrs_out, cur_size);
+	/* Add schdrs */
+	cur_ptr += cur_size;
+	cur_size = ehdr_exe.e_shentsize * ehdr_exe.e_shnum;
+	memcpy(cur_ptr, shdrs_exe, cur_size);
 
 	/* Read starter program in */
 	cur_ptr += cur_size;
