@@ -17,7 +17,7 @@ ExclusiveArch: alpha
 Requires:      binutils
 Requires:      fileutils
 Requires:      gawk
-Requires:      gdb >= 5.2
+Requires:      gdb
 Requires:      sed
 Requires:      sh-utils
 Requires:      textutils
