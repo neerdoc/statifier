@@ -73,7 +73,7 @@ static size_t my_fread(
 	return result;
 }
 
-static size_t my_fwrite(
+/*static*/ size_t my_fwrite(
 		void *      ptr, 
 		size_t      nmemb, 
 		FILE *      file, 
@@ -196,7 +196,7 @@ err_open:
 	return res;
 }
 
-static off_t my_file_size(const char *path, int *err)
+/*static*/ off_t my_file_size(const char *path, int *err)
 {
 	struct stat buf;
 	int result;
