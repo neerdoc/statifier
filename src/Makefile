@@ -48,7 +48,6 @@ SOURCES =                 \
 # Service files used to build 
 BUILD_FILES =       \
    Makefile         \
-   elf2at.make.sh   \
    regs2asm.make.sh \
    regs2awk.make.sh \
 
@@ -158,18 +157,15 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 
 $(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h
 
-#$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
-
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) -Wall -mregparm=0 -O2 -S $< -o $@
 
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
 
 # Dependencies should be in correct order
-$(ELF_CLASS)/AT.h:     elf2at.make.sh  /usr/include/elf.h
 $(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
 $(ELF_CLASS)/regs.awk: regs2awk.make.sh $(CPU_DIR)/regs.list regs.awk
-$(ELF_CLASS)/AT.h $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
+$(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
 	$(RM) $@
 	/bin/sh $^ $@ || { $(RM) $@; exit 1; }
 
