@@ -310,7 +310,7 @@ static int create_starter_segment(int argc, char *argv[])
 			phdrs_out[num_seg_out - 2].p_vaddr + 
 			phdrs_out[num_seg_out - 2].p_memsz
 		;
-		ph_starter->p_vaddr = ph_starter->p_paddr;
+		ph_starter->p_paddr = ph_starter->p_vaddr;
 		/* I guess here first exe segment contain also ehdr and phdrs */
 		phdrs_out[0].p_offset = 0;
 	}
