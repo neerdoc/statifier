@@ -9,20 +9,37 @@
 
 # It's main script
 
+function PrepareDirectoryStructure
+{
+	mkdir -p $WORK_COMMON_DIR  || return
+	mkdir -p $WORK_GDB_CMD_DIR || return
+	mkdir -p $WORK_GDB_OUT_DIR || return
+	mkdir -p $WORK_DUMPS_DIR   || return
+	mkdir -p $WORK_OUT_DIR     || return
+	return 0
+}
+
 function Sanity
 {
+	local Func=Sanity
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		Echo "$0: Usage $Func <OrigExe>"
+		return 1
+	}
+
+	local OrigExe=$1
 	[ -f $OrigExe ] || {
-   		echo "$0: '$OrigExe' not exsist or not regular file." 1>&2
+   		Echo "$0: '$OrigExe' not exsist or not regular file."
    		return 1
 	}
 
 	[ -x $OrigExe ] || {
-   		echo "$0: '$OrigExe' has not executable permission." 1>&2
+   		Echo "$0: '$OrigExe' have not executable permission."
    		return 1
 	}
 
 	[ -r $OrigExe ] || {
-   		echo "$0: '$OrigExe' has not read permission." 1>&2
+   		Echo "$0: '$OrigExe ' have not read permission."
    		return 1
 	}
 	return 0
@@ -30,6 +47,14 @@ function Sanity
 
 function GetElfClass
 {
+	local Func=GetElfClass
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		Echo "$0: Usage $Func <OrigExe>"
+		return 1
+	}
+
+	local OrigExe=$1
+	local res
 	res="`readelf --file-header $OrigExe`" || return 
 	echo "$res" | awk '{
 		if ($NF == "ELF32") { print "32"; exit 0;}
@@ -40,65 +65,51 @@ function GetElfClass
 
 function Main
 {
-	Sanity || return
+	set -e
+		source $OPTION_SRC || return
+	set +e
+	Sanity $pt_orig_exe || return
 
 	local ElfClass
-	ElfClass=`GetElfClass`
+	ElfClass=`GetElfClass $opt_orig_exe`
 	[ "x$ElfClass" = "x" ] && {
-		echo "$0: Can't determine ELF CLASS for the '$OrigExe'" 1>&2
+		Echo "$0: Can't determine ELF CLASS for the '$opt_orig_exe'"
 		return 1
 	}
 
 	D=$D/$ElfClass
 	[ -d $D ] || {
-		echo "$0: ElfClass '$ElfClass' do not supported on this system." 1>&2
+		Echo "$0: ElfClass '$ElfClass' do not supported on this system."
 		return 1
 	}
 
-	# Prepare directory structure
-	mkdir -p $WORK_COMMON_DIR  || return
-	mkdir -p $WORK_GDB_CMD_DIR || return
-	mkdir -p $WORK_GDB_OUT_DIR || return
-	mkdir -p $WORK_DUMPS_DIR   || return
-	mkdir -p $WORK_OUT_DIR     || return
-
 	# Do it
-	$D/statifier_common.sh         $WORK_DIR $OrigExe || return
-	$D/statifier_before_dump.sh    $WORK_DIR          || return
-	$D/statifier_dump.sh           $WORK_DIR          || return
-	$D/statifier_before_starter.sh $WORK_DIR          || return
-	$D/statifier_create_starter.sh $WORK_DIR          || return
-	$D/statifier_create_exe.sh     $WORK_DIR $NewExe  || return
+	$D/statifier_common.sh         $WORK_DIR || return
+	$D/statifier_before_dump.sh    $WORK_DIR || return
+	$D/statifier_dump.sh           $WORK_DIR || return
+	$D/statifier_before_starter.sh $WORK_DIR || return
+	$D/statifier_create_starter.sh $WORK_DIR || return
+	$D/statifier_create_exe.sh     $WORK_DIR || return
 	return 0
 }
 
 #################### Main Part ###################################
-[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-	echo "Usage: $0 <orig_exe> <statified_exe>" 1>&2
-	exit 1
-}
-
-OrigExe=$1
-NewExe=$2
-
-# Gdb try to find exe in $PATH.
-# In order to avoid it I'll prepend ./ in case Executable
-# have no absolute path
-case "x$OrigExe" in
-	x/*) ;; # Do nothing, absolute path
-	*) OrigExe="./$OrigExe"
-esac
-
 # Temporary Work Directory
 WORK_DIR="${TMPDIR:-/tmp}/statifier.tmpdir.$$"
 #WORK_DIR="./.statifier"
 
 # Where Look For Other Programs
-D=`dirname $0`              || exit
-source $D/statifier_lib.src || exit
+D=`dirname $0`                 || exit
+source $D/statifier_lib.src    || exit
+source $D/statifier_parser.src || exit
 
-rm   -rf $WORK_DIR          || exit
-mkdir -p $WORK_DIR          || exit
+CommandLineParsing "$@"        || exit
+
+SetVariables $WORK_DIR         || exit 
+rm -rf $WORK_DIR               || exit
+PrepareDirectoryStructure      || exit
+SaveOptions > $OPTION_SRC      || exit
+
 Main
 st=$? 
 rm -rf $WORK_DIR || exit
