@@ -5,8 +5,8 @@
   instead of hardcoded one.
 - do not use objdump for finding _dl variables - it's not work
   for stripted /lib/ld-linux (for example some SuSE versions)
-- add support for RTLD environment variables.
-- support linux on the platforms other than x86
+- add support for RTLD environment variables. - DONE
+- support linux on the platforms other than x86 and x86_64
 - support other unixes.
 - minimize usage of external programs: readelf, objdump.
   ( awk, sh, sed looks ok,  aren't they ?)
