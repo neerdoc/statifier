@@ -235,7 +235,7 @@ $(ELF_CLASS)/find_dl_platform: find_dl_main.inc.c
 $(ELF_CLASS)/find_environ    : find_dl_main.inc.c
 
 $(ELF_CLASS)/elf_find_pattern: my_lib.inc.c
-$(ELF_CLASS)/phdrs           : my_lib.inc.c
+$(ELF_CLASS)/elf_soname      : my_lib.inc.c
 # End of additional dependencies
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
