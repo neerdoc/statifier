@@ -45,24 +45,6 @@ function Sanity
 	return 0
 }
 
-function GetElfClass
-{
-	local Func=GetElfClass
-	[ $# -ne 1 -o "x$1" = "x" ] && {
-		Echo "$0: Usage $Func <OrigExe>"
-		return 1
-	}
-
-	local OrigExe=$1
-	local res
-	res="`readelf --file-header $OrigExe`" || return 
-	echo "$res" | awk '{
-		if ($NF == "ELF32") { print "32"; exit 0;}
-		if ($NF == "ELF64") { print "64"; exit 0;}
-	}' || return
-	return 0
-}
-
 function Main
 {
 	set -e
@@ -71,11 +53,7 @@ function Main
 	Sanity $opt_orig_exe || return
 
 	local ElfClass
-	ElfClass=`GetElfClass $opt_orig_exe`
-	[ "x$ElfClass" = "x" ] && {
-		Echo "$0: Can't determine ELF CLASS for the '$opt_orig_exe'"
-		return 1
-	}
+	ElfClass=`$D/elf_class $opt_orig_exe` || return
 
 	D=$D/$ElfClass
 	[ -d $D ] || {
