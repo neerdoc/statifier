@@ -1,4 +1,4 @@
-%if %{has_elf_@ELF_CLASS}
+%if %{has_elf_@ELF_CLASS@}
 %dir /usr/lib/statifier/@ELF_CLASS@
      /usr/lib/statifier/@ELF_CLASS@/dl-var
      /usr/lib/statifier/@ELF_CLASS@/phdrs
