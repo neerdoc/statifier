@@ -61,8 +61,8 @@ INCLUDE_FILES = \
 
 # small C programs, used by statifier.
 UTILS =                 \
-   elfinfo              \
    elf_data             \
+   elf_soname           \
    fep                  \
    inject_starter       \
    non_pt_load          \
