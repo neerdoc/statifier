@@ -1,23 +1,14 @@
 %defattr(-,root,root)
 
 %dir /usr/lib/statifier
-     /usr/lib/statifier/dl-var
-     /usr/lib/statifier/phdrs
-     /usr/lib/statifier/readlink
-     /usr/lib/statifier/set_thread_area_addr
-     /usr/lib/statifier/set_thread_area
-     /usr/lib/statifier/starter
-     /usr/lib/statifier/strtoul
-     /usr/lib/statifier/tls_test
+     /usr/lib/statifier/statifier.sh
      /usr/lib/statifier/dumps.sh
      /usr/lib/statifier/regs.sh
      /usr/lib/statifier/set_thread_area.sh
      /usr/lib/statifier/split.sh
-     /usr/lib/statifier/statifier.sh
      /usr/lib/statifier/dumps.gdb
      /usr/lib/statifier/first.gdb
      /usr/lib/statifier/map_reg_core.gdb
-     /usr/lib/statifier/set_thread_area.gdb
 
      /usr/bin/statifier
 
