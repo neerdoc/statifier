@@ -57,7 +57,6 @@ UTILS =                 \
    elfinfo              \
    loader_base_test     \
    phdrs                \
-   readlink             \
    set_thread_area_addr \
    strtoul              \
    tls_test             \
