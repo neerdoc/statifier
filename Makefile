@@ -30,14 +30,18 @@ DOCS =       \
    TODO      \
    $(addprefix doc/,$(DOC_DOCS))
 
-DOC_DOCS =            \
-   README             \
-   Background.txt     \
-   DataFlow.txt       \
-   Implementation.txt \
-   MoreDetails.txt    \
-   MoreProblems.txt   \
-   Porting.txt        \
+DOC_DOCS =                   \
+   README                    \
+   Background.txt            \
+   DataFlow.txt              \
+   Implementation.txt        \
+   MoreDetails.txt           \
+   MoreProblems.txt          \
+   Porting.txt               \
+   StatifiedLayout.alpha.txt \
+   StatifiedLayout.x86.txt   \
+   StarterLayout.alpha.txt   \
+   StarterLayout.x86.txt     \
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
