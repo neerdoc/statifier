@@ -219,6 +219,7 @@ install-local-internal:
 	                     $(MKDIR)                             $(LIB_DIR_ELF)
 	                     $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
 	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
+	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_INCLUDE_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
 
 clean-local: clean-local-32 clean-local-64
