@@ -42,11 +42,31 @@ set height 10000
 # Pay attention, gdb will not read symbols from it
 exec-file @EXECUTABLE_FILE@
 
-# For gdb >= 6.0 
-# Prevent messages like:
-# <line:> <file>: No such file or directory
-set auto-solib-add off
+# I have two differen problem with gdb messages:
+# 1) For gdb >= 6.0 
+#   messages like:
+#   <line:> <file>: No such file or directory
 
+# 2) For alpha and mips platform message
+#    warning: Hit heuristic-fence-post without finding
+#    warning: enclosing function for address 0xXXXXXXX     
+
+# There are two way to eliminate first one:
+# - 'silent' in the commands for breakpoint
+# - set auto-solib-add off
+# Second message can be eliminated only by 'set auto-solib-add one'
+# (I.e on alpha I have to have symbols table for the loader)
+
+# So,  anyway I put 'silent' in the command
+# and I'll set auto-solib-add off or on depend on 
+# the 'val_has_hit_msg' variable.
+# It will work if always on, but I want it off when possible
+# (for perfomance and simplicity reason)
+if $val_has_hit_msg
+	set auto-solib-add on
+else
+	set auto-solib-add on
+end
 # Now, let us set breakpoints of interest
 
 ###################

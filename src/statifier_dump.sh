@@ -50,6 +50,38 @@ function GDB_Name
 	return 0
 }
 
+function CreateEnv
+{
+	# Create file with environment to be set by gdb (may be empty)
+	local current=0
+        local var
+	echo "# Environment for running program"
+	while [ $current -lt $opt_loader_num_var ]; do
+		current=$[current + 1]               || return
+		eval var="\$opt_loader_var_$current" || return
+		echo "$var"                          || return 
+	done || return
+	return 0
+}			
+
+function CreateVar
+{
+	local val_has_hit_msg
+	case $val_uname_m in
+		alpha* | mips*) val_has_hit_msg=1;;
+		*)              val_has_hit_msg=0;;
+	esac || return
+
+	# Create var.gdb
+	echo "# Variables for gdb"                                     || return
+	echo "set \$BREAKPOINT_START  = ${val_breakpoint_start}"       || return
+	echo "set \$BREAKPOINT_THREAD = ${val_breakpoint_thread:-0x0}" || return
+	echo "set \$val_has_tls       = ${val_has_tls}"                || return
+	echo "set \$val_has_hit_msg   = ${val_has_hit_msg}"            || return
+
+	return 0
+}
+
 function Main
 {
 	local GDB
@@ -75,24 +107,12 @@ function Main
 	# Determine debugger name
 	GDB=`GDB_Name $val_elf_class $val_uname_m` || return
 
-	# Create var.gdb
-	(
-		set -e
-		echo "# Variables for gdb"
-		echo "set \$BREAKPOINT_START  = ${val_breakpoint_start}"
-		echo "set \$BREAKPOINT_THREAD = ${val_breakpoint_thread:-0x0}"
-		echo "set \$val_has_tls       = ${val_has_tls}"
-	) > $VAR_GDB || return
+	# Create env.gdb
+	CreateEnv > $ENV_GDB || return
 
-	# Create file with environment to be set by gdb (may be empty)
-	local current=0
-        local var
-	while [ $current -lt $opt_loader_num_var ]; do
-		current=$[current + 1]               || return
-		eval var="\$opt_loader_var_$current" || return
-		echo "$var"                          || return 
-	done > $ENV_GDB || return
-			
+	# Create env.gdb
+	CreateVar > $VAR_GDB || return
+
 	# Transform file for gdb
 	local File="statifier.gdb"
 	sed                                                          \
