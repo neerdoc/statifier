@@ -1,3 +1,16 @@
+* Sun Apr 25 2004 <valery_reznic@users.sourceforge.net> 1.2.1-1
+- massive changes: statifier.sh split to lot of statifier_*.sh
+- add statifier_lib.src
+- add loader_base_test.c
+- dl_ vars format was changed: now it's not offset from DL_BASE, 
+  but absolute value. */dl-var.S were changed.
+- readlink not used.  Makefile and rpm/files adjusted. 
+
+* Thu Apr 22 2004 <valery_reznic@users.sourceforge.net> 1.2.1-1
+- phdrs.c accept one more arguments - 'ignored_segments' 
+- statifier.sh CreateExeFile now calculate and use IGNORED_SEGMENTS
+- elfinfo.c program was added.
+
 * Mon Apr 19 2004 <valery_reznic@users.sourceforge.net> 1.2.0-1
 - examples added to the man
 

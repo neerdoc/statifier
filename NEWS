@@ -1,3 +1,7 @@
+1.2.1
+   Added support for linux kernel >= 2.5
+   Big internal changes.
+   
 1.2.0
    Added support for amd64 (x86_64) processor
    Added examples to man page
