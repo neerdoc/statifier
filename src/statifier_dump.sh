@@ -15,11 +15,7 @@ function DumpRegistersAndMemory
 	$GDB                                                                  \
 		--batch                                                       \
 		-nx                                                           \
-		--command "$WORK_GDB_CMD_DIR/first.gdb"                       \
-		--command "$GDB_ENV"                                          \
-		${val_has_tls:+--command "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
-		--command "$WORK_GDB_CMD_DIR/map_reg_core.gdb"                \
-		--command "$DUMPS_GDB"                                        \
+		--command "$WORK_GDB_CMD_DIR/statifier.gdb"                   \
 	> $LOG_FILE || return
 	return 0
 }
@@ -69,35 +65,24 @@ function Main
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 	DUMPS_SH="$D/dumps.sh"
+	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
 	SPLIT_SH="$D/split.sh"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	GDB_ENV="$WORK_GDB_CMD_DIR/env.gdb"
+	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
 	# End of variables
 
 	# Determine debugger name
 	GDB=`GDB_Name $val_elf_class $val_uname_m` || return
 
-	# List of files to be transformed
-	FILE_LIST="first.gdb ${val_has_tls:+set_thread_area.gdb} map_reg_core.gdb dumps.gdb"
-
-	# Transform them
-	for File in $FILE_LIST; do
-		sed                                                     \
-                   -e "s#\$0#$0#g"                                      \
-                   -e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
-                   -e "s#@BREAKPOINT_START@#*$val_breakpoint_start#g"   \
-                   -e "s#@BREAKPOINT_THREAD@#*$val_breakpoint_thread#g" \
-                   -e "s#@LOG_FILE@#$LOG_FILE#g"                        \
-                   -e "s#@MAPS_FILE@#$MAPS_FILE#g"                      \
-                   -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"            \
-                   -e "s#@CORE_FILE@#$CORE_FILE#g"                      \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
-                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"                        \
-                   -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"            \
-                   -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
-		< $D/$File > $WORK_GDB_CMD_DIR/$File || return
-	done || return
+	# Create var.gdb
+	(
+		set -e
+		echo "# Variables for gdb"
+		echo "set \$BREAKPOINT_START  = ${val_breakpoint_start}"
+		echo "set \$BREAKPOINT_THREAD = ${val_breakpoint_thread:-0x0}"
+		echo "set \$val_has_tls       = ${val_has_tls}"
+	) > $VAR_GDB || return
 
 	# Create file with environment to be set by gdb (may be empty)
 	local current=0
@@ -108,6 +93,23 @@ function Main
 		echo "$var"                          || return 
 	done > $GDB_ENV || return
 			
+	# Transform file for gdb
+	local File="statifier.gdb"
+	sed                                                          \
+        	-e "s#@CORE_FILE@#$CORE_FILE#g"                      \
+        	-e "s#@GDB_ENV@#$GDB_ENV#g"                          \
+        	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
+        	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
+        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
+        	-e "s#@LOG_FILE@#$LOG_FILE#g"                        \
+        	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                      \
+        	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"            \
+        	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g"  \
+        	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                        \
+        	-e "s#@VAR_GDB@#$VAR_GDB#g"                          \
+        	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"            \
+	< $D/$File > $WORK_GDB_CMD_DIR/$File || return
+
 	DumpRegistersAndMemory || return
 	return 0
 }
