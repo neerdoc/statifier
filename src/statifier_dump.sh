@@ -89,7 +89,7 @@ function Main
 	set -e
 		source $OPTION_SRC || return
 		source $COMMON_SRC || return
-		source $DUMP_SRC   || return
+		source $LOADER_SRC || return
 	set +e
 
 	# Different variables

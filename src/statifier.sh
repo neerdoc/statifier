@@ -86,9 +86,8 @@ function Main
 	local SH_VERBOSE=${opt_verbose:+/bin/bash -x}
 	# Do it
 	$SH_VERBOSE $D/statifier_common.sh         $WORK_DIR $ElfClass || return
-	$SH_VERBOSE $D/statifier_before_dump.sh    $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_loader.sh         $WORK_DIR           || return
 	$SH_VERBOSE $D/statifier_dump.sh           $WORK_DIR           || return
-	$SH_VERBOSE $D/statifier_before_starter.sh $WORK_DIR           || return
 	$SH_VERBOSE $D/statifier_create_starter.sh $WORK_DIR           || return
 	$SH_VERBOSE $D/statifier_create_exe.sh     $WORK_DIR           || return
 	return 0

@@ -27,8 +27,7 @@ function SetVariables
 
 	OPTION_SRC=$WORK_COMMON_DIR/option.src
 	COMMON_SRC=$WORK_COMMON_DIR/common.src
-	DUMP_SRC=$WORK_COMMON_DIR/dump.src
-	STARTER_SRC=$WORK_COMMON_DIR/starter.src
+	LOADER_SRC=$WORK_COMMON_DIR/loader.src
 
 	# Directoty for adjusted files.
 	WORK_GDB_CMD_DIR=$WORK_DIR/gdb_cmd
@@ -44,6 +43,7 @@ function SetVariables
 
 	# Directory for temp files built during new exe file constructions.
 	WORK_OUT_DIR=$WORK_DIR/out
+
 	return 0
 }
 
