@@ -97,6 +97,7 @@ SCRIPTS =             \
 
 HELPER_SCRIPTS =      \
    dumps.sh           \
+   maps.sh            \
    regs.sh            \
    set_thread_area.sh \
    split.sh           \
