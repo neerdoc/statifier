@@ -47,7 +47,7 @@ function Main
 	local val_interpreter
 	val_interpreter=`$D/$elf_class/elf_data -i $opt_orig_exe` || return
 
-	readelf --syms            $val_interpreter > $LOADER_SYMBOLS || return
+	$D/$elf_class/elf_symbols $val_interpreter > $LOADER_SYMBOLS || return
 
 	(
 		set -e
