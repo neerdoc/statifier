@@ -1,3 +1,16 @@
+* Wed Feb 16 2005 <valery_reznic@users.sourceforge.net> 1.6.3-1
+- updated FAQ and doc/Porting.txt
+- thread local storage related ifdefs were moved frpm set_thread_area_addr.c
+  to cpus/*/thread_local_storage_syscall.h files
+- now really, not blind supported thread local storage on amd64:
+  set_thread_area_addr.c updated to support arch_prctl syscall;
+  cpus/x86_64/set_thread_area.{S,gdb} updated from "blind" implementation
+  to the real (working :) one
+- maps.sh - adopted for amd64 2.6.9, where vsyscall's area can't be dumped
+  statifier.gdb - added third parameter (val_uname_m) to the MAPS_SH
+  statifier_dump.sh - added @val_uname_m@ / $val_uname_m replacement 
+  in statifier.gdb
+
 * Mon Jan 24 2005 <valery_reznic@users.sourceforge.net> 1.6.2-1
 - LIBC_STACK_END don't updated for alpha
 
