@@ -16,15 +16,7 @@ function GetProgramInterpreter
 		Echo "$0: Usage: GetProgramInterpreter <executable>"
 		return 1
 	}
-	local Executable="$1"
-	local res
-	res="`readelf --program-headers $Executable`" || return 
-	echo "$res" | awk '{
-		if ($0 ~ "[[].*]") {
-			print substr($NF, 1, match($NF, "]") - 1);
-			exit 0;
-		}
-	}' || return
+	$D/$elf_class/elf_data -i $1 || return
 	return 0
 }
 
@@ -146,57 +138,43 @@ function Main
 
 	local val_interpreter
 	val_interpreter=`GetProgramInterpreter $opt_orig_exe`
-	[ "x$val_interpreter" = "x" ] && {
-		Echo "$0: Interpreter not found in the '$opt_orig_exe'"
-		return 1
-	}
 
 	readelf --syms            $val_interpreter > $LOADER_SYMBOLS || return
-	readelf --program-headers $val_interpreter > $LOADER_PHDRS   || return
 
-	local val_virt_addr val_base_addr
-	val_virt_addr=`GetInterpreterVirtAddr $val_interpreter` || return
+	# Now it will not work for ld-linux with fixed load address.
+	# but anyway I am goint to implement it by another way
+	# and in another place
+	local val_base_addr
 	val_base_addr=`GetInterpreterBaseAddr $val_interpreter` || return
 
 	# I saw it on linux 2.6.6 with ld 2.3.2. which has fixed VirtAddr
-	[ "x$val_base_addr" = "x0x0" ] && val_base_addr=$val_virt_addr
-	[ "x$val_base_addr" = "x0x0" ] && {
-		# val_virt_addr = 0x0 too. Bad. Give error and exit.
-		Echo "$0: Can't find val_base_addr for '$val_interpreter': val_base_addr=val_virt_addr=0x0"
-		return 1
-	}
-	[ "$val_virt_addr" = "$val_base_addr" -o "$val_virt_addr" = "0x0" ] || {
-		Echo "$0: Interpreter's '$val_interpreter' val_virt_addr='$val_virt_addr' and val_base_addr='$val_base_addr' are different."
-		return 1
-	}
+	#[ "x$val_base_addr" = "x0x0" ] && val_base_addr=$val_virt_addr
+	#[ "x$val_base_addr" = "x0x0" ] && {
+	#	# val_virt_addr = 0x0 too. Bad. Give error and exit.
+	#	Echo "$0: Can't find val_base_addr for '$val_interpreter': val_base_addr=val_virt_addr=0x0"
+	#	return 1
+	#}
+
+	#[ "$val_virt_addr" = "$val_base_addr" -o "$val_virt_addr" = "0x0" ] || {
+	#	Echo "$0: Interpreter's '$val_interpreter' val_virt_addr='$val_virt_addr' and val_base_addr='$val_base_addr' are different."
+	#	return 1
+	#}
 
 	# These variables I need only in case when 
 	# autodetection used for dl variables
-	local val
-	val=`GetInterpreterVirtAddr2 $val_interpreter` || return
-	set -- $val
-	local val_virt_addr2=$1
-	local val_size2=$2
 	
-	# Is interpreter stripped ?
-	val=`$D/elf_stripped $val_interpreter` || return
-	local val_interpreter_has_symtab
-	if [ "x$val" = "x" ]; then
-		val_interpreter_has_symtab="yes"
-	else
-		val_interpreter_has_symtab="no"
-	fi
-
 	(
 		set -e
 		echo "val_uname_m=$val_uname_m"
 		echo "val_elf_class=$val_elf_class"
 		echo "val_interpreter='$val_interpreter'"
-		echo "val_interpreter_has_symtab='$val_interpreter_has_symtab'"
-		echo "val_virt_addr='$val_virt_addr'"
 		echo "val_base_addr='$val_base_addr'"
-		echo "val_virt_addr2='$val_virt_addr2'"
-		echo "val_size2='$val_size2'"
+		$D/$elf_class/elf_data                 \
+			-T val_interpreter_has_symtab= \
+			-B val_virt_addr=              \
+                   	-W val_virt_addr2=             \
+			-S val_size2=                  \
+		$val_interpreter
 		CheckTls
 	) || return 
 	return 0
