@@ -1,3 +1,6 @@
+1.2.0
+   Added support for amd64 (x86_64) processor
+
 1.1.1
    Added missing path to set_threa_area_addr
    Fixed segfault in the statified executables which used
