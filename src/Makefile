@@ -141,6 +141,13 @@ $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
 	gcc $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
+
+# I need include start.S before and end.S after each .S file
+# Sure, I don't want write this includes into each source, so i use gcc flags
+# But, gcc have only -include flag, with means - "include before".
+# My workaround - pretend I am build end.S with -include start.S and
+# -include $<
+# 
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S processor.h start.S end.S
 	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
 
