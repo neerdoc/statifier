@@ -74,7 +74,7 @@ define is_it_syscall_4
 		if (*($my_pc+1) == $val_syscall_byte_2)
 			if (*($my_pc+2) == $val_syscall_byte_3)
 				if (*($my_pc+3) == $val_syscall_byte_4)
-					it_is_syscall = 1
+					set $it_is_syscall = 1
 				end
 			end
 		end
@@ -97,7 +97,7 @@ define is_it_syscall
 		is_it_syscall_2
 	else
 		if ($val_syscalls_bytes == 4)
-			is_it_syscall
+			is_it_syscall_4
 		else
 			shell echo "gdb: unsupported syscalls_bytes: should be 2 or 4" 1>&2
 			quit 1
