@@ -14,8 +14,17 @@
 process_file=$1
 maps_file=$2
 
+# Process file is output from gdb's info process and
+# has following format: (without #)
+#process 24039
+#cmdline = '/bin/df'
+#cwd = '/home/users/valery'
+#exe = '/bin/df'
+
+# Get PID of inspected file
 read dummy1 pid dummy2 < $process_file || exit
 rm -f $maps_file || exit
+
 awk '{
 	StartStop  = $1
 	Permission = $2
