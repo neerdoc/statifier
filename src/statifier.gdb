@@ -91,7 +91,9 @@ end
 # source set_thread_area file with define for set_thread_area command
 source @SET_THREAD_AREA_GDB@
 
-break *$BREAKPOINT_THREAD
+set $val_base_addr = $val_interpreter_entry - $val_interpreter_file_entry
+
+break *($BREAKPOINT_THREAD + $val_base_addr)
 commands
 	silent
 	my_separator set_thread_area
@@ -109,7 +111,7 @@ my_delete $val_has_tls
 # and do relocation.
 # Also (depend on LD_BIND_NOW) symbols binding can be done too.
 # Loader will stop on this breakpoint just before running .so _init function
-break *$BREAKPOINT_START
+break *($BREAKPOINT_START + $val_base_addr)
 commands
 	silent
 	# Save mappings. I need it for start/stop addreses of the segments
