@@ -4,7 +4,6 @@
      /usr/lib/statifier/@ELF_CLASS@/elfinfo
      /usr/lib/statifier/@ELF_CLASS@/loader_base_test
      /usr/lib/statifier/@ELF_CLASS@/phdrs
-     /usr/lib/statifier/@ELF_CLASS@/readlink
      /usr/lib/statifier/@ELF_CLASS@/regs
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area_addr
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
