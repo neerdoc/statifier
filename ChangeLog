@@ -1,3 +1,29 @@
+* Thu May  4 2004 <valery_reznic@users.sourceforge.net> 1.3.0-1
+- statifier_common.sh, CheckTls - grep was changed to awk
+
+* Mon May  3 2004 <valery_reznic@users.sourceforge.net> 1.3.0-1
+- added options --verbose and --keep-working-directory
+- src/regs.sh now not use GNU awk extension.
+- src/regs.awk was added.
+
+* Sun May  2 2004 <valery_reznic@users.sourceforge.net> 1.3.0-1
+- added options --versions and --help
+
+* Thu Apr 29 2004 <valery_reznic@users.sourceforge.net> 1.3.0-1
+- added file statifier_parser.src - parsing options.
+- added Echo function to the statifier_lib.src
+- updated man page
+
+* Wed Apr 28 2004 <valery_reznic@users.sourceforge.net> 1.3.0-1
+- changes in phdrs.c - relax check in order to work with
+  linux >= 2.5 and gdb 6.1
+- statifier_common.sh - more correct handling of BaseAddr and VirtAddr.
+- map_reg_core.gdb was simplified - any way now i have absolute
+  address of _dl_start_user and need no gdb's help to find it.
+- get rid of gdb's (>= 6.0) message: rtld.c: No such file or directory
+- statifier.sh if executable have no absolute path prepend ./ to it name
+  (it prevent gdb from ocassionly pickup executable from another place)
+
 * Sun Apr 25 2004 <valery_reznic@users.sourceforge.net> 1.2.1-1
 - massive changes: statifier.sh split to lot of statifier_*.sh
 - add statifier_lib.src
@@ -19,7 +45,7 @@
 - added support for amd64 (x86_64) processor
 
 * Wed Apr  7 2004 <valery_reznic@users.sourceforge.net> 1.1.1-1
-- reworked tsl detection. added tls_test program
+- reworked tls detection. added tls_test program
 - add readlink program
 - add dl-var
 - set some loader variables as they should be

@@ -1,3 +1,11 @@
+1.3.0
+   Now it's really work for linux kernel >= 2.5
+   Added options --set and --unset, which allow set / unset environment
+   for statified program without affecting statifier itself.
+   Added options --verbose and --keep-working-directory for debugging purpose. 
+   Work with non-gnu awk too (as in debian) 
+   Suppressed gdb's (>= 6.0) message: rtld.c: No such file or directory
+
 1.2.1
    Added support for linux kernel >= 2.5
    Big internal changes.
