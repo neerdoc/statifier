@@ -9,18 +9,14 @@
 #
 # RH9.0 used TLS - thread local storage.
 
-REG_SIZE = 4
-EAX          = 0 * REG_SIZE
-ENTRY_NUMBER = 1 * REG_SIZE
-BASE         = 2 * REG_SIZE
-LIMIT        = 3 * REG_SIZE
-FLAGS        = 4 * REG_SIZE
-NEXT_CODE    = 5 * REG_SIZE  # Should be last !!!
+MY_DATA EAX
+MY_DATA ENTRY_NUMBER
+MY_DATA BASE
+MY_DATA LIMIT
+MY_DATA FLAGS
 
-	call	addr
-addr:
-	popl	%eax
-	addl	$(data - addr), %eax
+	GET_DATA_ADDR %eax
+
 	pushl	FLAGS(%eax)
 	pushl	LIMIT(%eax)
 	pushl	BASE(%eax)
@@ -33,7 +29,3 @@ addr:
 	popl	%ebx
 	popl	%ebx
 	popl	%ebx
-	jmp	data + NEXT_CODE
-
-data:
-	# Here will be arguments for set_thread_area

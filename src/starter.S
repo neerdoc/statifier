@@ -7,43 +7,29 @@
 
 # This code is processor depended !!!
 #
-# RH9.0 used TLS - thread local storage.
-# It is why I got segfault
-# when I try write to %gs - I have to fix it.
-# 
-# x[3]86 has 32 bits registers 
-
-REG_SIZE = 4
 
 # It was translated from the struct user_reg_struct
 # (file /usr/include/sys/user.h)
 
-EBX      =  0 * REG_SIZE
-ECX      =  1 * REG_SIZE
-EDX      =  2 * REG_SIZE
-ESI      =  3 * REG_SIZE
-EDI      =  4 * REG_SIZE
-EBP      =  5 * REG_SIZE
-EAX      =  6 * REG_SIZE
-DS       =  7 * REG_SIZE
-ES       =  8 * REG_SIZE
-FS       =  9 * REG_SIZE
-GS       = 10 * REG_SIZE
-ORIG_EAX = 11 * REG_SIZE  # what is orig_eax good for ? 
-EIP      = 12 * REG_SIZE
-CS       = 13 * REG_SIZE
-EFLAGS   = 14 * REG_SIZE
-ESP      = 15 * REG_SIZE
-SS       = 16 * REG_SIZE
+MY_DATA EBX
+MY_DATA ECX
+MY_DATA EDX
+MY_DATA ESI
+MY_DATA EDI
+MY_DATA EBP
+MY_DATA EAX
+MY_DATA DS
+MY_DATA ES
+MY_DATA FS
+MY_DATA GS
+MY_DATA ORIG_EAX
+MY_DATA EIP
+MY_DATA CS
+MY_DATA EFLAGS
+MY_DATA ESP
+MY_DATA SS
 
-	call	addr			# really this instruction 
-					# push 'addr' to the stack
-addr:
-	popl	%eax			# now got it to the %eax
-	addl	$(regs - addr), %eax	# now %eax point to the regs: -
-					# it is begin of the area were 
-					# registers values are stored
-
+	GET_DATA_ADDR %eax
 					# Let restore registers now
 	movl	EBX(%eax),	%ebx	
 	movl	ECX(%eax),	%ecx	
@@ -86,5 +72,3 @@ addr:
 					#   initialization.
 					# And (I hope) do not change too mach
 					# eflags
-regs:
-	# Here will be registers values
