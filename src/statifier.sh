@@ -61,6 +61,10 @@ function GetDataFromInterp
 	local Symbol
 	local SymList="_dl_start_user _dl_argc _dl_argv _environ _dl_auxv _dl_platform _dl_platformlen"
         local NameList="DL_START_USER DL_ARGC DL_ARGV DL_ENVIRON DL_AUXV DL_PLATFORM DL_PLATFORMLEN"
+	# "-" - have to have value
+	# otherwise default value in case symbol not found
+	# value shoud be in hex and without leading 0x
+	local DefaultList="- - - - - 0 0"
 
 	Dump=`objdump --syms $Interp` || return
 	echo "$Dump" | 
@@ -69,43 +73,47 @@ function GetDataFromInterp
 		-vInterp="$Interp"               \
 		-vSymList="$SymList"             \
 		-vNameList="$NameList"           \
+		-vValueList="$DefaultList"       \
 	'
 		BEGIN {
 			found = 0
-			num1 = split(SymList , aSymList);
-			num2 = split(NameList, aNameList);
+			num1 = split(SymList  , aSymList  );
+			num2 = split(NameList , aNameList );
+			num3 = split(ValueList, aValueList);
 			if (num1 != num2) {
 				system("echo " Name "SymList and NameList have different number of elements. 1>&2")
 				exit(1)
 			}
-			num = num1
-			for (i = 1; i <= num; i++) {
-				aValList[aTmp[i]] = "";
+			if (num1 != num3) {
+				system("echo " Name "SymList and ValueList have different number of elements. 1>&2")
+				exit(1)
 			}
+			num = num1
 		}
 		{
 			for (i = 1; i <= num; i++) {
 				if ($NF == aSymList[i]) {
-					aValList[i] = $1
+					aValueList[i] = $1
 					found++
 					if (found == num) exit(0)
 				}
 			}
 		}
 		END {
-			if (found == num) {
+			if (found != num) {
+				is_error = 0
 				for (i = 1; i <= num; i++) {
-					print aNameList[i] "=0x" aValList[i]
-				} 
-				exit(0);
-			} else {
-				for (i = 1; i <= num; i++) {
-					if (aValList[i] == "") {
+					if (aValueList[i] == "-") {
+						is_error = 1
 						system("echo " Name aSymList[i] " not found in the " Interp " 1>&2")
 					}
 				}
-				exit(1);	
+				if (is_error) exit(1);	
 			}
+			for (i = 1; i <= num; i++) {
+				print aNameList[i] "=0x" aValueList[i]
+			} 
+			exit(0);
 		}
 	' || return
 	return 0

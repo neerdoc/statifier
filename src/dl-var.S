@@ -17,8 +17,8 @@ MY_DATA DL_ARGC
 MY_DATA DL_ARGV
 MY_DATA ENVIRON
 MY_DATA DL_AUXV
-MY_DATA DL_PLATFORM
-MY_DATA DL_PLATFORMLEN
+MY_DATA DL_PLATFORM      /* May be 0 */
+MY_DATA DL_PLATFORMLEN   /* May be 0 */
 
 	GET_DATA_ADDR	%edx
 
@@ -79,26 +79,28 @@ auxv_base:
 	mov	%eax,	REG_SIZE(%ecx)
 	jmp	auxv
 auxv_platform:
-	#movl	$0x0, 0
 	movl	DL_PLATFORM(%edx),	%ebx	# ebx = &_environ
+	cmpl	$0,	%ebx			# have i platform addr ?
+	je	plat_len			# no
 	pushl	REG_SIZE(%ecx)
 	popl	(%ebx,%eax)
 	cmpl	$0,	REG_SIZE(%ecx)		# Is it NULL ?
 	je	auxv
 	# Now find out _dl_platformlen
-	pushl	%ecx
-	movl	REG_SIZE(%ecx),	%ecx	# address of _dl_platform
+plat_len:
+	movl	REG_SIZE(%ecx),	%esi	# address of _dl_platform
 	jmp	platform_len_0
 platform_len:
-	incl	%ecx
+	incl	%esi
 platform_len_0:
-	cmpb	$0,	(%ecx)
+	cmpb	$0,	(%esi)
 	jne	platform_len
 platform_len_end:	
-	decl	%ecx
+	decl	%esi
 	movl	DL_PLATFORMLEN(%edx),	%ebx	# ebx = &_environ
-	movl	%ecx,	(%ebx,%eax)
-	popl	%ecx
+	cmpl	$0,	%ebx			# have i platformlen addr ?
+	je	auxv				# no
+	movl	%esi,	(%ebx,%eax)
 
 	jmp	auxv
 auxv_end:
