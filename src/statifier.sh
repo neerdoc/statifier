@@ -141,7 +141,7 @@ function GetInterpreterBase
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	gdb                                                            \
+	$GDB                                                           \
 		--batch                                                \
 		-n                                                     \
 		-x "$WORK_GDB_CMD_DIR/first.gdb"                       \
@@ -210,6 +210,34 @@ function CreateNewExe
 	return 0
 }
 
+function GDB_Name
+{
+	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
+		echo "$0: Usage: GDB_Name <ElfClass> <UnameM>" 1>&2
+		return 1
+	}
+	local ElfClass=$1
+	local UnameM=$2
+	local GDB="gdb"
+	case "$ElfClass" in
+		32)
+			case "$UnameM" in
+				x86_64) GDB=gdb32;;
+			esac || return
+		;;
+
+		64)
+			GDB="gdb"
+		;;
+		*)
+			echo "$0: GDB_Name: ElfClass '$ElfClass'. Should be '32' or '64'" 1>&2 || return
+		;;
+	esac || return
+
+	echo $GDB || return
+	return 0
+}
+
 function Main
 {
 	local Interp
@@ -217,6 +245,10 @@ function Main
 	local Dl_Data
 	local StartFunc="_dl_start_user"
 	local WorkDir=$WORK_DIR
+	local GDB
+	local UnameM
+
+	UnameM=`uname -m` || return
 
 	Sanity || return
 	Interp=`GetProgramInterpreter`
@@ -246,6 +278,10 @@ function Main
 	SUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	# End of variables
+
+	# Determine debugger name
+	GDB=`GDB_Name $ElfClass $UnameM` || return
+
 	Dl_Data="`GetDataFromInterp $Interp`" || return
 	eval "$Dl_Data" || return
 
