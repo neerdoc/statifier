@@ -61,8 +61,10 @@ INCLUDE_FILES = \
 
 # small C programs, used by statifier.
 UTILS =                 \
+   elf_class            \
    elf_data             \
    elf_soname           \
+   elf_symbols          \
    fep                  \
    inject_starter       \
    non_pt_load          \
@@ -169,8 +171,11 @@ all-local-32 all-local-64:
 	ELF_CLASS=$(subst all-local-,,$@) && $(MKDIR) $$ELF_CLASS && $(MAKE) ELF_CLASS=$$ELF_CLASS all-local-internal
 
 all-local-internal: $(TARGETS)
+	@# I make these links because i want statifier just work "in place"
+	@# without installation
 	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES)         .
 	cd $(ELF_CLASS) && $(LN) $(PER_CPU_LINK_NAMES) .
+	$(LN) $(ELF_CLASS)/elf_class .
 
 VERSION: $(TOP_DIR)/VERSION
 	$(RM) $@
@@ -264,9 +269,14 @@ install-local-internal:
 	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_INCLUDE_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
+	@# Here i use mv, not link (as in all-local-internal)
+	@# because i really need only one file in the package
+	@# in the all-local-internal i have to use ln, in order
+	@# to keep make happy and don't trying rebuild elf_class 
+	cd $(LIB_DIR)     && $(MV)         $(ELF_CLASS)/elf_class .
 
 clean-local: clean-local-32 clean-local-64
-	$(RM) VERSION
+	$(RM) VERSION elf_class
 
 clean-local-32 clean-local-64:
 	$(RMDIR) $(subst clean-local-,,$@)
