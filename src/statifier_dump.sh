@@ -15,7 +15,7 @@ function DumpRegistersAndMemory
 	$GDB                                                \
 		--batch                                     \
 		-nx                                         \
-		--command "$WORK_GDB_CMD_DIR/statifier.gdb" \
+		--command "$GDB_RUNNER_GDB" \
 	> $LOG_FILE || return
 	return 0
 }
@@ -74,6 +74,7 @@ function CreateVar
 
 	# Create var.gdb
 	echo "# Variables for gdb"                                     || return
+	echo "set \$val_interpreter_file_entry = ${val_interpreter_file_entry}"       || return
 	echo "set \$BREAKPOINT_START  = ${val_breakpoint_start}"       || return
 	echo "set \$BREAKPOINT_THREAD = ${val_breakpoint_thread:-0x0}" || return
 	echo "set \$val_has_tls       = ${val_has_tls}"                || return
@@ -85,6 +86,7 @@ function CreateVar
 function Main
 {
 	local GDB
+	local File
 
 	set -e
 		source $OPTION_SRC || return
@@ -102,6 +104,14 @@ function Main
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
 	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
+	CONST_GDB="$D/const.gdb"
+	GDB_RUNNER="$D/gdb_runner"
+	File="statifier.gdb"
+	STATIFIER_GDB_IN="$D/$File"
+	STATIFIER_GDB="$WORK_GDB_CMD_DIR/$File"
+	File="gdb_runner.gdb"
+	GDB_RUNNER_GDB_IN="$D/$File"
+	GDB_RUNNER_GDB="$WORK_GDB_CMD_DIR/$File"
 	# End of variables
 
 	# Determine debugger name
@@ -113,8 +123,7 @@ function Main
 	# Create env.gdb
 	CreateVar > $VAR_GDB || return
 
-	# Transform file for gdb
-	local File="statifier.gdb"
+	# Transform files for gdb
 	sed                                                          \
         	-e "s#@CORE_FILE@#$CORE_FILE#g"                      \
         	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
@@ -128,7 +137,16 @@ function Main
         	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                        \
         	-e "s#@VAR_GDB@#$VAR_GDB#g"                          \
         	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"            \
-	< $D/$File > $WORK_GDB_CMD_DIR/$File || return
+	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
+
+	sed \
+        	-e "s#@ENV_GDB@#$ENV_GDB#g"                          \
+        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
+        	-e "s#@VAR_GDB@#$VAR_GDB#g"                          \
+        	-e "s#@CONST_GDB@#$CONST_GDB#g"                      \
+        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"                    \
+        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"              \
+	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
 	DumpRegistersAndMemory || return
 	return 0
