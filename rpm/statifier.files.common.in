@@ -13,4 +13,5 @@
      /usr/lib/statifier/@ELF_CLASS@/regs.sh
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.sh
      /usr/lib/statifier/@ELF_CLASS@/split.sh
+     /usr/lib/statifier/@ELF_CLASS@/gdb_runner.gdb
      /usr/lib/statifier/@ELF_CLASS@/statifier.gdb
