@@ -23,6 +23,11 @@ Porting ELF statifier to new cpu
    This directory should contain following files:
 
    processor.h         - file which described some processor specific things.
+   thread_local_storage_syscall.h
+                       - file which defined syscall used by loader 
+			 for thread local storage. If there is no support
+			 for thread local storage, file should define
+			 nothing, but still it should exist.
    regs.list           - list of processor's integer registers
    set_thread_area.gdb - command file for gdb to dump set_thread_area
                          parameters.
