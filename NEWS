@@ -1,3 +1,6 @@
+1.6.1
+   statifier work on RHEL3.2
+
 1.6.0
    statifier was adopted to work with RHEL 3 and 3.1
    all phrdrs (except PT_INTERP and PT_PHDR) are copied to the
