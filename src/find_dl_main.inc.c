@@ -235,7 +235,22 @@ int main(int argc, char *argv[], char *envp[])
 	new_found = ptr - start_ptr; /* Calculate new offset */
 	if (new_found == found) { /* Pattern found at same offset !
 				     I find this address ! */
-		printf("0x%lx\n", new_found + (file_rw_seg_addr - file_base_addr));
+		/*
+		 * When  dynamic loader has a symtab and i look for
+		 * the symbols' value there and i got relative symbol's value
+		 * if loader has vaddr == 0 (file_base_addr) and absolute
+		 * value if loader has vaddr != 0.
+		 * This program should do exactly same: if loader's
+		 * addres == 0, print offset, and if not - print absolute value.
+		 *
+		 * if loaders's base addr != 0, then 
+		 *    new_found + file_rw_seg_addr give us absolute symbol addr.
+		 * if loaders's base adr == 0; then
+		 *    new_found + file_rw_seg_addr give us symbol's offset.
+		 * So, in any case I have to print out
+		 * 'new_found + file_rw_seg_addr'
+		 */
+		printf("0x%lx\n", new_found + file_rw_seg_addr);
 		exit(0);
 	} 
 
