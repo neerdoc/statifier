@@ -22,11 +22,12 @@ FILES_TO_BE_EMBEDDED = \
    set_thread_area     \
    starter             \
 
-SCRIPTS =       \
-   dumps.sh     \
-   regs.sh      \
-   split.sh     \
-   statifier.sh \
+SCRIPTS =             \
+   dumps.sh           \
+   regs.sh            \
+   set_thread_area.sh \
+   split.sh           \
+   statifier.sh       \
  
 RUNNERS =    \
    statifier \
