@@ -11,7 +11,7 @@
  * This program print out "ELF" if elf and nothing if not
  */
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <elf.h>
