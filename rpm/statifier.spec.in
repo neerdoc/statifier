@@ -7,13 +7,21 @@ Summary:       Convert elf dynamic linked exe to "pseudo-static"
 Packager:      Valery Reznic <valery_reznic@users.sourceforge.net>
 Source:	       %{name}-%{version}.tar.gz
 Url:           http://%{name}.sourceforge.net	
+
 ExclusiveOs:   Linux
+
 ExclusiveArch: %{ix86}
 ExclusiveArch: x86_64
 ExclusiveArch: alpha
+
 Requires:      binutils
+Requires:      fileutils
 Requires:      gawk
 Requires:      gdb >= 5.2
+Requires:      sed
+Requires:      sh-utils
+Requires:      textutils
+
 BuildRoot:     %{_builddir}/%{buildsubdir}-install-root
 
 %ifarch %{ix86}
