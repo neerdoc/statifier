@@ -10,6 +10,7 @@ Url:           http://%{name}.sourceforge.net
 ExclusiveOs:   Linux
 ExclusiveArch: %{ix86}
 ExclusiveArch: x86_64
+ExclusiveArch: alpha
 Requires:      binutils
 Requires:      gawk
 Requires:      gdb >= 5.2
