@@ -113,6 +113,7 @@ function CreateNewExe
 
 	local STARTER=$WORK_OUT_DIR/starter
 	local STARTER_SEGMENT=$WORK_OUT_DIR/starter.seg
+	local SECTIONS=$WORK_OUT_DIR/sections
 
 	local IGNORED_SEGMENTS
 	local DUMP_FILES
@@ -121,6 +122,7 @@ function CreateNewExe
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
 	$D/phdrs                               \
 		$STARTER_SEGMENT               \
+		$SECTIONS                      \
 		$OrigExe                       \
 		$CORE_FILE                     \
 		$STARTER                       \
@@ -132,12 +134,12 @@ function CreateNewExe
 	rm -f $NewExe || return
 	case "$prop_starter_under_executable" in
 		0)
-			cat $DUMP_FILES $STARTER_SEGMENT > $NewExe || return
+			cat $DUMP_FILES $STARTER_SEGMENT $SECTIONS > $NewExe || return
 			$D/copy_ehdr $STARTER_SEGMENT $NewExe || return
 		;;
 
 		1)
-			cat $STARTER_SEGMENT $DUMP_FILES > $NewExe || return
+			cat $STARTER_SEGMENT $DUMP_FILES $SECTIONS > $NewExe || return
 		;;
 	esac
 	chmod +x $NewExe || return
