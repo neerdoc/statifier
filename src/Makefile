@@ -98,14 +98,14 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 
 $(ELF_CLASS)/set_thread_area_addr: processor.h
 
-$(ELF_CLASS)/dl-var.o: $(CPU_DIR)/AT.h
+$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
 
-$(CPU_DIR)/AT.h: /usr/include/elf.h elf2at.make.sh
+$(ELF_CLASS)/AT.h: /usr/include/elf.h elf2at.make.sh
 	$(RM) $@
 	/bin/sh elf2at.make.sh $< $@ || { $(RM) $@; exit 1; }
 
-$(ELF_CLASS)/regs.o: $(CPU_DIR)/regs.inc
-$(CPU_DIR)/regs.inc: $(CPU_DIR)/regs.list regs2asm.make.sh
+$(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
+$(ELF_CLASS)/regs.inc: $(CPU_DIR)/regs.list regs2asm.make.sh
 	$(RM) $@
 	/bin/sh regs2asm.make.sh $< $@ || { $(RM) $@; exit 1; }
 
@@ -118,11 +118,11 @@ $(ELF_CLASS)/regs.awk: $(CPU_DIR)/regs.list regs2awk.make.sh
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
 $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
-	gcc -o $@ $< $(FLAGS_ELF) -Wl,--oformat,binary,--entry=0x0 -nostdlib
+	gcc $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S processor.h start.S end.S
-	gcc -c -o $@ $(FLAGS_ELF) -nostdinc -I./$(CPU_DIR) -include ./processor.h -include ./start.S -include ./$< end.S
+	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
 LIB_DIR_ELF = $(LIB_DIR)/$(ELF_CLASS)
@@ -149,7 +149,6 @@ install-local-internal:
 	cd $(LIB_DIR_ELF) && $(LN) $(LINK_NAMES) .
 
 clean-local:
-	$(RM) cpus/*/{AT.h,regs.inc}
 	$(RMDIR) 32 64
 
 include ../Makefile.include
