@@ -1,5 +1,7 @@
-%defattr(-,root,root)
-
+#
+# List of "other files", i.e not per-elf files and not
+# common files for elf
+#
 %dir /usr/lib/statifier
      /usr/lib/statifier/VERSION
      /usr/lib/statifier/statifier.sh
