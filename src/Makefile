@@ -148,7 +148,9 @@ install-local-internal:
 	$(INSTALL_RUN) $(TARGETS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN) $(LINK_NAMES) .
 
-clean-local:
-	$(RMDIR) 32 64
+clean-local: clean-local-32 clean-local-64
+
+clean-local-32 clean-local-64:
+	$(RMDIR) $(subst clean-local-,,$@)
 
 include ../Makefile.include
