@@ -111,8 +111,8 @@ define is_it_syscall
 end
 
 # Main part
-# Catch sigquit signal (gdb_runner will send it to itself)
-handle SIGQUIT stop nopass
+# Catch SIGPIPE signal (gdb_runner will provoke it)
+handle SIGPIPE stop nopass
 
 # run gdb_runner with parameter "program to be statified"
 run @EXECUTABLE_FILE@
@@ -154,7 +154,7 @@ echo my_count=
 echo \n
 
 # Reset  sighandler to defaut.
-handle SIGQUIT stop nopass
+handle SIGPIPE stop nopass
 # Do execve !
 si
 
