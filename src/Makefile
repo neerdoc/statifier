@@ -110,7 +110,7 @@ $(ELF_CLASS)/AT.h: /usr/include/elf.h
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
-#$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: asm/$(PROCESSOR_ELF)/%.S processor.h start.S end.S
+#$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: cpus/$(PROCESSOR_ELF)/%.S processor.h start.S end.S
 #	@$(MKDIR) $(ELF_CLASS)
 #	gcc -o $@ $(FLAGS_ELF) -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
@@ -118,7 +118,7 @@ $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
 	gcc -o $@ $< $(FLAGS_ELF) -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
-$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: asm/$(PROCESSOR_ELF)/%.S processor.h start.S end.S
+$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: cpus/$(PROCESSOR_ELF)/%.S processor.h start.S end.S
 	@$(MKDIR) $(ELF_CLASS)
 	gcc -c -o $@ $(FLAGS_ELF) -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
 
