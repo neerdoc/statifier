@@ -1,2 +1,8 @@
+* Wed Mar 24 2004 <valery_reznic@users.sourceforge.net> 1.1.0-1
+- a lot of change in order to support TLS (thread local storage)
+
+* Mon Mar 16 2004 <valery_reznic@users.sourceforge.net> 1.1.0-1
+- Fixed bug with Interpreter detection for (at least) LANG=es_ES@euro
+
 * Mon Mar 15 2004 <valery_reznic@users.sourceforge.net> 1.0.0-1
 - First public release
