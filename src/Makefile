@@ -24,6 +24,7 @@ UTILS =                 \
    readlink             \
    set_thread_area_addr \
    strtoul              \
+   tls_test             \
 
 FILES_TO_BE_EMBEDDED = \
    dl-var              \
