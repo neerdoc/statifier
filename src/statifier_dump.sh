@@ -141,7 +141,7 @@ function Main
         	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
         	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"           \
         	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"     \
-        	-e "s#@YSCALL_GDB@#$SYSCALL_GDB#g"          \
+        	-e "s#@SYSCALL_GDB@#$SYSCALL_GDB#g"         \
         	-e "s#@VAR_GDB@#$VAR_GDB#g"                 \
 	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
