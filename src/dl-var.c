@@ -51,10 +51,12 @@ void do_work(struct dl_var_data *data, unsigned long *stack)
 	while (*temp != 0) temp++; 
 	auxv = (ElfW(auxv_t)*)(temp + 1); 
 
-	*(data->LIBC_STACK_END) = (unsigned long)stack;
+	if (data->LIBC_STACK_END) {
+		*(data->LIBC_STACK_END) = (unsigned long)stack;
+	}
 	/* 
 	 * Adjust _dl_argc, _dl_argv, _environ and _dl_auxv 
-	 * loader's variables i
+	 * loader's variables
 	 */
 	*(data->DL_ARGC) = *argc;
 	*(data->DL_ARGV) = (unsigned long)argv;
