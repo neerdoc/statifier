@@ -1,3 +1,40 @@
+* Mon Jun 28 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
+- gdb has a bad habbit sometimes (for example auto-solib-add = on and
+  LD_PRELOAD is set - at least on amd64) output messages, which
+  not new-line terminated. '(no debugging symbols found)...'
+  So, statifier.gdb now output file separator to the gdb's log file
+  which begin with newline.
+
+* Thu Jun 24 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
+- cleanup for Makefile in rpm directory
+- statifier_common.sh now check if loader stripped.
+
+* Wed Jun 23 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
+- added elf_stripped program
+- added code (both new executables and changed script) for
+  dealing with stripped loaders (i.e loaders without symtab)
+
+* Tue Jun 17 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
+- statified executable include also non-allocated sections 
+  from original exe. It don't affect application running,
+  but make statified exe more friendly to gdb, objdump, readelf, etc.
+  To achive it, starter segment format was changed: now it NOT include
+  section headers. 
+  phdrs.c now create two output files: starter_segment and sections.
+  Sections file contains section headers and all non-allocated section
+  from original exe.
+  statifier_create_exe.sh was changed to deal with it.
+
+* Wed Jun 16 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
+- statifier_common.sh now use readelf instead of objdump to
+  dump symbol. It help to detect present of thread local storage
+  for stripped loader too.
+  GetSymbol function from statifier_lib.src now printed out second field 
+  instead of first, because objdump's and readelf's output formats are 
+  bit different. 
+- phdrs.c was changed to write output to the file instead of stdout.
+  statifier_create_exe.sh was changed to reflect this change. 
+
 * Tue Jun 15 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
 - more documentation added
 
