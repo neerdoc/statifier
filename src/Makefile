@@ -137,12 +137,12 @@ PER_CPU_INCLUDE_SCRIPTS = \
 
 PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 
-PER_CPU_SOURCES =             \
-   $(PER_CPU_ASM_SOURCES)     \
-   $(PER_CPU_GDB_SCRIPTS)     \
-   $(PER_CPU_INCLUDE_SCRIPTS) \
-   processor.h                \
-   regs.list                  \
+PER_CPU_SOURCES =                 \
+   $(PER_CPU_ASM_SOURCES)         \
+   $(PER_CPU_GDB_SCRIPTS)         \
+   $(PER_CPU_INCLUDE_SCRIPTS)     \
+   processor.h                    \
+   regs.list                      \
    thread_local_storage_syscall.h
  
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
