@@ -178,6 +178,31 @@ set $val_interpreter_entry = $pc
 # In this case 'val_offset' will be 0
 set $val_offset = $val_interpreter_entry - $val_interpreter_file_entry
 
+# Ok, all theory above was nice, but...
+# In the RHEL WS release 3 (Taroon Update 1)
+# after successful execve gdb not stop any more on the first
+# loader's instruction, but on the next one.
+# On the RHEL AS release 3 (Taroon) it's still ok.
+# There are following differences:
+#            WS                     AS
+#  kernel    2.4.21-9.ELsmp         2.4.21-4.ELsmp
+#  glibc     2.3.2-95.6             2.3.2-95.3
+#  gdb       6.0post-0.20031117.6rh 5.3.90-0.20030710.40rh
+# I have no idea which one (or combination) change the gdb's behavour.
+# Anyware, I have to deal with.
+# Idea is following: let us hope the first instruction is not 'jump' or 'call'.
+# So, progam counter will not changed significantly.
+# Because val_offset is multiply of page_size, I can just round it down to the
+# multiply of the page_size value.
+# Next questions: what is page_size ?
+# The smallest one that I saw is 4096 (0x1000)
+# But to be on the safe side 
+# (assuming first instruction is not 'jump' or 'call')
+# we can use some smaller value.
+# Let's say 128. (0x100) I have a hard time trying to imagine system
+# with page of this size.
+set $val_offset = (unsigned long)$val_offset & ~ (unsigned long)(0x100 - 1)  
+
 # now, let us do a real work
 # Here I am about to 'source @STATIFIER_GDB@'.
 # This file define some commands, set some breakpoints and invoce 'continue'.
