@@ -18,7 +18,3 @@ Statifier use following software:
 | uname    |  sh-utils             | coreutils           |
 | gdb      |  gdb                  | gdb                 |
 +----------+-----------------------+---------------------+
-
-Gdb version should support 'generate-core-dump' command.
-(For linux x86 it's  gdb-5.2, as it written in gdb's NEWS,
-I test it with gdb-5.3 
