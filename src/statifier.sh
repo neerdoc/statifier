@@ -81,6 +81,14 @@ function Main
 OrigExe=$1
 NewExe=$2
 
+# Gdb try to find exe in $PATH.
+# In order to avoid it I'll prepend ./ in case Executable
+# have no absolute path
+case "x$OrigExe" in
+	x/*) ;; # Do nothing, absolute path
+	*) OrigExe="./$OrigExe"
+esac
+
 # Temporary Work Directory
 WORK_DIR="${TMPDIR:-/tmp}/statifier.tmpdir.$$"
 #WORK_DIR="./.statifier"
