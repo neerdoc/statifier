@@ -12,10 +12,10 @@
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	$GDB                                                                  \
-		--batch                                                       \
-		-nx                                                           \
-		--command "$WORK_GDB_CMD_DIR/statifier.gdb"                   \
+	$GDB                                                \
+		--batch                                     \
+		-nx                                         \
+		--command "$WORK_GDB_CMD_DIR/statifier.gdb" \
 	> $LOG_FILE || return
 	return 0
 }
