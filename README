@@ -1,0 +1,16 @@
+Statifier create from dynamically linked ELF executable
+and all it's libraries (and all LD_PRELOAD libraries if any)
+one file. This file can be copied and run on another machine
+without need to drag all it's libraries.
+
+Statifier use following software:
+- awk
+- bash
+- objdump
+- readelf
+- sed
+- gdb.
+
+Gdb version should support 'generate-core-dump' command.
+(For linux x86 it's  gdb-5.2, as it written in gdb's NEWS,
+I test it with gdb-5.3 
