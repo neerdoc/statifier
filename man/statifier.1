@@ -17,8 +17,25 @@ Directory which contains all temporary files
 .TP
 \fBTMPDIR\fP
 Directory for temporary files. If not set \fB/tmp/\fP used.
+.SH EXAMPLES
+statifier has a load of options, so explain without examples how use
+it is nearly impossible.
+.TP
+\fBstatifier /bin/df df.static\fP
+Pretty trivial. Convert /bin/df to df.static
+.TP
+\fBLD_BIND_NOW=yes statifier /bin/df df.static\fP
+Something more intresting. Dynamic linker will resolve all symbols.
+So statifing will take longer, but resulting exe will have faster
+startup.
+.TP
+\fBLD_PRELOAD=/some/library/to/be/preloaded statifier /bin/df df.static\fP
+Will "link" /bin/df with preloaded library. Pay attention: this setting
+may affect statisfier itself.
 .SH LIMITATIONS
 Currently it work only on Linux x86 and x86_64.
 It was tested on RH7.2, 7.3 and 9 (x86) and SuSE (SLES 8) 8.1 amd64
+.SH SEE ALSO
+\fBld.so\fP(8).
 .SH AUTHORS
 Valery Reznic <valery_reznic@users.sourceforge.net>
