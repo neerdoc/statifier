@@ -50,23 +50,84 @@ function GetElfClass
 	return 0
 }
 
-function GetStartAddress
+function GetDataFromInterp
 {
-	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-		echo "$0: Usage: GetStartAddress <Interpreter> <FuncName>" 1>&2
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		echo "$0: Usage: GetDataFromInterp <Interpreter>" 1>&2
 		return 1
 	}
 	local Interp="$1"
-	local FuncName="$2"
 	local Dump
+	local Symbol
+	local SymList="_dl_start_user _dl_argc _dl_argv _environ"
+        local NameList="DL_START_USER DL_ARGC DL_ARGV DL_ENVIRON"
+
 	Dump=`objdump --syms $Interp` || return
-	echo "$Dump" | awk -vFuncName="$FuncName" '{ 
-		if ($NF == FuncName) {
+	echo "$Dump" | 
+	awk                                      \
+		-vName="$0: GetDataFromInterp: " \
+		-vInterp="$Interp"               \
+		-vSymList="$SymList"             \
+		-vNameList="$NameList"           \
+	'
+		BEGIN {
+			found = 0
+			num1 = split(SymList , aSymList);
+			num2 = split(NameList, aNameList);
+			if (num1 != num2) {
+				system("echo " Name "SymList and NameList have different number of elements. 1>&2")
+				exit(1)
+			}
+			num = num1
+			for (i = 1; i <= num; i++) {
+				aValList[aTmp[i]] = "";
+			}
+		}
+		{
+			for (i = 1; i <= num; i++) {
+				if ($NF == aSymList[i]) {
+					aValList[i] = $1
+					found++
+					if (found == num) exit(0)
+				}
+			}
+		}
+		END {
+			if (found == num) {
+				for (i = 1; i <= num; i++) {
+					print aNameList[i] "=0x" aValList[i]
+				} 
+				exit(0);
+			} else {
+				for (i = 1; i <= num; i++) {
+					if (aValList[i] == "") {
+						system("echo " Name aSymList[i] " not found in the " Interp " 1>&2")
+					}
+				}
+				exit(1);	
+			}
+		}
+	' || return
+	return 0
+}
+
+function GetInterpreterBase
+{
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		echo "$0: Usage: GetInterpeterBase <Interpreter>" 1>&2
+		return 1
+	}
+	local Interp="$1"
+	local RealInterp
+	RealInterp=`$STATIFIER_ROOT_DIR/readlink $Interp` || return
+	awk -vInterp="$RealInterp" '{ 
+		if ($NF == Interp) {
 			print $1; 
 			exit 0;
 		}
-	}' || return
+	}' < $MAPS_FILE || return
 	return 0
+
 }
 
 function DumpRegistersAndMemory
@@ -93,6 +154,8 @@ function CreateStarter
 
 	local STARTER=$STATIFIER_ROOT_DIR/starter
 	local REGISTERS_BIN=$WORK_OUT_DIR/reg
+	local DL_VAR=$STATIFIER_ROOT_DIR/dl-var
+	local DL_VAR_BIN=$WORK_OUT_DIR/dl-var
 	local TLS_LIST=
 
 	[ "$HAS_TLS" = "yes" ] && {
@@ -103,9 +166,13 @@ function CreateStarter
 		"
 	}
 
+	# Create binary file with dl-var variables
+	rm -f $DL_VAR_BIN || return
+	local dl_var_list="$DL_BASE $DL_ARGC $DL_ARGV $DL_ENVIRON"
+	$STATIFIER_ROOT_DIR/strtoul $dl_var_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
-	cat $TLS_LIST $STARTER $REGISTERS_BIN > $Starter || return
+	cat $DL_VAR $DL_VAR_BIN $TLS_LIST $STARTER $REGISTERS_BIN > $Starter || return
 	return 0 
 }
 function CreateNewExe
@@ -115,7 +182,13 @@ function CreateNewExe
 		return 1
 	}
 	local NewExe="$1"
+	local DL_BASE
 
+	DL_BASE=`GetInterpreterBase $Interp` || return
+	[ "x$DL_BASE" = "x" ] && {
+		echo "$0: Can't find interpreter '$Interp' base address" 1>&2
+		return 1
+	}
 	STARTER=$WORK_OUT_DIR/starter
 	FIRST_SEGMENT=$WORK_OUT_DIR/first.seg
 
@@ -133,7 +206,7 @@ function Main
 {
 	local Interp
 	local ElfClass
-	local StartAddr
+	local Dl_Data
 	local StartFunc="_dl_start_user"
 	local WorkDir=$WORK_DIR
 
@@ -160,17 +233,14 @@ function Main
 		echo "$0: Can't determine ELF CLASS for the '$OrigExe'" 1>&2
 		return 1
 	}
-	StartAddr="`GetStartAddress $Interp $StartFunc`" || return
-	[ "x$StartAddr" = "x" ] && {
-		echo "$0: StartFunction '$StartFunc' not found in the interpreter '$Interp'" 1>&2
-		return 1
-	}
+	Dl_Data="`GetDataFromInterp $Interp`" || return
+	eval "$Dl_Data" || return
 
 	# Test if interpreter use TLS (thread local storage)
 	HAS_TLS=""
 	objdump --syms $Interp | grep "tls" >/dev/null && {
 		HAS_TLS="yes"
-		BREAKPOINT_THREAD="*`set_thread_area_addr $EXECUTABLE_FILE`" || return
+		BREAKPOINT_THREAD="*`$STATIFIER_ROOT_DIR/set_thread_area_addr $EXECUTABLE_FILE`" || return
 	}
 
 	# Prepare directory structure
