@@ -3,7 +3,18 @@ Statifier implementation.
 On the top level "statifing" process do following:
 - create starter.
 - save all segments created by loader.
-- combine it to "statified" executable.
+- create "non-loadable" part of the file 
+  (ehdr, phdrs, shdrs, non-allocated sections)
+- combine non-loadable part and load segments to "statified" executable.
+- "inject" starter.
+
+Note. Before version 1.6.0 starter got loadable segment for itself.
+But someone need to deside what virtual address got this additional segment.
+x86 and alpha (for example) have different memory layouts.
+Worse, there are such thing like exec-shield and randomization, which
+make memory layout different and hardly predictable.
+So, I gave up with this task - find unoccupied virtual address and
+decide use starter injection.
 
 Create starter.
 
@@ -82,12 +93,17 @@ Save all segments created by loader.
 
 It's  very simple - just somehow do it.
 
+Create non-loadable part of the file.
+
+Just set up ehdr, phdrs and shrds as needed.
 
 Combine "statified" executable.
 
-It's simple too - decide which segment's should not be put in,
-concatenate starter with rest of loader's segments and
-create ELF header and Program header as appropriative.
+It's as simple as 'cat'
+
+"Inject" starter.
+I don't want to look for the unused virtual address, so I need find
+appropriative place in the statified exe and inject starter there.
 
 That's all.
 Yes, that's all, but yet some questions are left unanswered:
@@ -95,6 +111,7 @@ Yes, that's all, but yet some questions are left unanswered:
 - if so, where get set_thread_area's data from ? 
 - where got registers' value from ?
 - how save all segments, created by loader.
+- how find the place where starter can be injected ?
 
 Is thread local storage in use ?
 
@@ -105,10 +122,10 @@ set_thread_area_addr is a very specialized mini-debugger.
 It's run tls_test under ptrace control and use PTRACE_SYSCALL
 to "step" from one system call to another.
 If set_thread_area_addr detect 'set_thread_area' syscall
-it print syscall's address to stdout, othrewise
+it print syscall's address to stdout, otherwise
 (i.e tls_test exit) nothing printed.
 
-- if so, where get set_thread_area's data from ? 
+- where get set_thread_area's data from ? 
 - where get registers' value from ?
 - how save all segments, created by loader.
 
@@ -129,3 +146,14 @@ So, "data collection" with gdb looks like following:
 - kill application and exit.
 
 Please note, that statifying (unlike ldd) never run libraries' init functions.
+
+
+How find the place where starter can be injected ?
+
+As was told before, phdr has field p_filesz, which show how
+much memory really used by this segment. But segments loaded
+into memory as whole pages, so (usually) there is a gap between
+end of segment's data and page boundary.
+So, any segment which has execute permission and gap more than
+starter size is good place for starter injection.
+

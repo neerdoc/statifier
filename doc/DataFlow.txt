@@ -29,21 +29,22 @@ module module module                                                 ----------
  |      |      |     |          +-----------------------------------------+  |
  |      |      |     |             | tls_data   | registers  | loaded        |
  |      |      |     |             |            |            | segments      |
- |      |      |     V             V            V            |               |
- |      |      |    +---------+   +---------+  +---------+   |               |
- |      |      |    | strtoul |   | strtoul |  | strtoul |   |               |
- |      |      |    +---------+   +---------+  +---------+   |               |
- |      |      |     | dl_vars     | tls data   | registers  |               |
- |      |      |     | binary      | binary     | binary     |               |
- V      V      V     V             V            V            |               |
-+-------------------------------------------------+          |               |
-|                create starter                   |          |               |
-+-------------------------------------------------+          |               |
-                                |                            |               |
-                                | starter                    |               |
-                                V                            V               V
+ |      |      |     V             V            V            |               V
+ |      |      |    +---------+   +---------+  +---------+   |   +------------+
+ |      |      |    | strtoul |   | strtoul |  | strtoul |   |   |non_pt_load |
+ |      |      |    +---------+   +---------+  +---------+   |   +------------+
+ |      |      |     | dl_vars     | tls data   | registers  |   non-pt-load |
+ |      |      |     | binary      | binary     | binary     |   part of the |
+ |      |      |     |             |            |            |   executable  |
+ V      V      V     V             V            V            V               V
++-------------------------------------------------+         +-----------------+
+|                create starter                   |         |       cat       |
++-------------------------------------------------+         +-----------------+
+                                |                    statified       |
+                                | starter            executable      |
+                                V                    without starter V
 +-----------------------------------------------------------------------------+
-|                        phdrs (create executable)                            |
+|                        inject_starter                                       |
 +-----------------------------------------------------------------------------+
                                 |
                                 V
@@ -65,6 +66,6 @@ strtoul              - program which convert string to the internal
                        
 create starter       - concatenate all needed modules and their data. 
 
-phdrs                - combine loaded segments and starter into proper 
+inject_starter       - inject starter to the executable
                        ELF file.
                        This program is part of statifier package.

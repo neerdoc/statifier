@@ -1,19 +1,19 @@
 File layout for statified executable.
 
-Offset                                                          End
-0                                                               of file
-+----------------------------+----------+-------+---------------+
-|       PT_LOAD              |          |       | Non-allocated |
-|       segment 1            | Other    |       | sections      |
-+--------+-------+-----------+ PT_LOAD  | Shdrs | from          |
-| Elf    | Phdrs | Rest of   | segments |       | original      |
-| Header |       | segment 1 |          |       | executable    |
-+----------------------------+----------+-------+---------------+
-         ^                              ^
-         |                              |
-e_phoff -+                              |
-                                        |
-e_shoff --------------------------------+
+Offset                                                                 End
+0                                                                      of file
++--------+---------------+---------------+----------+---------+     +--------+
+|        |       |       | Non-allocated | Pad      | PT_LOAD |     | PT_LOAD|
+| Elf    |       |       | sections      | to       | segment |     | segment|
+|        | Phdrs | Shdrs | from          | the      |    1    | ... |   last |
+| Header |       |       | original      | page     |         |     |        |
+|        |       |       | executable    | boundary |         |     |        |
++------------------------+-------+------------------+----------     +--------+
+         ^       ^
+         |       |
+e_phoff -+       |
+                 |
+e_shoff ---------+
 
 
 Program may run just fine without any shdrs, but
