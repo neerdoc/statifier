@@ -1,4 +1,7 @@
-%if %{has_elf_@ELF_CLASS@}
+#
+# List of per-elf files. It include only original files,
+# not links to the common ones
+#
 %dir /usr/lib/statifier/@ELF_CLASS@
      /usr/lib/statifier/@ELF_CLASS@/copy_ehdr
      /usr/lib/statifier/@ELF_CLASS@/dl-var
@@ -30,4 +33,3 @@
      /usr/lib/statifier/@ELF_CLASS@/split.sh
      /usr/lib/statifier/@ELF_CLASS@/statifier.gdb
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.gdb
-%endif
