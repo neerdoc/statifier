@@ -42,6 +42,7 @@ SOURCES =                                  \
    $(INCLUDE_SCRIPTS)                      \
    $(RUNNERS)                              \
 
+# Service files used to build 
 BUILD_FILES =       \
    Makefile         \
    elf2at.make.sh   \
@@ -53,6 +54,7 @@ INCLUDE_FILES = \
    start.S      \
    end.S        \
 
+# small C programs, used by statifier.
 UTILS =                 \
    elfinfo              \
    loader_base_test     \
@@ -61,19 +63,25 @@ UTILS =                 \
    strtoul              \
    tls_test             \
 
+# Files which are built block for starter
 FILES_TO_BE_EMBEDDED = \
    dl-var              \
    regs                \
    set_thread_area     \
 
+# Scripts, used by statifier
 SCRIPTS =             \
+   $(HELPER_SCRIPTS)  \
+   $(STATIFIER_PARTS) \
+
+HELPER_SCRIPTS =      \
    dumps.sh           \
    regs.sh            \
    set_thread_area.sh \
    split.sh           \
    statifier.sh       \
-   $(STATIFIER_PARTS) \
 
+# Scripts which are implement "main logic" of statifier
 STATIFIER_PARTS =              \
    statifier_common.sh         \
    statifier_before_dump.sh    \
@@ -82,17 +90,21 @@ STATIFIER_PARTS =              \
    statifier_create_starter.sh \
    statifier_create_exe.sh     \
  
-INCLUDE_SCRIPTS =    \
-   statifier_lib.src \
+# Include files, used by statifier
+INCLUDE_SCRIPTS =       \
+   statifier_lib.src    \
+   statifier_parser.src \
 
 RUNNERS =    \
    statifier \
 
+# files used as command files for gdb
 GDB_SCRIPTS =          \
    dumps.gdb           \
    first.gdb           \
    map_reg_core.gdb    \
 
+# ane as above, but with per-cpu difference
 PER_CPU_GDB_SCRIPTS =  \
    set_thread_area.gdb \
 
@@ -110,6 +122,7 @@ PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
+
 TARGETS :=                                \
    $(UTILS_WITH_ELF_CLASS)                \
    $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS) \
@@ -117,7 +130,7 @@ TARGETS :=                                \
 
 all:
 
-all-local:
+all-local: VERSION
 	$(ALL_LOCAL_32)
 	$(ALL_LOCAL_64)
 	
@@ -128,6 +141,10 @@ all-local-internal: $(TARGETS)
 	cd $(ELF_CLASS) && $(LN) $(LINK_NAMES)         .
 	cd $(ELF_CLASS) && $(LN) $(PER_CPU_LINK_NAMES) .
 
+VERSION: $(TOP_DIR)/VERSION
+	$(RM) $@
+	echo "VERSION='$(VERSION)'" > $@ || { $(RM) $@; exit 1; }
+ 
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -Wall -O2 -g $< -o $@
 
@@ -175,9 +192,9 @@ install-local:
 	$(INSTALL_LOCAL_64)
 
 install-common:
-	$(MKDIR)                                         $(LIB_DIR)
-	$(INSTALL_RUN) $(SCRIPTS)                        $(LIB_DIR)
-	$(INSTALL_RO)  $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS) $(LIB_DIR)
+	$(MKDIR)                                                 $(LIB_DIR)
+	$(INSTALL_RUN) $(SCRIPTS)                                $(LIB_DIR)
+	$(INSTALL_RO)  VERSION $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS) $(LIB_DIR)
 
 	$(MKDIR)                  $(BIN_DIR)
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
@@ -192,6 +209,7 @@ install-local-internal:
 	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
 
 clean-local: clean-local-32 clean-local-64
+	$(RM) VERSION
 
 clean-local-32 clean-local-64:
 	$(RMDIR) $(subst clean-local-,,$@)
