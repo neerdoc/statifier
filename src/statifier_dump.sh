@@ -138,7 +138,6 @@ function Main
 	GDB_RUNNER_GDB="$WORK_GDB_CMD_DIR/$File"
 
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
-	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 	PROCESS_FILE="$WORK_GDB_OUT_DIR/process"
 	MAPS_SH="$D/maps.sh"
 	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
