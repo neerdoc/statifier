@@ -113,8 +113,8 @@ end
 
 # Print stack pointer and loader's offset
 my_separator misc.src
-	printf "stack_pointer=0x%x\n", $sp
-	printf "val_offset=0x%x\n", $val_offset
+	printf "stack_pointer=0x%lx\n", $sp
+	printf "val_offset=0x%lx\n", $val_offset
 my_separator_end
 # Do everything.
 # When program will be run, it will hit a first breakpoint, stopped
