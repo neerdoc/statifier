@@ -179,4 +179,14 @@ set $val_interpreter_entry = $pc
 set $val_offset = $val_interpreter_entry - $val_interpreter_file_entry
 
 # now, let us do a real work
+# Here I am about to 'source @STATIFIER_GDB@'.
+# This file define some commands, set some breakpoints and invoce 'continue'.
+# But on alpha (at least) when  I try this 'continue' I got 
+# 'Program received signal SIGTRAP, Trace/breakpoint trap.'
+# To work around this problem I do   'si', and only after that
+# source file.
+# It's needed only for alpha but I don't want to insert conditions here,
+# so lets do it on any computer.
+si
+# now, finally, let us do a real work
 source @STATIFIER_GDB@
