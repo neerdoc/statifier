@@ -22,8 +22,17 @@ function IsStack
 
 function IsLinuxGate
 {
-	# To do
-	is_linux_gate=0
+	local soname
+	soname=`$D/elf_soname $1` || return
+	case "x$soname" in
+		xlinux-gate.so.*)
+			is_linux_gate=1
+		;;
+
+		*)
+			is_linux_gate=0
+		;;
+	esac
 	return 0
 }
 
@@ -36,7 +45,7 @@ function IsIgnoredSegment
 	local is_stack is_linux_gate
 	IsStack                || return
 	[ $is_stack = 1 ]      && return 0
-	IsLinuxGate            || return
+	IsLinuxGate $1         || return
 	[ $is_linux_gate = 1 ] && return 0
 
 	is_ignored=0
@@ -55,7 +64,7 @@ function pt_load
 	while :; do
 		shift || return
 		read Start Stop Perm Offset Name Dummy || break
-		IsIgnoredSegment       || return
+		IsIgnoredSegment $1    || return
 		[ $is_ignored = 1 ]    && continue # skip segment to be ignored
 		$D/pt_load_1 $Start $Stop $Perm || return
 		PT_LOAD_FILES="$PT_LOAD_FILES $1"
