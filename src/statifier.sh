@@ -83,20 +83,18 @@ function Main
 		return 1
 	}
 
+	local SH_VERBOSE=${opt_verbose:+/bin/bash -x}
 	# Do it
-	$D/statifier_common.sh         $WORK_DIR $ElfClass || return
-	$D/statifier_before_dump.sh    $WORK_DIR           || return
-	$D/statifier_dump.sh           $WORK_DIR           || return
-	$D/statifier_before_starter.sh $WORK_DIR           || return
-	$D/statifier_create_starter.sh $WORK_DIR           || return
-	$D/statifier_create_exe.sh     $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_common.sh         $WORK_DIR $ElfClass || return
+	$SH_VERBOSE $D/statifier_before_dump.sh    $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_dump.sh           $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_before_starter.sh $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_create_starter.sh $WORK_DIR           || return
+	$SH_VERBOSE $D/statifier_create_exe.sh     $WORK_DIR           || return
 	return 0
 }
 
 #################### Main Part ###################################
-# Temporary Work Directory
-WORK_DIR="${TMPDIR:-/tmp}/statifier.tmpdir.$$"
-#WORK_DIR="./.statifier"
 
 # Where Look For Other Programs
 D=`dirname $0`                 || exit
@@ -104,13 +102,25 @@ source $D/statifier_lib.src    || exit
 source $D/statifier_parser.src || exit
 
 CommandLineParsing "$@"        || exit
+[ "x$NEED_EXIT" = "x" ] || exit $NEED_EXIT
+
+# Temporary Work Directory
+if [ "x$opt_keep_working_directory" = "x" ]; then
+	WORK_DIR="${TMPDIR:-/tmp}/statifier.tmpdir.$$"
+else
+	WORK_DIR="./.statifier"
+fi
 
 SetVariables $WORK_DIR         || exit 
 rm -rf $WORK_DIR               || exit
 PrepareDirectoryStructure      || exit
 SaveOptions > $OPTION_SRC      || exit
 
-Main
+${opt_verbose:+set -x}
+Main # Do not check status here, only save it
 st=$? 
-rm -rf $WORK_DIR || exit
+[ "x$opt_keep_working_directory" = "x" ] && {
+	rm -rf $WORK_DIR || exit
+}
 exit $st
+
