@@ -7,6 +7,6 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-# properties for alpha
-prop_stack_under_executable=1
-prop_starter_under_executable=0
+# Properties for x86_64
+prop_stack_under_executable=0
+prop_starter_under_executable=1
