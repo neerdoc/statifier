@@ -115,12 +115,18 @@ function Main
 	Sanity || return
 	Interp=$(GetProgramInterpreter)
 	[ "x$Interp" = "x" ] && {
-		echo "$0: Interpretor not found in the '$OrigExe'" 1>&2
+		echo "$0: Interpreter not found in the '$OrigExe'" 1>&2
 		return 1
 	}
 	StartAddr="$(GetStartAddress $Interp $StartFunc)" || return
 	[ "x$StartAddr" = "x" ] && {
-		echo "$0: StartFunction '$StartFunc' not found in the interpretor '$Interp'" 1>&2
+		echo "$0: StartFunction '$StartFunc' not found in the interpreter '$Interp'" 1>&2
+		return 1
+	}
+
+	objdump --syms $Interp | grep -q "tls"
+	[ $? -eq 0 ] && { # System with TLS
+		echo "$0: TLS not supported yet." 1>&2
 		return 1
 	}
 	# Prepare directory structure
