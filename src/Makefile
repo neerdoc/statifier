@@ -45,6 +45,7 @@ SOURCES =                 \
    $(AWK_FILES)           \
    dl-var.c               \
    dl-var.inc             \
+   gdb_runner.c           \
    find_dl_main.inc.c     \
    my_lib.inc.c           \
 
@@ -62,8 +63,7 @@ INCLUDE_FILES = \
 UTILS =                 \
    copy_ehdr            \
    elfinfo              \
-   elf_stripped         \
-   loader_base_test     \
+   elf_data             \
    phdrs                \
    set_thread_area_addr \
    strtoul              \
@@ -119,12 +119,14 @@ RUNNERS =    \
    statifier \
 
 # files used as command files for gdb
-GDB_SCRIPTS =    \
-   statifier.gdb \
+GDB_SCRIPTS =     \
+   gdb_runner.gdb \
+   statifier.gdb  \
 
 # one as above, but with per-cpu difference
 PER_CPU_GDB_SCRIPTS =  \
    set_thread_area.gdb \
+   syscall.gdb         \
 
 PER_CPU_INCLUDE_SCRIPTS = \
    properties.src         \
@@ -150,6 +152,7 @@ TARGETS :=                                \
    $(UTILS_WITH_ELF_CLASS)                \
    $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS) \
    $(ELF_CLASS)/regs.awk                  \
+   $(ELF_CLASS)/gdb_runner                \
 
 all:
 
@@ -171,6 +174,19 @@ VERSION: $(TOP_DIR)/VERSION
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
+# Building gdb_runner is a bit tricky.
+# First of all I compile .c file as usual.
+# second I link in everything, but startup files - I don't
+# want LD_PRELOAD affect gdb_runner.
+# last, I build exe. It's "dynamic", but all functions from libc
+# already in and resolved, so LD_PRELOAD will not affect it.
+# I create this executable as dynamic, because otherwise gdb
+# will write warning to the stderr.
+$(ELF_CLASS)/gdb_runner: gdb_runner.c
+	gcc $(FLAGS_ELF) -Wall -O2 -g -c $< -o $@.o
+	gcc -static -nostartfiles -L/usr/lib -Wl,-r $@.o -o $@.o.o
+	gcc $@.o.o -o $@
+	$(RM) $@.o $@.o.o
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@
