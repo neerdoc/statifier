@@ -91,6 +91,9 @@ function Main
 		source $OPTION_SRC || return
 	set +e
 
+	local val_uname_m
+	val_uname_m=`uname -m` || return
+
 	local val_interpreter
 	val_interpreter=`GetProgramInterpreter $opt_orig_exe`
 	[ "x$val_interpreter" = "x" ] && {
@@ -117,6 +120,7 @@ function Main
 	}
 
 	{
+		echo "val_uname_m=$val_uname_m"           && \
 		echo "val_elf_class=$val_elf_class"       && \
 		echo "val_interpreter='$val_interpreter'" && \
 		echo "val_virt_addr='$val_virt_addr'"     && \
