@@ -88,7 +88,7 @@ function GetSymbol
 	}' < $LOADER_SYMBOLS` || return
 	[ "x$Value" = "x" ] && {
 		if [ "x$IsMandatory" = "x1" ]; then
-			Echo "$0: Symbol '$Symbol' not found in the interpreter '$Interpreter'"
+			Echo "$0: Symbol '$Symbol' not found in the interpreter '$val_interpreter'"
 			return 1 
 		else
 			echo "0x0"
