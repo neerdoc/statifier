@@ -39,6 +39,7 @@ SOURCES =                                  \
    $(INCLUDE_FILES)                        \
    $(SCRIPTS)                              \
    $(GDB_SCRIPTS)                          \
+   $(INCLUDE_SCRIPTS)                      \
    $(RUNNERS)                              \
 
 BUILD_FILES =       \
@@ -53,6 +54,8 @@ INCLUDE_FILES = \
    end.S        \
 
 UTILS =                 \
+   elfinfo              \
+   loader_base_test     \
    phdrs                \
    readlink             \
    set_thread_area_addr \
@@ -70,7 +73,19 @@ SCRIPTS =             \
    set_thread_area.sh \
    split.sh           \
    statifier.sh       \
+   $(STATIFIER_PARTS) \
+
+STATIFIER_PARTS =              \
+   statifier_common.sh         \
+   statifier_before_dump.sh    \
+   statifier_dump.sh           \
+   statifier_before_starter.sh \
+   statifier_create_starter.sh \
+   statifier_create_exe.sh     \
  
+INCLUDE_SCRIPTS =    \
+   statifier_lib.src \
+
 RUNNERS =    \
    statifier \
 
@@ -89,10 +104,9 @@ PER_CPU_SOURCES =         \
    $(PER_CPU_GDB_SCRIPTS) \
    regs.list              \
 
-SUPPORTED_CPU_LIST := i386 x86_64
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
-LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS))
+LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
@@ -160,9 +174,9 @@ install-local:
 	$(INSTALL_LOCAL_64)
 
 install-common:
-	$(MKDIR)                      $(LIB_DIR)
-	$(INSTALL_RUN) $(SCRIPTS)     $(LIB_DIR)
-	$(INSTALL_RO)  $(GDB_SCRIPTS) $(LIB_DIR)
+	$(MKDIR)                                         $(LIB_DIR)
+	$(INSTALL_RUN) $(SCRIPTS)                        $(LIB_DIR)
+	$(INSTALL_RO)  $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS) $(LIB_DIR)
 
 	$(MKDIR)                  $(BIN_DIR)
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
