@@ -25,6 +25,7 @@ DOCS =       \
    LICENSE   \
    NEWS      \
    README    \
+   THANKS    \
    TODO      \
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
