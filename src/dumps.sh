@@ -26,7 +26,7 @@ awk -vDumpsDir="$DumpsDir" '
 		ObjFile   = $5
                 FileName  = sprintf("%s/%.6d.dmp", DumpsDir, FileNumber);
 		FileNumber++
-   		printf "my_dump %s 0x%s 0x%s %s\n", FileName, StartAddr, EndAddr, ObjFile;
+   		printf "my_dump %s %s %s %s\n", FileName, StartAddr, EndAddr, ObjFile;
 	}
 ' < $Maps > $Output || exit
 exit 0 

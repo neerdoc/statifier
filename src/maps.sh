@@ -32,7 +32,7 @@ awk '{
 	Device     = $4
 	Inode      = $5
 	Name       = $6
-	sub("-", " ", StartStop);
-	printf "%s %s %s %s\n", StartStop, Permission, Offset, Name
+	split(StartStop, Array, "-");
+	printf "0x%s 0x%s %s 0x%s %s\n", Array[1], Array[2], Permission, Offset, Name
 }' < /proc/$pid/maps > $maps_file || exit
 exit 0
