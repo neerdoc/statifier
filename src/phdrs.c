@@ -92,8 +92,8 @@ void *my_malloc(size_t size, const char *item, const char *pgm_name)
 	if (result == NULL) {
 		fprintf(
 			stderr,
-			"%s: Can't malloc %d byte for '%s'.\n",
-			pgm_name, size, item
+			"%s: Can't malloc %lu byte for '%s'.\n",
+			pgm_name, (unsigned long)size, item
 		);
 		return NULL;
 	}
