@@ -37,32 +37,12 @@ TmpFile=$Output.S
 D=`dirname $0` || exit
 
 rm -f $TmpFile || exit
-awk '
-	BEGIN {
-		i = 0;
-		var = "ebx"     ; P[i++] = var;
-		var = "ecx"     ; P[i++] = var;
-		var = "edx"     ; P[i++] = var;
-		var = "esi"     ; P[i++] = var;
-		var = "edi"     ; P[i++] = var;
-		var = "ebp"     ; P[i++] = var;
-		var = "eax"     ; P[i++] = var;
-		var = "ds"      ; P[i++] = var;
-		var = "es"      ; P[i++] = var;
-		var = "fs"      ; P[i++] = var;
-		var = "gs"      ; P[i++] = var;
-		var = "orig_eax"; P[i++] = var;
-		var = "eip"     ; P[i++] = var;
-		var = "cs"      ; P[i++] = var;
-		var = "eflags"  ; P[i++] = var;
-		var = "esp"     ; P[i++] = var;
-		var = "ss"      ; P[i++] = var;
-	}
+awk --file $D/regs.awk --source '
 	{
 		R[$1] = $2; 
 	}
 	END {
-		for (ind = 0; ind < i; ind++) {
+		for (ind = 0; ind < reg_max; ind++) {
 			reg_name = P[ind];
 			reg_value = R[reg_name];
 			if (reg_value == "") reg_value = "0x0";
