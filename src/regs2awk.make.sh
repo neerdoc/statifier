@@ -23,7 +23,7 @@ Output=$3
 	echo "#"                                                          &&
 	cat $AwkCode                                                      &&
 	echo                                                              &&
-	awk '
+	awk -vKAV='"' '
 		BEGIN {
 			print "# Registers List"
 			print "BEGIN {"
