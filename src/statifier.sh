@@ -239,8 +239,11 @@ function Main
 	# Test if interpreter use TLS (thread local storage)
 	HAS_TLS=""
 	objdump --syms $Interp | grep "tls" >/dev/null && {
-		HAS_TLS="yes"
-		BREAKPOINT_THREAD="*`$STATIFIER_ROOT_DIR/set_thread_area_addr $EXECUTABLE_FILE`" || return
+		BREAKPOINT_THREAD="`$STATIFIER_ROOT_DIR/set_thread_area_addr $STATIFIER_ROOT_DIR/tls_test`" || return
+		[ \! "x$BREAKPOINT_THREAD" = "x" ] && {
+			BREAKPOINT_THREAD="*$BREAKPOINT_THREAD" || return
+			HAS_TLS="yes"
+		}
 	}
 
 	# Prepare directory structure
