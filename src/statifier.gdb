@@ -114,7 +114,7 @@ end
 
 # Print stack pointer and loader's offset
 my_separator misc.src
-	printf "stack_pointer=0x%lx\n", $sp
+	printf "val_stack_pointer=0x%lx\n", $sp
 	printf "val_offset=0x%lx\n", $val_offset
 my_separator_end
 # Do everything.
