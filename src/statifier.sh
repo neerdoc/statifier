@@ -68,7 +68,7 @@ function Main
 	set -e
 		source $OPTION_SRC || return
 	set +e
-	Sanity $pt_orig_exe || return
+	Sanity $opt_orig_exe || return
 
 	local ElfClass
 	ElfClass=`GetElfClass $opt_orig_exe`
