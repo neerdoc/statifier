@@ -87,18 +87,35 @@ void one_getreg(const char *name, pid_t child, long reg, unsigned long *result)
 #define one_get_pc_reg(name, child, result) \
 	one_getreg(name, child, PC_REG, result)
 
-void do_work(const char *name, const pid_t child)
+void do_work(const char *name, const char *process, const pid_t child)
 {
 	int stat;
 	unsigned long pc_val, syscall_val;
+	const unsigned long syscall_num = __NR_set_thread_area;
 	static int first = 1;
 	while(1) {
 		wait(&stat);
 		if (WIFEXITED(stat)) {
-			exit(WEXITSTATUS(stat));
+			fprintf(
+				stderr,
+				"%s: '%s' exited with status=%d without execute syscall 'set_thread_area' (%ld)\n",
+				name,
+		       		process,
+				WEXITSTATUS(stat),
+				syscall_num
+			);
+			exit(1);
 		}
 		if (WIFSIGNALED(stat)) {
-			exit(128 + WTERMSIG(stat));
+			fprintf(
+				stderr,
+				"%s: '%s' killed by signal=%d without pass syscall 'set_thread_area' (%ld)\n",
+				name,
+		       		process,
+				WTERMSIG(stat),
+				syscall_num
+			);
+			exit(1);
 		}
 	
 		if (WIFSTOPPED(stat)) {
@@ -106,7 +123,7 @@ void do_work(const char *name, const pid_t child)
 				first = 0;
 			} else {
 				one_get_syscall_reg(name, child, &syscall_val);
-				if (syscall_val == __NR_set_thread_area) {
+				if (syscall_val == syscall_num) {
 					one_get_pc_reg(name, child, &pc_val);
 					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL);
 					ptrace(PTRACE_KILL, child, 0, 0);
@@ -159,7 +176,7 @@ int main(int argc, char *argv[], char *envp[])
 		exit(1);
 
 		default: /* Parent */
-			do_work(argv[0], child);
+			do_work(argv[0], argv[1], child);
 		break;
 	}
 	exit(0);
