@@ -1,4 +1,4 @@
-- add TLS support
+- add TLS (thread local storage) support - DONE. 
 - fix section headers - DONE. RH9 very sensitive to correct section headers.
 - add support for RTLD environment variables.
 - support linux on the platforms other than x86
