@@ -16,9 +16,9 @@ function Main
 	set -e
 		source $COMMON_SRC || return
 	set +e
-	local BREAKPOINT_START
-	BREAKPOINT_START=`GetSymbol _dl_start_user 1 $VirtAddr $BaseAddr` || return
-	echo "BREAKPOINT_START='$BREAKPOINT_START'" || return
+	local val_breakpoint_start
+	val_breakpoint_start=`GetSymbol _dl_start_user 1 $val_virt_addr $val_base_addr` || return
+	echo "val_breakpoint_start='$val_breakpoint_start'" || return
 	return 0
 }
 #################### Main Part ###################################

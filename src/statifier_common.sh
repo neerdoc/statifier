@@ -72,16 +72,16 @@ function GetInterpreterVirtAddr
 function CheckTls
 {
 	# Test if interpreter/kernel use TLS (thread local storage)
-	local HAS_TLS=""
-	local BREAKPOINT_THREAD=""
+	local val_has_tls=""
+	local val_breakpoint_thread=""
 	grep "tls" < $LOADER_SYMBOLS >/dev/null && {
-		BREAKPOINT_THREAD="`$D/set_thread_area_addr $D/tls_test`" || return
-		[ \! "x$BREAKPOINT_THREAD" = "x" ] && {
-			HAS_TLS="yes"
+		val_breakpoint_thread="`$D/set_thread_area_addr $D/tls_test`" || return
+		[ \! "x$val_breakpoint_thread" = "x" ] && {
+			val_has_tls="yes"
 		}
 	}
-	echo "HAS_TLS='$HAS_TLS'"                     || return
-	echo "BREAKPOINT_THREAD='$BREAKPOINT_THREAD'" || return
+	echo "val_has_tls='$val_has_tls'"                     || return
+	echo "val_breakpoint_thread='$val_breakpoint_thread'" || return
 	return
 }
 
@@ -91,36 +91,37 @@ function Main
 		source $OPTION_SRC || return
 	set +e
 
-	local Interpreter
-	Interpreter=`GetProgramInterpreter $opt_orig_exe`
-	[ "x$Interpreter" = "x" ] && {
+	local val_interpreter
+	val_interpreter=`GetProgramInterpreter $opt_orig_exe`
+	[ "x$val_interpreter" = "x" ] && {
 		Echo "$0: Interpreter not found in the '$opt_orig_exe'"
 		return 1
 	}
 
-	objdump --syms $Interpreter > $LOADER_SYMBOLS || return
+	objdump --syms $val_interpreter > $LOADER_SYMBOLS || return
 
-	local VirtAddr BaseAddr
-	VirtAddr=`GetInterpreterVirtAddr $Interpreter` || return
-	BaseAddr=`GetInterpreterBaseAddr $Interpreter` || return
+	local val_virt_addr val_base_addr
+	val_virt_addr=`GetInterpreterVirtAddr $val_interpreter` || return
+	val_base_addr=`GetInterpreterBaseAddr $val_interpreter` || return
 
 	# I saw it on linux 2.6.6 with ld 2.3.2. which has fixed VirtAddr
-	[ "x$BaseAddr" = "x0x0" ] && BaseAddr=$VirtAddr
-	[ "x$BaseAddr" = "x0x0" ] && {
-		# VirtAddr = 0x0 too. Bad. Give error and exit.
-		Echo "$0: Can't find BaseAddr for '$Interpreter': BaseAddr=VirtAddr=0x0"
+	[ "x$val_base_addr" = "x0x0" ] && val_base_addr=$val_virt_addr
+	[ "x$val_base_addr" = "x0x0" ] && {
+		# val_virt_addr = 0x0 too. Bad. Give error and exit.
+		Echo "$0: Can't find val_base_addr for '$val_interpreter': val_base_addr=val_virt_addr=0x0"
 		return 1
 	}
-	[ "$VirtAddr" = "$BaseAddr" -o "$VirtAddr" = "0x0" ] || {
-		Echo "$0: Interpreter's '$Interpreter' VirtAddr='$VirtAddr' and BaseAddr='$BaseAddr' are different."
+	[ "$val_virt_addr" = "$val_base_addr" -o "$val_virt_addr" = "0x0" ] || {
+		Echo "$0: Interpreter's '$val_interpreter' val_virt_addr='$val_virt_addr' and val_base_addr='$val_base_addr' are different."
 		return 1
 	}
 
 	{
-		echo "Interpreter='$Interpreter'" && \
-		echo "VirtAddr='$VirtAddr'"       && \
-		echo "BaseAddr='$BaseAddr'"       && \
-		CheckTls                          && \
+		echo "val_elf_class=$val_elf_class"       && \
+		echo "val_interpreter='$val_interpreter'" && \
+		echo "val_virt_addr='$val_virt_addr'"     && \
+		echo "val_base_addr='$val_base_addr'"     && \
+		CheckTls                                  && \
 		:
 	} || return 
 	return 0
@@ -132,12 +133,13 @@ function Main
 D=`dirname $0`               || exit
 source $D/statifier_lib.src  || exit
 
-[ $# -ne 1 -o "x$1" = "x" ] && {
-	Echo "Usage: $0 <work_dir>"
+[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
+	Echo "Usage: $0 <work_dir> <elf_class>"
 	exit 1
 }
 
 WORK_DIR=$1
+val_elf_class=$2
 
 SetVariables $WORK_DIR || exit
 Main > $COMMON_SRC     || exit

@@ -84,12 +84,12 @@ function Main
 	}
 
 	# Do it
-	$D/statifier_common.sh         $WORK_DIR || return
-	$D/statifier_before_dump.sh    $WORK_DIR || return
-	$D/statifier_dump.sh           $WORK_DIR || return
-	$D/statifier_before_starter.sh $WORK_DIR || return
-	$D/statifier_create_starter.sh $WORK_DIR || return
-	$D/statifier_create_exe.sh     $WORK_DIR || return
+	$D/statifier_common.sh         $WORK_DIR $ElfClass || return
+	$D/statifier_before_dump.sh    $WORK_DIR           || return
+	$D/statifier_dump.sh           $WORK_DIR           || return
+	$D/statifier_before_starter.sh $WORK_DIR           || return
+	$D/statifier_create_starter.sh $WORK_DIR           || return
+	$D/statifier_create_exe.sh     $WORK_DIR           || return
 	return 0
 }
 
