@@ -3,6 +3,7 @@
 # common files for elf
 #
 %dir /usr/lib/statifier
+     /usr/lib/statifier/elf_class
      /usr/lib/statifier/VERSION
      /usr/lib/statifier/statifier.sh
      /usr/lib/statifier/statifier_parser.src
