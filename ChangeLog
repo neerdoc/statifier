@@ -1,3 +1,38 @@
+* Tue Jun 15 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- more documentation added
+
+* Mon Jun 14 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- added variable 'val_has_hit_msg' -  it used for eliminate 
+  'Hit...' message on alpha and mips
+
+* Sun Jun 13 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- reworked command file for gdb. Now (almost all) merged into one
+  statifier.gdb 
+- cpus/*/set_thread_area.gdb changed to define command set_thread_area.
+- statifier_dump.gdb now create var.gdb file
+
+* Mon Jun  7 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- added cpus/*/properties.src - support for different memory layout
+- start.S and end.S now (I hope) processor independent:
+  GET_DATA_ADDR macro was moved from start.S to cpus/*/processor.h 
+  added define 'MY_JUMP' to cpus/*/processor.h.
+  end.S now use 'MY_JUMP' 
+- added copy_ehrd.c program
+- added configs/alpha.config
+- configs/* now have FLAGS_C_TO_ASM_{32,64} - to ensure calling convention
+
+* Sun Jun  6 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- phdrs reworked to support different memory layout
+- statifier_create_exe.sh changed to support  different memory layout
+- set_thread_area.sh was changed to be more robust
+- set_thread_area_addr can be now compiled on alpha
+
+* Tue Jun  1 2004 <valery_reznic@users.sourceforge.net> 1.4.0-1
+- Fixed bug: in error message _dl_start_user not found was used
+  (undefined) Interpreter instead of val_interpreter
+- DataFlow.txt - fixed bug (Executable should be input for phdr,
+   not for "create starter")
+
 * Mon May 31 2004 <valery_reznic@users.sourceforge.net> 1.3.1-1
 - processor.h was split to cpus/*/processor.h
 - elf2at.make.sh was removed
