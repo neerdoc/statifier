@@ -159,7 +159,7 @@ $(ELF_CLASS)/set_thread_area_addr: processor.h
 #$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
-	gcc $(FLAGS_ELF) -Wall -O2 -S $< -o $@
+	gcc $(FLAGS_ELF) -Wall -mregparm=0 -O2 -S $< -o $@
 
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
 
