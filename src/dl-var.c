@@ -19,6 +19,7 @@ struct dl_var_data {
  * argv[1]
  * ...
  * argv[argc-1]
+ * 0
  * env 1
  * env 2
  * ...
@@ -41,7 +42,7 @@ void do_work(struct dl_var_data *data, unsigned long *stack)
 {
 	unsigned long *argc = stack;
 	unsigned long *argv = argc + 1;
-	unsigned long *envp = argv + (*argc);
+	unsigned long *envp = argv + (*argc) + 1;
 	unsigned long *temp = envp;
 	ElfW(auxv_t) *auxv;
 	char *platform;
