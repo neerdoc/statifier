@@ -53,9 +53,9 @@ static int my_fclose(FILE *stream, const char *path, const char *pgm_name)
 			"%s: Can't close '%s' file. Errno = %d (%s)\n",
 		        pgm_name, path, errno, strerror(errno)
 		);	
-		return 0;
+		return -1;
 	}
-	return 1;
+	return 0;
 }
 
 static size_t my_fread(
@@ -75,7 +75,7 @@ static size_t my_fread(
 			"%s: can't read '%s' from file '%s'. Errno=%d, (%s).\n",
 			pgm_name, item, file_name, errno, strerror(errno)
 		);
-		return 0;
+		return -1;
 	}	
 	return result;
 }
@@ -97,7 +97,7 @@ static size_t my_fwrite(
 			"%s: can't write '%s' from file '%s'. Errno=%d, (%s).\n",
 			pgm_name, item, file_name, errno, strerror(errno)
 		);
-		return 0;
+		return -1;
 	}	
 	return result;
 }
@@ -154,7 +154,7 @@ static int get_ehdr_phdrs_and_shdrs(
 	if (file == NULL) goto err_open;
 
 	result = my_fread(ehdr, sizeof(*ehdr), file, "ehdr", path, pgm_name);
-	if (result == 0) goto err_opened;
+	if (result == -1) goto err_opened;
 
 	if ( ehdr->e_phentsize == 0) {
 		fprintf(
@@ -179,7 +179,7 @@ static int get_ehdr_phdrs_and_shdrs(
 		if (*phdrs == NULL) goto err_opened;
 
 		if (my_fseek(file, ehdr->e_phoff, pgm_name, path) == -1) goto err_phdrs;
-		if (my_fread(*phdrs, phdrs_size, file, "phdrs", pgm_name, path) == 0) goto err_phdrs;
+		if (my_fread(*phdrs, phdrs_size, file, "phdrs", pgm_name, path) == -1) goto err_phdrs;
 	}
 
 	if (shdrs != NULL) {
@@ -188,8 +188,10 @@ static int get_ehdr_phdrs_and_shdrs(
 		if (*shdrs == NULL) goto err_phdrs;
 
 		if (my_fseek(file, ehdr->e_shoff, pgm_name, path) == -1) goto err_shdrs;
-		if (my_fread(*shdrs, shdrs_size, file, "shdrs", pgm_name, path) == 0) goto err_shdrs;
+		if (my_fread(*shdrs, shdrs_size, file, "shdrs", pgm_name, path) == -1) goto err_shdrs;
 	}
+
+
 	res = 1;
 	goto ret_ok;
 
@@ -210,7 +212,7 @@ static off_t my_file_size(const char *path, const char *pgm_name, int *err)
 	int result;
 	result = stat(path, &buf);
 	if (result == -1) {
-		*err = 1;
+		*err = -1;
 		fprintf(
 			stderr,
 			"%s: can't fstat file '%s'. Errno = %d (%s).\n",
@@ -565,11 +567,11 @@ int main(int argc, char *argv[])
 			starter, 
 			pgm_name
 	);
-	if (result == 0) exit(1);
+	if (result == -1) exit(1);
 
 	/* Close it */
 	result = my_fclose(input, starter, pgm_name);
-	if (result == 0) exit(1);
+	if (result == -1) exit(1);
 
 	/* Open starter segment output file */
 	output = my_fopen(starter_segment, "w", pgm_name);
@@ -584,11 +586,11 @@ int main(int argc, char *argv[])
 			starter_segment, 
 			pgm_name
 	);
-	if (result == 0) exit(1);
+	if (result == -1) exit(1);
 	
 	/* Close it */
 	result = my_fclose(output, starter_segment, pgm_name);
-	if (result == 0) exit(1);
+	if (result == -1) exit(1);
 
  	exit(0);
 	return 0;
