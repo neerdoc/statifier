@@ -72,13 +72,13 @@ function GetInterpreterVirtAddr
 function CheckTls
 {
 	# Test if interpreter/kernel use TLS (thread local storage)
-	local val_has_tls=""
+	local val_has_tls="0"
 	local val_breakpoint_thread=""
 	local res
 	res="`
 		awk '{ 
 			if ($0 ~ "tls") { 
-				print "yes"; 
+				print "yes_probably_we_have_tls"; 
 				exit(0);
 			} 
 		}' < $LOADER_SYMBOLS
@@ -86,7 +86,7 @@ function CheckTls
 	[ "x$res" = "x" ] || {
 		val_breakpoint_thread="`$D/set_thread_area_addr $D/tls_test`" || return
 		[ \! "x$val_breakpoint_thread" = "x" ] && {
-			val_has_tls="yes"
+			val_has_tls="1"
 		}
 	}
 	echo "val_has_tls='$val_has_tls'"                     || return
