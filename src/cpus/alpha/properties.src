@@ -8,8 +8,6 @@
 # See LICENSE file in the doc directory.
 
 # properties for alpha
-prop_stack_under_executable=1
-prop_starter_under_executable=0
 
 # pattern for _dl_start_user:
 # mov v0,s0
