@@ -54,6 +54,8 @@ all-local: $(TARGETS)
 $(UTILS): %: %.c
 	gcc -Wall -O2 -g $< -o $@
 
+set_tread_area_addr: processor.h
+
 # I need starter as raw binary - no elf header, no link with libc,
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
