@@ -139,6 +139,8 @@ function Main
 
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
+	PROCESS_FILE="$WORK_GDB_OUT_DIR/process"
+	MAPS_SH="$D/maps.sh"
 	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
 	SPLIT_SH="$D/split.sh"
 	SYSCALL_GDB="$D/syscall.gdb"
@@ -166,6 +168,8 @@ function Main
         	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                       \
         	-e "s#@LOG_FILE@#$LOG_FILE#g"                       \
         	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                     \
+        	-e "s#@MAPS_SH@#$MAPS_SH#g"                         \
+        	-e "s#@PROCESS_FILE@#$PROCESS_FILE#g"               \
         	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"           \
         	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g" \
         	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                       \
