@@ -56,8 +56,7 @@ Will "link" /bin/df with preloaded library.
 .SH NOTE
 Environment variables are described in the run-time loader's man page.
 .SH LIMITATIONS
-Currently it work only on Linux x86 and x86_64.
-It was tested on RH7.2, 7.3 and 9 (x86) and SuSE (SLES 8) 8.1 amd64
+Currently it work only on Linux x86, x86_64 and Alpha
 .SH SEE ALSO
 \fBld.so\fP(8).
 .SH AUTHORS
