@@ -21,7 +21,7 @@ rm -f $TmpFile || exit
 awk '
 	BEGIN {
 		i = 1;
-		P[i++] = "EAX"
+		P[i++] = "SYSCALL_NUM";
 		P[i++] = "ENTRY_NUMBER";
 		P[i++] = "BASE";
 		P[i++] = "LIMIT";
