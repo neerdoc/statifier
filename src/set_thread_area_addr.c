@@ -9,9 +9,13 @@
 
 /*
  * This program should print to stdout 
- * offset to system call __NR_set_thread_area
- * in the loader (offset is relative to the loader's base address
+ * offset to thread local storage related system call:
+ * in the loader (offset is relative to the loader's base address.
+ * System call we are looking for is
+ * x86:    __NR_set_thread_area
+ * x86_64: __NR_arch_prctl
  */ 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -19,9 +23,9 @@
 #include <stdlib.h>
 #include <sys/ptrace.h>
 #ifdef __alpha__
-   #include <asm/reg.h>
+	#include <asm/reg.h>
 #else
-   #include <sys/reg.h>
+	#include <sys/reg.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,7 +34,21 @@
 #include <sys/syscall.h>
 #include "processor.h"
 
-#ifndef __NR_set_thread_area
+#ifdef __i386__
+	#ifdef __NR_set_thread_area
+		#define TLS_SYSCALL __NR_set_thread_area
+	#endif
+#endif
+
+#ifdef __x86_64__
+	#ifdef __NR_arch_prctl
+		#define TLS_SYSCALL __NR_arch_prctl
+	#endif
+#endif
+
+#ifdef __alpha__
+#endif
+#ifndef TLS_SYSCALL
 int main(int argc, char *argv[0])
 {
 	fprintf(
@@ -117,7 +135,7 @@ void do_work(
 {
 	int stat;
 	unsigned long loader_entry_point, pc_val, syscall_val;
-	const unsigned long syscall_num = __NR_set_thread_area;
+	const unsigned long syscall_num = TLS_SYSCALL;
 	static int first = 1;
 	while(1) {
 		wait(&stat);
