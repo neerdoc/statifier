@@ -107,10 +107,8 @@ RUNNERS =    \
    statifier \
 
 # files used as command files for gdb
-GDB_SCRIPTS =          \
-   dumps.gdb           \
-   first.gdb           \
-   map_reg_core.gdb    \
+GDB_SCRIPTS =    \
+   statifier.gdb \
 
 # one as above, but with per-cpu difference
 PER_CPU_GDB_SCRIPTS =  \
