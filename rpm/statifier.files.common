@@ -1,8 +1,10 @@
 %defattr(-,root,root)
 
 %dir /usr/lib/statifier
+     /usr/lib/statifier/VERSION
      /usr/lib/statifier/statifier.sh
      /usr/lib/statifier/statifier_lib.src
+     /usr/lib/statifier/statifier_parser.src
      /usr/lib/statifier/statifier_common.sh
      /usr/lib/statifier/statifier_before_dump.sh
      /usr/lib/statifier/statifier_dump.sh
