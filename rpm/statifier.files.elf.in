@@ -7,6 +7,7 @@
      /usr/lib/statifier/@ELF_CLASS@/elf_data
      /usr/lib/statifier/@ELF_CLASS@/elf_find_pattern
      /usr/lib/statifier/@ELF_CLASS@/elf_soname
+     /usr/lib/statifier/@ELF_CLASS@/elf_symbols
      /usr/lib/statifier/@ELF_CLASS@/fep
      /usr/lib/statifier/@ELF_CLASS@/find_dl_argc
      /usr/lib/statifier/@ELF_CLASS@/find_dl_argv
