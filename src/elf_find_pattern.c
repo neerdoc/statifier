@@ -53,12 +53,19 @@ int main(int argc, char *argv[])
 	const char *loader;
 	unsigned char *pattern;
 	unsigned char *data;
-	char *endptr;
 	int arg_ind = 0;
 	int pattern_size; 
 	int ind;
 
-	const unsigned long SIZE_FOR_LOOKUP = 20;
+	/*
+	 * I saw loader for alpha where _dl_start_user was at offset 20
+	 * from entry point. Let'us ise 40 to be on the safe side
+	 *
+	 *  Need I pass SIZE_FOR_LOOKUP from command line ?
+	 *  For now hardcoded limit work for me.
+	 *  May be later, when I'll face problem :(
+	 */ 
+	const unsigned long SIZE_FOR_LOOKUP = 40;
 
 	pgm_name = argv[arg_ind++];	
 	if (argc < 3) {
@@ -74,8 +81,14 @@ int main(int argc, char *argv[])
 	pattern_size = argc - arg_ind;
 	pattern = my_malloc(pattern_size, "pattern");
 	if (pattern == NULL) exit(1);
+
+	/*
+	 * Convert command lines arguments with bytes values to the
+	 * binary pattern
+	 */
 	for (ind = 0; ind < pattern_size; ind++, arg_ind++) {
 		const char *current;
+		char *endptr;
 		unsigned long value;
 		current = argv[arg_ind];
 		value = strtoul(current, &endptr, 0);
@@ -99,6 +112,7 @@ int main(int argc, char *argv[])
 		pattern[ind] = (unsigned char)value;
 	}
 
+	/* Get ehdr + phdrs */
 	if ( 
 		get_ehdr_phdrs_and_shdrs(
 			loader, 
@@ -110,6 +124,7 @@ int main(int argc, char *argv[])
 		) == 0
 	) exit(1);
 
+	/* Sanity. Verify that entry point inside one of PT_LOAD segments */
 	for (ind = 0, ph = phdrs; ind < ehdr.e_phnum; ind++, ph++) {
 		if (ph->p_type != PT_LOAD) continue;
 		if (
@@ -130,6 +145,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	/* Read SIZE_FOR_LOOKUP bytes from entry point */
 	data = my_fread_from_position(
 			loader, 
 			ph->p_offset + (ehdr.e_entry - ph->p_vaddr), 
@@ -138,16 +154,29 @@ int main(int argc, char *argv[])
 	);
 	if (data == NULL) exit(1);
 
+	/* Try to find pattern */
 	for (ind = 0; ind < (SIZE_FOR_LOOKUP - pattern_size); ind++) {
 		if (memcmp(data + ind, pattern, pattern_size) == 0) {
+			/* Found ! */
 			printf("0x%lx\n", (unsigned long)(ehdr.e_entry + ind));
 			exit(0);
 		}	
 	}
+
+	/* Not found */
+	fprintf(stderr, "%s: can't find specified pattern '", pgm_name);
+	for (ind = 0; ind < pattern_size; ind++) {
+		fprintf(
+			stderr, 
+			"%s0x%x",  
+			ind ? " " : "", 
+			(unsigned int)(pattern[ind])
+		);
+	}
 	fprintf(
 		stderr,
-		"%s: can't find specified pattern e_entry=0x%lx\n",
-		pgm_name,
+		"' at offset [0..%ld] from the entry point e_entry=0x%lx\n",
+		(SIZE_FOR_LOOKUP - pattern_size),
 		(unsigned long)ehdr.e_entry
 	);
  	exit(1);
