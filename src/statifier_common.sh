@@ -49,10 +49,6 @@ function Main
 
 	readelf --syms            $val_interpreter > $LOADER_SYMBOLS || return
 
-	# Now it will not work for ld-linux with fixed load address.
-	# but anyway I am goint to implement it by another way
-	# and in another place
-
 	(
 		set -e
 		val_interpreter_file_entry=`$D/$elf_class/elf_data -e $val_interpreter`
