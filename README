@@ -4,12 +4,20 @@ one file. This file can be copied and run on another machine
 without need to drag all it's libraries.
 
 Statifier use following software:
-- awk
-- bash
-- objdump
-- readelf
-- sed
-- gdb.
++----------+-----------------------+---------------------+
+| Program  |  PackageName for RH72 | PackageName for RH9 |
++----------+-----------------------+---------------------+
+| awk      |  gawk                 | gawk                |
+| bash     |  bash                 | bash                |
+| cat      |  textutils            | coreutils           |
+| chmod    |  fileutils            | coreutils           |
+| dirname  |  sh-utils             | coreutils           |
+| rm       |  fileutils            | coreutils           |
+| readelf  |  binutils             | binutils            |
+| sed      |  sed                  | sed                 |
+| uname    |  sh-utils             | coreutils           |
+| gdb      |  gdb                  | gdb                 |
++----------+-----------------------+---------------------+
 
 Gdb version should support 'generate-core-dump' command.
 (For linux x86 it's  gdb-5.2, as it written in gdb's NEWS,
