@@ -119,6 +119,7 @@ function ForStarter
 
 	Var="_dl_argc"
 	Value=`GetSymbol $Var 1` || return
+	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
 	Var="_dl_argv"
