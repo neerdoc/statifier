@@ -10,35 +10,47 @@
 # This file contains variable and functions common for
 # statifier's scripts
 
-# Temporary Work Directory - WORK_DIR
-[ "x$WORK_DIR" = "x" ] && {
-	echo "$0: internal error: 'WORK_DIR' variable is empty." 1>&2
-	exit 1
+function SetVariables
+{
+	[ $# -ne 1 -o "x$1" = "x" ] && {
+		Echo "$0: Usage: SetVariable <work_dir>"
+		return 1
+	}
+	# Temporary Work Directory - WORK_DIR
+	local WORK_DIR=$1
+	# Directory for files to be sourced 
+	# and temp files for use in different stages
+	WORK_COMMON_DIR=$WORK_DIR/common
+
+	LOADER_SYMBOLS=$WORK_COMMON_DIR/ld.syms
+	LOADER_PHDRS=$WORK_COMMON_DIR/ld.phdrs
+
+	OPTION_SRC=$WORK_COMMON_DIR/option.src
+	COMMON_SRC=$WORK_COMMON_DIR/common.src
+	DUMP_SRC=$WORK_COMMON_DIR/dump.src
+	STARTER_SRC=$WORK_COMMON_DIR/starter.src
+
+	# Directoty for adjusted files.
+	WORK_GDB_CMD_DIR=$WORK_DIR/gdb_cmd
+
+	# Directory for segment files
+	WORK_DUMPS_DIR=$WORK_DIR/dumps
+
+	# Directory for misc output from gdb
+	WORK_GDB_OUT_DIR=$WORK_DIR/gdb_out
+
+	REGISTERS_FILE=$WORK_GDB_OUT_DIR/registers
+	CORE_FILE=$WORK_GDB_OUT_DIR/core
+
+	# Directory for temp files built during new exe file constructions.
+	WORK_OUT_DIR=$WORK_DIR/out
+	return 0
 }
-# Directory for files to be sourced and temp files for use in different stages
-WORK_COMMON_DIR=$WORK_DIR/common
 
-LOADER_SYMBOLS=$WORK_COMMON_DIR/ld.syms
-LOADER_PHDRS=$WORK_COMMON_DIR/ld.phdrs
-
-COMMON_SRC=$WORK_COMMON_DIR/common.src
-DUMP_SRC=$WORK_COMMON_DIR/dump.src
-STARTER_SRC=$WORK_COMMON_DIR/starter.src
-
-# Directoty for adjusted files.
-WORK_GDB_CMD_DIR=$WORK_DIR/gdb_cmd
-
-# Directory for segment files
-WORK_DUMPS_DIR=$WORK_DIR/dumps
-
-# Directory for misc output from gdb
-WORK_GDB_OUT_DIR=$WORK_DIR/gdb_out
-
-REGISTERS_FILE=$WORK_GDB_OUT_DIR/registers
-CORE_FILE=$WORK_GDB_OUT_DIR/core
-
-# Directory for temp files built during new exe file constructions.
-WORK_OUT_DIR=$WORK_DIR/out
+function Echo
+{
+	echo "$@" 1>&2
+}
 
 function GetSymbol
 {
@@ -60,7 +72,7 @@ function GetSymbol
 	#      I saw loader with VirtAddr != 0x0 on one system
 	#      with 2.6.* kernel
 	[ $# -ne 4 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" -o "x$4" = "x" ] && {
-		echo "$0: Usage: GetSymbol <Symbol> <IsMandatory> <VirtAddr> <BaseAddr>" 1>&2
+		Echo "$0: Usage: GetSymbol <Symbol> <IsMandatory> <VirtAddr> <BaseAddr>"
 		return 1
 	}
 	local Symbol=$1
@@ -76,7 +88,7 @@ function GetSymbol
 	}' < $LOADER_SYMBOLS` || return
 	[ "x$Value" = "x" ] && {
 		if [ "x$IsMandatory" = "x1" ]; then
-			echo "$0: Symbol '$Symbol' not found in the interpreter '$Interpreter'" 1>&2
+			Echo "$0: Symbol '$Symbol' not found in the interpreter '$Interpreter'"
 			return 1 
 		else
 			echo "0x0"
