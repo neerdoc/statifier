@@ -1,3 +1,6 @@
+* Mon Jan 24 2005 <valery_reznic@users.sourceforge.net> 1.6.2-1
+- LIBC_STACK_END don't updated for alpha
+
 * Wed Nov 24 2004 <valery_reznic@users.sourceforge.net> 1.6.2-1
 - added support for loaders (ld-2.3.3) which split stack into two segments
   (statifier.gdb and statifier_create_exe.sh)
