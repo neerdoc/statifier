@@ -1,0 +1,26 @@
+# Copyright (C) 2004 Valery Reznic
+# This file is part of the Elf Statifier project
+# 
+# This project is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License.
+# See LICENSE file in the doc directory.
+
+# Config file for x86_64 (amd)
+
+# ELF32
+   # Have elf32 ?
+   ELF32         := yes
+   # Special flags to compile elf32
+   FLAGS_32      := -m32
+   # Processor name (directory name for assembler sources)
+   PROCESSOR_32  := i386
+# End ELF32
+
+# ELF64
+   # Have elf32 ?
+   ELF64         := yes
+   # Special flags to compile elf64
+   FLAGS_64      := -m64
+   # Processor name (directory name for assembler sources)
+   PROCESSOR_64  := x86_64
+# End ELF64
