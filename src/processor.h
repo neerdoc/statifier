@@ -10,18 +10,26 @@
 #ifndef processor_h
 #define processor_h
 
+#undef REGISTER_SIZE
 #ifdef __i386__
-   # x[345]86 has 32 bits registers 
-   #define REG_SIZE 4
+	#define REGISTER_SIZE 4
+	#define SYSCALL_REG   (ORIG_EAX)
+	#define PC_REG        (EIP)
+	#define PC_OFFSET_AFTER_SYSCALL 2
 #endif
 
 #ifdef __x86_64__
-   #define REG_SIZE 8
+	#define REGISTER_SIZE 8
+	#define SYSCALL_REG   (ORIG_RAX)
+	#define PC_REG        (RIP)
+	#define PC_OFFSET_AFTER_SYSCALL 2
 #endif
 
-#ifndef REG_SIZE
+#ifndef REGISTER_SIZE
    #error This processor not supported (yet)
 #endif
+
+#define REG_SIZE REGISTER_SIZE
 
 #endif /* processor_h */
 
