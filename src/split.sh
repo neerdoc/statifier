@@ -34,4 +34,4 @@ awk -vOutputDir="$OutputDir" '
 		}
 	}
 ' < $Input || exit
-exit
+exit 0
