@@ -20,15 +20,6 @@
 # to all loader's addresses found in the file.
 # After that I can invoke statifier.gdb to do real work.
 
-# Read in system depended const
-source @SYSCALL_GDB@
-
-# Read in system dependent variables
-source @VAR_GDB@
-
-# Read in (optional) setenv commands
-source @ENV_GDB@
-
 ### Initialize some gdb variables ###
 
 # I don't want debugger prompt me to type enter, 
@@ -37,7 +28,21 @@ set height 10000
 
 # Specify file to run
 # Pay attention, gdb will not read symbols from it
+# NOTE: for some reason gdb's command 'file' clear all
+# variables assigned with 
+# set $var = value.
+# I don't need (now) file and exec-file don't clear values,
+# but just in case let us mpve it on the very begin of the file.
 exec-file @GDB_RUNNER@
+
+# Read in system depended const
+source @SYSCALL_GDB@
+
+# Read in system dependent variables
+source @VAR_GDB@
+
+# Read in (optional) setenv commands
+source @ENV_GDB@
 
 # I have two differen problem with gdb messages:
 # 1) For gdb >= 6.0 
