@@ -58,14 +58,14 @@ exec-file @EXECUTABLE_FILE@
 # (I.e on alpha I have to have symbols table for the loader)
 
 # So,  anyway I put 'silent' in the command
-# and I'll set auto-solib-add off or on depend on 
+# and I'll set auto-solib-add 'off' or 'on' depend on 
 # the 'val_has_hit_msg' variable.
 # It will work if always on, but I want it off when possible
 # (for perfomance and simplicity reason)
 if $val_has_hit_msg
 	set auto-solib-add on
 else
-	set auto-solib-add on
+	set auto-solib-add off
 end
 # Now, let us set breakpoints of interest
 
