@@ -26,6 +26,11 @@ BuildRoot:     %{_builddir}/%{buildsubdir}-install-root
    %define has_elf_64 1
 %endif
 
+%ifarch alpha
+   %define has_elf_32 0
+   %define has_elf_64 1
+%endif
+
 %description
 Statifier create from dynamically linked ELF executable
 and all it's libraries (and all LD_PRELOAD libraries if any)
