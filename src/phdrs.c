@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 
 	if (is_starter_under_executable) {
 		/* i.e ph_starter == &phdrs_out[0] */
-		ph_starter->p_vaddr = phdrs_out[1].p_vaddr - ph_starter->p_align;
+		ph_starter->p_vaddr = phdrs_out[1].p_vaddr - starter_seg_size;
 		ph_starter->p_paddr = ph_starter->p_vaddr;
 		ph_starter->p_offset = 0;
 	} else {
