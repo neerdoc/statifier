@@ -5,7 +5,9 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-include ../config 
+TOP_DIR := ..
+
+include $(TOP_DIR)/config 
 
 Problem := yes
 INSTALL_COMMON := make install-common
@@ -31,13 +33,19 @@ PROCESSOR_ELF := $(PROCESSOR_$(ELF_CLASS))
 CPU_DIR       := cpus/$(PROCESSOR_ELF)
 
 SOURCES =                                  \
-   Makefile                                \
+   $(BUILD_FILES)                          \
    $(addsuffix .c,$(UTILS))                \
-   $(addsuffix .S,$(FILES_TO_BE_EMBEDDED)) \
+   $(ALL_PER_CPU_SOURCES)                  \
    $(INCLUDE_FILES)                        \
    $(SCRIPTS)                              \
    $(GDB_SCRIPTS)                          \
    $(RUNNERS)                              \
+
+BUILD_FILES =       \
+   Makefile         \
+   elf2at.make.sh   \
+   regs2asm.make.sh \
+   regs2awk.make.sh \
 
 INCLUDE_FILES = \
    processor.h  \
@@ -73,6 +81,16 @@ GDB_SCRIPTS =          \
 
 PER_CPU_GDB_SCRIPTS =  \
    set_thread_area.gdb \
+
+PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
+
+PER_CPU_SOURCES =         \
+   $(PER_CPU_ASM_SOURCES) \
+   $(PER_CPU_GDB_SCRIPTS) \
+   regs.list              \
+
+SUPPORTED_CPU_LIST := i386 x86_64
+ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
 LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS))
 
@@ -143,17 +161,17 @@ install-common:
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
 
 install-local-32 install-local-64:
-	ELF_CLASS=$(subst install-local-,,$@) && make ELF_CLASS=$(ELF_CLASS) install-local-internal
+	ELF_CLASS=$(subst install-local-,,$@) && make ELF_CLASS=$$ELF_CLASS install-local-internal
 
 install-local-internal:
-	              $(MKDIR)                             $(LIB_DIR_ELF)
-	              $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
-	cd $(CPU_DIR) $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
-	cd $(LIB_DIR_ELF) && $(LN) $(LINK_NAMES) .
+	                     $(MKDIR)                             $(LIB_DIR_ELF)
+	                     $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
+	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
+	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
 
 clean-local: clean-local-32 clean-local-64
 
 clean-local-32 clean-local-64:
 	$(RMDIR) $(subst clean-local-,,$@)
 
-include ../Makefile.include
+include $(TOP_DIR)/Makefile.common
