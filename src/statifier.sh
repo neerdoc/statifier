@@ -241,6 +241,11 @@ function Main
 		echo "$0: Can't determine ELF CLASS for the '$OrigExe'" 1>&2
 		return 1
 	}
+
+	STATIFIER_ROOT_DIR=$STATIFIER_ROOT_DIR/$ElfClass
+	[ -d $STATIFIER_ROOT_DIR ] || {
+		echo "$0: ElfClass '$ElfClass' do not supported on this system." 1>&2
+	}
 	Dl_Data="`GetDataFromInterp $Interp`" || return
 	eval "$Dl_Data" || return
 
