@@ -12,7 +12,43 @@
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	$GDB --batch -nx --command "$GDB_RUNNER_GDB" > $LOG_FILE || return
+	# Coding here bit tricky.
+	# I am gave up trying to write code for gdb, which will not produce 
+	# warnings. gdb write it to the stderr.
+	# So, gdb's stdout redirected to file, which used in the future
+	# processing.
+	# gdb's stderr redirected to stdout, and it piped to awk script
+	# which filter undesired warning 
+	# (really i filter all warnings. should i be more selective ?)
+	# and all other strings are copied as is to stdout.
+	# And awk's stdout finally redirected to stderr.
+	# So, this way I filter from stderr "bad" strings.
+
+	# One more thing: gdb itself not to accurate with exit code.
+	# Additional thing: sh (bash too) as exit staus of the pipe
+	# return exit status of second command.
+	# (yes, bash2 has PIPESTATUS[], but I don't like it).
+	# So, when gdb think it do a good job it should print to the
+	# STDERR same magis string and filter should recognize it
+	# and return status 0, othrewise - status 1
+	{
+		$GDB --batch -nx --command "$GDB_RUNNER_GDB" > $LOG_FILE &&
+		echo "gdb is ok" 1>&2;
+	} 2>&1 | awk '
+		BEGIN {
+			st = 1
+		}
+
+		{
+			if ($0 == "gdb is ok") { st=0; next; }
+			if ($1 == "warning:") next;
+			print $0;
+		}
+		END {
+			if (st != 0) print "$0: some problem with gdb";
+			exit (st);
+		}
+	' 1>&2 || return
 	return 0
 }
 
