@@ -19,6 +19,7 @@ function CreateStarter
 	set -e
 		source $COMMON_SRC || return
 		source $LOADER_SRC || return
+		source $MISC_SRC   || return
 	set +e
 	local Starter="$1"
 
@@ -38,11 +39,8 @@ function CreateStarter
 
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
-	local val_offset
-	val_offset=`printf "0x%x" $[$val_base_addr - $val_interpreter_file_base_addr]`
 	full_dl_list=`
-		printf "$val_base_addr" &&
-		for i in $val_dl_list; do
+		for i in $val_interpreter_file_base_addr $val_dl_list; do
 			case "$i" in
 				0 | 0x0) :;;  # do nothing
 				*)
