@@ -81,8 +81,8 @@ commands
 	silent
 	# Save mappings. I need it for start/stop addreses of the segments
 	# debugers core-file has start address too, but it miss stop address
-	my_separator maps
-		info proc mapping
+	my_separator process
+		info proc
 	my_separator_end
 
 	# Save registers
@@ -99,6 +99,7 @@ commands
 	# this dumps command should save all programms memory mappings.
 	# show memory protection.
 	shell @SPLIT_SH@ @LOG_FILE@                               || kill $PPID
+	shell @MAPS_SH@  @PROCESS_FILE@ @MAPS_FILE@               || kill $PPID
 	shell @DUMPS_SH@ @MAPS_FILE@ @WORK_DUMPS_DIR@ @DUMPS_GDB@ || kill $PPID
 
 	# "Run" command for save memory a mappings
