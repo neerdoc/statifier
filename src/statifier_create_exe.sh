@@ -111,13 +111,16 @@ function CreateNewExe
 	local OrigExe="$1"
 	local NewExe="$2"
 
-	local E_ENTRY=$[0x40000000 + 0x15000 - 384 - 4 ] # Dummy
 	local PT_LOAD_PHDRS=$WORK_OUT_DIR/pt_load_phdrs
 	local NON_PT_LOAD=$WORK_OUT_DIR/non_pt_load
 	local STARTER=$WORK_OUT_DIR/starter
 
 	local IGNORED_SEGMENTS
 	local DUMP_FILES
+	local E_ENTRY
+
+	# Find entry point (i.e place) for the starter
+	E_ENTRY=`$D/fep.sh $MAPS_FILE $STARTER` || return
 
 	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
