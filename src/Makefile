@@ -207,7 +207,7 @@ $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
 $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
-	gcc $(FLAGS_ELF) -v -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
+	gcc $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
 
