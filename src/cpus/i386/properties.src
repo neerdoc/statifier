@@ -8,8 +8,6 @@
 # See LICENSE file in the doc directory.
 
 # Properties for i386
-prop_stack_under_executable=0
-prop_starter_under_executable=1
 
 # pattern for _dl_start_user:
 # mov %eax,%edi
