@@ -120,6 +120,7 @@ function CreateNewExe
 	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
 	$D/phdrs                               \
+		$STARTER_SEGMENT               \
 		$OrigExe                       \
 		$CORE_FILE                     \
 		$STARTER                       \
@@ -127,7 +128,7 @@ function CreateNewExe
 		$prop_starter_under_executable \
 		$IGNORED_SEGMENTS              \
 		$DUMP_FILES                    \
-	> $STARTER_SEGMENT || return
+	|| return
 	rm -f $NewExe || return
 	case "$prop_starter_under_executable" in
 		0)

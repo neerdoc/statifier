@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2004 Valery Reznic
-  This file is part of the Elf Statifier project
-  
-  This project is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License.
-  See LICENSE file in the doc directory.
-*/
+ * Copyright (C) 2004 Valery Reznic
+ * This file is part of the Elf Statifier project
+ * 
+ * This project is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ * See LICENSE file in the doc directory.
+ */
 
 /*
  * This program create new load segment for the "pseudo_static" exe
  * Segment contains following:
  *    - changed elf header
  *    - changed phdrs
- *    - starter program, which restore registers
- *    - registers' values
+ *    - starter program
  */
 
 #include <stdio.h>
@@ -44,6 +43,21 @@ static FILE *my_fopen(
 	return file;
 }
 
+static int my_fclose(FILE *stream, const char *path, const char *pgm_name)
+{
+	int result;
+	result = fclose(stream);
+	if (result != 0) {
+		fprintf(
+			stderr,
+			"%s: Can't close '%s' file. Errno = %d (%s)\n",
+		        pgm_name, path, errno, strerror(errno)
+		);	
+		return 0;
+	}
+	return 1;
+}
+
 static size_t my_fread(
 		void *      ptr, 
 		size_t      nmemb, 
@@ -59,6 +73,28 @@ static size_t my_fread(
 		fprintf(
 			stderr, 
 			"%s: can't read '%s' from file '%s'. Errno=%d, (%s).\n",
+			pgm_name, item, file_name, errno, strerror(errno)
+		);
+		return 0;
+	}	
+	return result;
+}
+
+static size_t my_fwrite(
+		void *      ptr, 
+		size_t      nmemb, 
+		FILE *      file, 
+		const char *item,
+		const char *pgm_name,
+		const char *file_name
+)
+{
+	size_t result;
+	result = fwrite(ptr, 1, nmemb, file);
+	if (result != nmemb) {
+		fprintf(
+			stderr, 
+			"%s: can't write '%s' from file '%s'. Errno=%d, (%s).\n",
 			pgm_name, item, file_name, errno, strerror(errno)
 		);
 		return 0;
@@ -188,6 +224,7 @@ static off_t my_file_size(const char *path, const char *pgm_name, int *err)
 int main(int argc, char *argv[])
 {
 	const char *pgm_name = argv[0];	
+	const char *starter_segment;  /* filename for starter segment */
 	const char *exe_in;   /* original exe filname */
 	const char *core;     /* gdb's core filename */ 
 	const char *starter;  /* starter's filename */
@@ -214,19 +251,22 @@ int main(int argc, char *argv[])
 	const char *s_ignored_segments; /* Ignored segments, as string */
 	int ignored_segments;           /* Ignored segments */ 
 	int arg_ind;
-	char *starter_segment, *cur_ptr;
+	char *starter_segment_memory;   /* Memory to hold whole
+					   starter segment */
+       	char *cur_ptr;
 	size_t cur_size;
 
-	if (argc < 7) {
+	if (argc < 8) {
 		fprintf(
 			stderr, 
-			"Usage: %s <exe_in> <gdb_core_file> <starter_program> <is_stack_under_executable> <is_starter_under_executable> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n",
+			"Usage: %s <starter_seg> <exe_in> <gdb_core_file> <starter_program> <is_stack_under_executable> <is_starter_under_executable> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n",
 		       	pgm_name
 		);
 		exit(1);
 	}
 
 	arg_ind                       = 1;
+	starter_segment               = argv[arg_ind++];
 	exe_in                        = argv[arg_ind++];
 	core                          = argv[arg_ind++];
 	starter                       = argv[arg_ind++];
@@ -488,32 +528,68 @@ int main(int argc, char *argv[])
 	ehdr_exe.e_phnum = num_seg_out;
 
 	/* Allocate space for the starter segment */
-	starter_segment = my_malloc(starter_seg_size, "starter_segment", pgm_name);
-	if (starter_segment == NULL) exit(1);
-	memset(starter_segment, 0, starter_seg_size);
+	starter_segment_memory = my_malloc(
+			starter_seg_size, 
+			"starter_segment_memory", 
+			pgm_name
+	);
+	if (starter_segment_memory == NULL) exit(1);
+	memset(starter_segment_memory, 0, starter_seg_size);
 
-	cur_ptr  = starter_segment;
+	/* Copy ehdr */
+	cur_ptr  = starter_segment_memory;
 	cur_size = sizeof(ehdr_exe);
 	memcpy(cur_ptr, &ehdr_exe, cur_size);
 	cur_ptr += cur_size;
+
+	/* Copy phdrs */
 	cur_size = num_seg_out * sizeof(*ph_starter);
 	memcpy(cur_ptr, phdrs_out, cur_size);
-	/* Add schdrs */
 	cur_ptr += cur_size;
+
+	/* Add schdrs */
 	cur_size = ehdr_exe.e_shentsize * ehdr_exe.e_shnum;
 	memcpy(cur_ptr, shdrs_exe, cur_size);
-
-	/* Read starter program in */
 	cur_ptr += cur_size;
+
+	/* Open starter program */
 	input = my_fopen(starter, "r", pgm_name);
 	if (input == NULL) exit(1);
 
-	result = my_fread(cur_ptr, starter_pgm_size, input, "all file", starter, pgm_name);
+	/* Read starter program in */
+	result = my_fread(
+			cur_ptr, 
+			starter_pgm_size, 
+			input, 
+			"all file", 
+			starter, 
+			pgm_name
+	);
 	if (result == 0) exit(1);
-	fclose(input);
 
-	fwrite(starter_segment, 1, starter_seg_size, output);
+	/* Close it */
+	result = my_fclose(input, starter, pgm_name);
+	if (result == 0) exit(1);
+
+	/* Open starter segment output file */
+	output = my_fopen(starter_segment, "w", pgm_name);
+	if (output == NULL) exit(1);
+
+	/* Write it */
+	result = my_fwrite(
+			starter_segment_memory, 
+			starter_seg_size, 
+			output, 
+			"all file", 
+			starter_segment, 
+			pgm_name
+	);
+	if (result == 0) exit(1);
 	
+	/* Close it */
+	result = my_fclose(output, starter_segment, pgm_name);
+	if (result == 0) exit(1);
+
  	exit(0);
 	return 0;
 }
