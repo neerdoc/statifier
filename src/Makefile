@@ -32,16 +32,16 @@ FLAGS_ELF     := $(FLAGS_$(ELF_CLASS))
 PROCESSOR_ELF := $(PROCESSOR_$(ELF_CLASS))
 CPU_DIR       := cpus/$(PROCESSOR_ELF)
 
-SOURCES =                                  \
-   $(BUILD_FILES)                          \
-   $(UTILS_SOURCES)                        \
-   $(ALL_PER_CPU_SOURCES)                  \
-   $(INCLUDE_FILES)                        \
-   $(SCRIPTS)                              \
-   $(GDB_SCRIPTS)                          \
-   $(INCLUDE_SCRIPTS)                      \
-   $(RUNNERS)                              \
-   $(AWK_FILES)                            \
+SOURCES =                 \
+   $(BUILD_FILES)         \
+   $(UTILS_SOURCES)       \
+   $(ALL_PER_CPU_SOURCES) \
+   $(INCLUDE_FILES)       \
+   $(SCRIPTS)             \
+   $(GDB_SCRIPTS)         \
+   $(INCLUDE_SCRIPTS)     \
+   $(RUNNERS)             \
+   $(AWK_FILES)           \
 
 # Service files used to build 
 BUILD_FILES =       \
