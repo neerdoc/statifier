@@ -1,11 +1,13 @@
-# Copyright (C) 2004 Valery Reznic
-# This file is part of the Elf Statifier project
-# 
-# This project is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License.
-# See LICENSE file in the doc directory.
+/*
+ * Copyright (C) 2004 Valery Reznic
+ * This file is part of the Elf Statifier project
+ * 
+ * This project is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ * See LICENSE file in the doc directory.
+ */
 
-# Include file for all .S sources.
+/* Include file for all .S sources. */
 
 .macro GET_DATA_ADDR reg
 	call	addr
