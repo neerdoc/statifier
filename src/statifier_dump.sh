@@ -12,11 +12,7 @@
 function DumpRegistersAndMemory
 {
 	rm -f $LOG_FILE || return
-	$GDB                                                \
-		--batch                                     \
-		-nx                                         \
-		--command "$GDB_RUNNER_GDB" \
-	> $LOG_FILE || return
+	$GDB --batch -nx --command "$GDB_RUNNER_GDB" > $LOG_FILE || return
 	return 0
 }
 
@@ -95,23 +91,27 @@ function Main
 	set +e
 
 	# Different variables
-	EXECUTABLE_FILE=$opt_orig_exe
-	LOG_FILE="$WORK_GDB_OUT_DIR/log"
-	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
-	DUMPS_SH="$D/dumps.sh"
-	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
-	SPLIT_SH="$D/split.sh"
-	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
-	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
-	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
 	CONST_GDB="$D/const.gdb"
+	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
+	DUMPS_SH="$D/dumps.sh"
+	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
+	EXECUTABLE_FILE=$opt_orig_exe
 	GDB_RUNNER="$D/gdb_runner"
-	File="statifier.gdb"
-	STATIFIER_GDB_IN="$D/$File"
-	STATIFIER_GDB="$WORK_GDB_CMD_DIR/$File"
+
 	File="gdb_runner.gdb"
 	GDB_RUNNER_GDB_IN="$D/$File"
 	GDB_RUNNER_GDB="$WORK_GDB_CMD_DIR/$File"
+
+	LOG_FILE="$WORK_GDB_OUT_DIR/log"
+	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
+	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
+	SPLIT_SH="$D/split.sh"
+
+	File="statifier.gdb"
+	STATIFIER_GDB_IN="$D/$File"
+	STATIFIER_GDB="$WORK_GDB_CMD_DIR/$File"
+
+	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
 	# End of variables
 
 	# Determine debugger name
@@ -124,28 +124,25 @@ function Main
 	CreateVar > $VAR_GDB || return
 
 	# Transform files for gdb
-	sed                                                          \
-        	-e "s#@CORE_FILE@#$CORE_FILE#g"                      \
-        	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
-        	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
-        	-e "s#@ENV_GDB@#$ENV_GDB#g"                          \
-        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
-        	-e "s#@LOG_FILE@#$LOG_FILE#g"                        \
-        	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                      \
-        	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"            \
-        	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g"  \
-        	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                        \
-        	-e "s#@VAR_GDB@#$VAR_GDB#g"                          \
-        	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"            \
+	sed                                                         \
+        	-e "s#@CORE_FILE@#$CORE_FILE#g"                     \
+        	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                     \
+        	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                       \
+        	-e "s#@LOG_FILE@#$LOG_FILE#g"                       \
+        	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                     \
+        	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"           \
+        	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g" \
+        	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                       \
+        	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"           \
 	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
 
-	sed \
-        	-e "s#@ENV_GDB@#$ENV_GDB#g"                          \
-        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
-        	-e "s#@VAR_GDB@#$VAR_GDB#g"                          \
-        	-e "s#@CONST_GDB@#$CONST_GDB#g"                      \
-        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"                    \
-        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"              \
+	sed                                                 \
+        	-e "s#@CONST_GDB@#$CONST_GDB#g"             \
+        	-e "s#@ENV_GDB@#$ENV_GDB#g"                 \
+        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
+        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"           \
+        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"     \
+        	-e "s#@VAR_GDB@#$VAR_GDB#g"                 \
 	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
 	DumpRegistersAndMemory || return
