@@ -30,15 +30,15 @@ DOCS =       \
    TODO      \
    $(addprefix doc/,$(DOC_DOCS))
 
-DOC_DOCS =                   \
-   README                    \
-   Background.txt            \
-   DataFlow.txt              \
-   Implementation.txt        \
-   MoreDetails.txt           \
-   MoreProblems.txt          \
-   Porting.txt               \
-   StatifiedLayout.txt       \
+DOC_DOCS =                                \
+   README                                 \
+   Background.txt                         \
+   DataFlow.txt                           \
+   Implementation.txt                     \
+   MoreDetails.txt                        \
+   MoreProblems.txt                       \
+   Porting.txt                            \
+   StatifiedLayout.txt                    \
    $(addprefix 1.5.0/, $(DOC_1_5_0_DOCS)) \
 
 DOC_1_5_0_DOCS =             \
