@@ -396,42 +396,53 @@ int main(int argc, char *argv[])
 	/* Fill data for the starter segment */
 	ph_starter = &phdrs_out[is_starter_under_executable ? 0 : (num_seg_out-1) ];
 	ph_starter->p_type = PT_LOAD; 
-	/* Find alignment for the executable code */
-	ph_starter->p_align = -1; /* no alignment */
+
+	/* Calcilate starter_seg_size */
 	{
+		size_t rest;
+		ElfW(Word) align = 0; 
 		int i;
+		/* Find alignment for the executable code in the exe ehdr */
 		for (i = 0; i < ehdr_exe.e_phnum; i++) {
 			if (phdrs_exe[i].p_type == PT_LOAD) {
 				if (phdrs_exe[i].p_flags & PF_X) {
-					ph_starter->p_align = phdrs_exe[i].p_align;
+					align = phdrs_exe[i].p_align;
+					break;
 				}
 			}
 		}
-	}
 
-	starter_pgm_size = my_file_size(starter, pgm_name, &err);
-	if (err != 0) exit(1);
+		if (i == ehdr_exe.e_phnum) {
+			fprintf(
+				stderr,
+				"%s: there is no PT_LOAD segment with PF_X flag in the '%s'.\n",
+				pgm_name, exe_in
+			);
+			exit(1);
+		}
 
-	/* Starter seg size is elf header size + size of all phdrs + 
-	 * + size of all shdrs + starter program size
-	 */
-	starter_seg_size =
-		sizeof(ehdr_exe)                        + 
-		ehdr_exe.e_shnum * ehdr_exe.e_shentsize +
-	       	num_seg_out      * sizeof(*ph_starter)  +
-		starter_pgm_size
-	;
+		starter_pgm_size = my_file_size(starter, pgm_name, &err);
+		if (err != 0) exit(1);
 
-	/* Now round it up to the align boundary if needed*/
-	{
-		size_t rest;
-		rest = starter_seg_size % ph_starter->p_align;
-		if (rest) starter_seg_size += (ph_starter->p_align - rest);
+		/* Starter seg size is elf header size + size of all phdrs + 
+	 	 * + size of all shdrs + starter program size
+	 	 */
+		starter_seg_size =
+			sizeof(ehdr_exe)                        + 
+			ehdr_exe.e_shnum * ehdr_exe.e_shentsize +
+	       		num_seg_out      * sizeof(*ph_starter)  +
+			starter_pgm_size
+		;
+
+		/* Now round it up to the align boundary if needed */
+		rest = starter_seg_size % align;
+		if (rest) starter_seg_size += (align - rest);
 	}
 
 	ph_starter->p_filesz = starter_seg_size;
 	ph_starter->p_memsz  = starter_seg_size;
 	ph_starter->p_flags  = PF_X | PF_R; 
+	ph_starter->p_align  = 1;
 
 	if (is_starter_under_executable) {
 		/* i.e ph_starter == &phdrs_out[0] */
