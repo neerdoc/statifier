@@ -27,21 +27,46 @@ function IsLinuxGate
 	return 0
 }
 
+function IsIgnoredSegment
+{
+	# This function set is_ignored to 1 if segment should be
+	# ignored, otherwise - to 0
+	is_ignored=1
+
+	local is_stack is_linux_gate
+	IsStack                || return
+	[ $is_stack = 1 ]      && return 0
+	IsLinuxGate            || return
+	[ $is_linux_gate = 1 ] && return 0
+
+	is_ignored=0
+	return 0
+}
+
 function pt_load
 {
+	# This function create two outputs:
+	#  1) stdout
+	#  2) set PT_LOAD_FILES variable
 	set -- Dummy $WORK_DUMPS_DIR/* || return
 	local Start Stop Perm Offset Name Dummy
-	local is_stack is_linux_gate
+	local is_ignored
+	PT_LOAD_FILES=""
 	while :; do
-		shift
+		shift || return
 		read Start Stop Perm Offset Name Dummy || break
-		IsStack                || return
-		[ $is_stack = 1 ]      && continue # skip stack segment
-		IsLinuxGate            || return
-		[ $is_linux_gate = 1 ] && continue # skip linux-gate segment
+		IsIgnoredSegment       || return
+		[ $is_ignored = 1 ]    && continue # skip segment to be ignored
 		$D/pt_load_1 $Start $Stop $Perm || return
 		PT_LOAD_FILES="$PT_LOAD_FILES $1"
 	done || return
+
+	# number of lines in the stdif and $# (number of dump files)
+	# should be same.
+	[ $# -ne 0 ] && {
+		echo "$0: internal problem: \$#=$#. should be 0" 1>&2
+		return 1
+	}
 	return 0
 }
 
