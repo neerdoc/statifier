@@ -28,10 +28,10 @@ RPM_DEFINES =                             \
    --define "_srcrpmdir $(TOP_BUILD_DIR)" \
    --define '_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm'
 
-rpmbuild: tar
+rpm rpmbuild: tar
 	$(RMDIR) $(RPM_BUILD_DIR)
 	$(MKDIR) $(RPM_BUILD_DIR)
-	rpmbuild -ta $(RPM_DEFINES) $(TARFILE)
+	$@ -ta $(RPM_DEFINES) $(TARFILE)
 	$(RMDIR) $(RPM_BUILD_DIR)
 
 include Makefile.include
