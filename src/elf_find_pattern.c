@@ -140,15 +140,15 @@ int main(int argc, char *argv[])
 
 	for (ind = 0; ind < (SIZE_FOR_LOOKUP - pattern_size); ind++) {
 		if (memcmp(data + ind, pattern, pattern_size) == 0) {
-			printf("0x%x\n", ehdr.e_entry + ind);
+			printf("0x%lx\n", (unsigned long)(ehdr.e_entry + ind));
 			exit(0);
 		}	
 	}
 	fprintf(
 		stderr,
-		"%s: can't find specified pattern e_entry=0x%x\n",
+		"%s: can't find specified pattern e_entry=0x%lx\n",
 		pgm_name,
-		ehdr.e_entry
+		(unsigned long)ehdr.e_entry
 	);
  	exit(1);
 	return 1;
