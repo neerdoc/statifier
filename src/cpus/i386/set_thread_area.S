@@ -9,7 +9,7 @@
 #
 # RH9.0 used TLS - thread local storage.
 
-MY_DATA EAX
+MY_DATA SYSCALL_NUM
 MY_DATA ENTRY_NUMBER
 MY_DATA BASE
 MY_DATA LIMIT
@@ -21,7 +21,7 @@ MY_DATA FLAGS
 	pushl	LIMIT(%eax)
 	pushl	BASE(%eax)
 	pushl	ENTRY_NUMBER(%eax)
-	movl	EAX(%eax), %eax
+	movl	SYSCALL_NUM(%eax), %eax
 	movl	%esp,	%ebx
 	int	$0x80
 	# Restore stack pointer now
