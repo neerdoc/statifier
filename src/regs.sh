@@ -40,34 +40,32 @@ rm -f $TmpFile || exit
 awk '
 	BEGIN {
 		i = 0;
-		var = "ebx"     ; P[i++] = var; R[var] = "";
-		var = "ecx"     ; P[i++] = var; R[var] = "";
-		var = "edx"     ; P[i++] = var; R[var] = "";
-		var = "esi"     ; P[i++] = var; R[var] = "";
-		var = "edi"     ; P[i++] = var; R[var] = "";
-		var = "ebp"     ; P[i++] = var; R[var] = "";
-		var = "eax"     ; P[i++] = var; R[var] = "";
-		var = "ds"      ; P[i++] = var; R[var] = "";
-		var = "es"      ; P[i++] = var; R[var] = "";
-		var = "fs"      ; P[i++] = var; R[var] = "";
-		var = "gs"      ; P[i++] = var; R[var] = "";
-		var = "orig_eax"; P[i++] = var; R[var] = "0x0";
-		var = "eip"     ; P[i++] = var; R[var] = "";
-		var = "cs"      ; P[i++] = var; R[var] = "";
-		var = "eflags"  ; P[i++] = var; R[var] = "";
-		var = "esp"     ; P[i++] = var; R[var] = "";
-		var = "ss"      ; P[i++] = var; R[var] = "";
+		var = "ebx"     ; P[i++] = var;
+		var = "ecx"     ; P[i++] = var;
+		var = "edx"     ; P[i++] = var;
+		var = "esi"     ; P[i++] = var;
+		var = "edi"     ; P[i++] = var;
+		var = "ebp"     ; P[i++] = var;
+		var = "eax"     ; P[i++] = var;
+		var = "ds"      ; P[i++] = var;
+		var = "es"      ; P[i++] = var;
+		var = "fs"      ; P[i++] = var;
+		var = "gs"      ; P[i++] = var;
+		var = "orig_eax"; P[i++] = var;
+		var = "eip"     ; P[i++] = var;
+		var = "cs"      ; P[i++] = var;
+		var = "eflags"  ; P[i++] = var;
+		var = "esp"     ; P[i++] = var;
+		var = "ss"      ; P[i++] = var;
 	}
 	{
-		if ($1 in R) { 
-			R[$1] = $2; 
-			next; 
-		}
+		R[$1] = $2; 
 	}
 	END {
 		for (ind = 0; ind < i; ind++) {
 			reg_name = P[ind];
 			reg_value = R[reg_name];
+			if (reg_value == "") reg_value = "0x0";
 			printf("%s:\t.long %s\n", reg_name, reg_value);
 		}
 	}
