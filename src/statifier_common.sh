@@ -43,7 +43,7 @@ function GetInterpreterVirtAddr
 	}
 	local Interpreter="$1"
 	readelf --program-headers $Interpreter > $LOADER_PHDRS || return
-	awk -vInterp=$Interp -vName="$0 $Func: " -vAP="'" '
+	awk -vInterpreter=$Interpreter -vName="$0 $Func: " -vAP="'" '
 		BEGIN {
 			err = 1;
 		}
@@ -60,7 +60,7 @@ function GetInterpreterVirtAddr
 		}
 		END {
 			if (err == 1) {
-				Text=Name "no LOAD segment found in " AP Interp AP
+				Text=Name "no LOAD segment found in " AP Interpreter AP
 				system("echo " Text " 1>&2")
 				exit(1);
 			}
