@@ -12,22 +12,12 @@
 /* RH9.0 used TLS - thread local storage. */
 
 MY_DATA SYSCALL_NUM
-MY_DATA ENTRY_NUMBER
-MY_DATA BASE
-MY_DATA LIMIT
-MY_DATA FLAGS
+MY_DATA FUNCTION
+MY_DATA ADDRESS
 
 	GET_DATA_ADDR %rax
 
-	push 	FLAGS(%rax)
-	push 	LIMIT(%rax)
-	push 	BASE(%rax)
-	push 	ENTRY_NUMBER(%rax)
+	mov	ADDRESS(%rax),     %rsi
+	mov	FUNCTION(%rax),    %rdi
 	mov 	SYSCALL_NUM(%rax), %rax
-	mov 	%rsp,	%rbx
 	syscall
-	# Restore stack pointer now
-	pop 	%rbx
-	pop 	%rbx
-	pop 	%rbx
-	pop 	%rbx
