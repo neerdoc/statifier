@@ -1,6 +1,8 @@
 %if %{has_elf_@ELF_CLASS@}
 %dir /usr/lib/statifier/@ELF_CLASS@
      /usr/lib/statifier/@ELF_CLASS@/dl-var
+     /usr/lib/statifier/@ELF_CLASS@/elfinfo
+     /usr/lib/statifier/@ELF_CLASS@/loader_base_test
      /usr/lib/statifier/@ELF_CLASS@/phdrs
      /usr/lib/statifier/@ELF_CLASS@/readlink
      /usr/lib/statifier/@ELF_CLASS@/regs
@@ -8,6 +10,13 @@
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
      /usr/lib/statifier/@ELF_CLASS@/strtoul
      /usr/lib/statifier/@ELF_CLASS@/tls_test
+     /usr/lib/statifier/@ELF_CLASS@/statifier_lib.src
+     /usr/lib/statifier/@ELF_CLASS@/statifier_common.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_before_dump.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_dump.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_before_starter.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_create_starter.sh
+     /usr/lib/statifier/@ELF_CLASS@/statifier_create_exe.sh
      /usr/lib/statifier/@ELF_CLASS@/dumps.sh
      /usr/lib/statifier/@ELF_CLASS@/regs.awk
      /usr/lib/statifier/@ELF_CLASS@/regs.sh
