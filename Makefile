@@ -38,10 +38,15 @@ DOC_DOCS =                   \
    MoreDetails.txt           \
    MoreProblems.txt          \
    Porting.txt               \
+   StatifiedLayout.txt       \
+   $(addprefix 1.5.0/, $(DOC_1_5_0_DOCS)) \
+
+DOC_1_5_0_DOCS =             \
    StatifiedLayout.alpha.txt \
    StatifiedLayout.x86.txt   \
    StatifiedLayout.txt       \
    StarterLayout.txt         \
+
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
