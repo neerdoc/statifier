@@ -101,7 +101,6 @@ HELPER_SCRIPTS =      \
    dumps.sh           \
    fep.sh             \
    maps.sh            \
-   pt_load.sh         \
    regs.sh            \
    set_thread_area.sh \
    split.sh           \
