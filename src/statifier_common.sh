@@ -100,6 +100,14 @@ function Main
 	local VirtAddr BaseAddr
 	VirtAddr=`GetInterpreterVirtAddr $Interpreter` || return
 	BaseAddr=`GetInterpreterBaseAddr $Interpreter` || return
+
+	# I saw it on linux 2.6.6 with ld 2.3.2. which has fixed VirtAddr
+	[ "x$BaseAddr" = "x0x0" ] && BaseAddr=$VirtAddr
+	[ "x$BaseAddr" = "x0x0" ] && {
+		# VirtAddr = 0x0 too. Bad. Give error and exit.
+		echo "$0: Can't find BaseAddr for '$Interpreter': BaseAddr=VirtAddr=0x0" 1>&2
+		return 1
+	}
 	[ "$VirtAddr" = "$BaseAddr" -o "$VirtAddr" = "0x0" ] || {
 		echo "$0: Interpreter's '$Interpreter' VirtAddr='$VirtAddr' and BaseAddr='$BaseAddr' are different." 1>&2 
 		return 1
