@@ -20,6 +20,7 @@ UTILS =    \
 SCRIPTS =       \
    dumps.sh     \
    regs.sh      \
+   split.sh     \
    statifier.sh \
  
 RUNNERS =    \
