@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2004 Valery Reznic
-  This file is part of the Elf Statifier project
-  
-  This project is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License.
-  See LICENSE file in the doc directory.
-*/
+ * Copyright (C) 2004, 2005 Valery Reznic
+ * This file is part of the Elf Statifier project
+ * 
+ * This project is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ * See LICENSE file in the doc directory.
+ */
 
 /*
  * It's a test program to be run by 'set_thread_area_addr'
