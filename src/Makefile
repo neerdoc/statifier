@@ -188,9 +188,14 @@ $(ELF_CLASS)/gdb_runner: gdb_runner.c
 # The immediate reason is the string in assemble code:
 #	.section	.eh_frame,"aw",@progbits
 # So, I need to remove it from the generated .s file
+
+# gcc version 3.2.3 put in the end of generated assembler code
+# .section .note-GNU-stack...,
+# i.e to be sure code after included file will go to the text section
+# I have to add ".text" to the end.
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
-	awk '{ if ($$2 !~ ".eh_frame") print $$0}' < $@.s > $@  || { $(RM) $@; exit 1; }
+	awk '{ if ($$2 !~ ".eh_frame") print $$0} END {print "\t.text";}' < $@.s > $@  || { $(RM) $@; exit 1; }
 
 
 # Dependencies should be in correct order
