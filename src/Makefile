@@ -5,18 +5,22 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-SOURCES =                   \
-   Makefile                 \
-   $(addsuffix .c,$(UTILS)) \
-   starter.S                \
-   $(SCRIPTS)               \
-   $(GDB_SCRIPTS)           \
-   $(RUNNERS)               \
+SOURCES =                                  \
+   Makefile                                \
+   $(addsuffix .c,$(UTILS))                \
+   $(addsuffix .S,$(FILES_TO_BE_EMBEDDED)) \
+   $(SCRIPTS)                              \
+   $(GDB_SCRIPTS)                          \
+   $(RUNNERS)                              \
 
 UTILS =                 \
    phdrs                \
    set_thread_area_addr \
    strtoul              \
+
+FILES_TO_BE_EMBEDDED = \
+   set_thread_area     \
+   starter             \
 
 SCRIPTS =       \
    dumps.sh     \
@@ -33,7 +37,7 @@ GDB_SCRIPTS =          \
    map_reg_core.gdb    \
    set_thread_area.gdb \
 
-TARGETS := $(UTILS) starter set_thread_area
+TARGETS := $(UTILS) $(FILES_TO_BE_EMBEDDED)
 
 all: 
 all-local: $(TARGETS)
@@ -45,7 +49,7 @@ $(UTILS): %: %.c
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
-starter set_thread_area: %: %.S
+$(FILES_TO_BE_EMBEDDED): %: %.S
 	gcc $< -o $@ -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 LIB_DIR = $(DESTDIR)/usr/lib/statifier
