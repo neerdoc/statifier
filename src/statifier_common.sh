@@ -178,18 +178,27 @@ function Main
 	local val_virt_addr2=$1
 	local val_size2=$2
 	
+	# Is interpreter stripped ?
+	val=`$D/elf_stripped $val_interpreter` || return
+	local val_interpreter_has_symtab
+	if [ "x$val" = "x" ]; then
+		val_interpreter_has_symtab="yes"
+	else
+		val_interpreter_has_symtab="no"
+	fi
 
-	{
-		echo "val_uname_m=$val_uname_m"           && \
-		echo "val_elf_class=$val_elf_class"       && \
-		echo "val_interpreter='$val_interpreter'" && \
-		echo "val_virt_addr='$val_virt_addr'"     && \
-		echo "val_base_addr='$val_base_addr'"     && \
-		echo "val_virt_addr2='$val_virt_addr2'"   && \
-		echo "val_size2='$val_size2'"             && \
-		CheckTls                                  && \
-		:
-	} || return 
+	(
+		set -e
+		echo "val_uname_m=$val_uname_m"
+		echo "val_elf_class=$val_elf_class"
+		echo "val_interpreter='$val_interpreter'"
+		echo "val_interpreter_has_symtab='$val_interpreter_has_symtab'"
+		echo "val_virt_addr='$val_virt_addr'"
+		echo "val_base_addr='$val_base_addr'"
+		echo "val_virt_addr2='$val_virt_addr2'"
+		echo "val_size2='$val_size2'"
+		CheckTls
+	) || return 
 	return 0
 }
 
