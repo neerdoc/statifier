@@ -1,3 +1,4 @@
+%if %{has_elf_@ELF_CLASS}
 %dir /usr/lib/statifier/@ELF_CLASS@
      /usr/lib/statifier/@ELF_CLASS@/dl-var
      /usr/lib/statifier/@ELF_CLASS@/phdrs
@@ -16,3 +17,4 @@
      /usr/lib/statifier/@ELF_CLASS@/first.gdb
      /usr/lib/statifier/@ELF_CLASS@/map_reg_core.gdb
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.gdb
+%endif
