@@ -7,22 +7,6 @@
 
 # Debuggers command for dumping maps, registers and coredump to the files
 
-# I need to set breakpoint on _dl_start_user (for linux) 
-# But before I run program I can't got (from gdb) _dl_start_user address.
-# So, trick is following:
-#   1) set stop-on-solib-event
-#   2) run program.
-#      It will be run till shared library event.
-#      Now, sure real-time loader is up, so I can get _dl_start_user's address.
-#   3) set break point on _dl_start_user
-#   4) unset stop on solib-events 
-#   5) Continue.
-#   6) Next stop - is _dl_start_user
-
-set stop-on-solib-events 1
-run_continue
-	
-set stop-on-solib-events 0
 break @BREAKPOINT_START@
 
 # Continue execution - real time loader will finish 
@@ -30,7 +14,7 @@ break @BREAKPOINT_START@
 # and do relocation.
 # Also (depend on LD_BIND_NOW) symbols binding can be done too.
 # Loader will stop on breakpoint just before running .so _init function
-continue
+run_continue
 
 # Save mappings. I need it for start/stop addreses of the segments
 # debugers core-file has start address too, but it miss stop address
