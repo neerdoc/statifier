@@ -191,17 +191,17 @@ int main(int argc, char *argv[])
 	FILE *output = stdout;
 	int result;
 	const char *pgm_name = argv[0];	
-	const char *exe_in, *core, *starter, *registers;
+	const char *exe_in, *core, *starter;
 	size_t ind_core, ind_out, num_seg_out;
 	size_t align, rest;
-	off_t  starter_pgm_size, registers_file_size, file_size, starter_seg_size;
+	off_t  starter_pgm_size, file_size, starter_seg_size;
 	static int err;
 	int arg_ind;
 	char *starter_segment, *cur_ptr;
 	size_t cur_size;
 
-	if (argc < 5) {
-		fprintf(stderr, "Usage: %s <exe_in> <gdb_core_file> <starter_program> <registers_file> <seg_file_1> [<seg_file_2>...]\n", pgm_name);
+	if (argc < 4) {
+		fprintf(stderr, "Usage: %s <exe_in> <gdb_core_file> <starter_program> <seg_file_1> [<seg_file_2>...]\n", pgm_name);
 		exit(1);
 	}
 
@@ -209,7 +209,6 @@ int main(int argc, char *argv[])
 	exe_in    = argv[arg_ind++];
 	core      = argv[arg_ind++];
 	starter   = argv[arg_ind++];
-	registers = argv[arg_ind++];
 
 	if ( 
 		get_elf32_ehdr_phdrs_and_shdrs(
@@ -264,18 +263,14 @@ int main(int argc, char *argv[])
 	starter_pgm_size = my_file_size(starter, pgm_name, &err);
 	if (err != 0) exit(1);
 
-	registers_file_size = my_file_size(registers, pgm_name, &err);
-	if (err != 0) exit(1);
-
 	/* Starter seg size is elf header size + size of all phdrs + 
-	 * + size of all shdrs starter program size + registers_file_size
+	 * + size of all shdrs + starter program size
 	 */
 	starter_seg_size =                                \
 		sizeof(ehdr_exe)                        + \
 		ehdr_exe.e_shnum * ehdr_exe.e_shentsize + \
 	       	num_seg_out      * sizeof(*ph_out)      + \
-		starter_pgm_size                        + \
-		registers_file_size
+		starter_pgm_size
 	;
 
 	/* Now round it up to the align boubary if needed*/
@@ -344,16 +339,6 @@ int main(int argc, char *argv[])
 	result = my_fread(cur_ptr, starter_pgm_size, input, "all file", starter, pgm_name);
 	if (result == 0) exit(1);
 	fclose(input);
-
-	/* Read registers file in */
-	cur_ptr += starter_pgm_size;
-	input = my_fopen(registers, "r", pgm_name);
-	if (input == NULL) exit(1);
-
-	result = my_fread(cur_ptr, registers_file_size, input, "all file", registers, pgm_name);
-	if (result == 0) exit(1);
-	fclose(input);
-
 
 	fwrite(starter_segment, 1, starter_seg_size, output);
 	
