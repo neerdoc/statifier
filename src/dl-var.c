@@ -51,9 +51,15 @@ void do_work(struct dl_var_data *data, unsigned long *stack)
 	while (*temp != 0) temp++; 
 	auxv = (ElfW(auxv_t)*)(temp + 1); 
 
-	if (data->LIBC_STACK_END) {
-		*(data->LIBC_STACK_END) = (unsigned long)stack;
-	}
+	/* 
+	 * Alpha for some reason don't like when I change LIBC_STACK_END.
+	 * Let's leave it as is.
+	 */
+	#ifndef  __alpha__
+		if (data->LIBC_STACK_END) {
+			*(data->LIBC_STACK_END) = (unsigned long)stack;
+		}
+	#endif
 	/* 
 	 * Adjust _dl_argc, _dl_argv, _environ and _dl_auxv 
 	 * loader's variables
