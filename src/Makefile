@@ -1,0 +1,60 @@
+# Copyright (C) 2004 Valery Reznic
+# This file is part of the Elf Statifier project
+# 
+# This project is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License.
+# See LICENSE file in the doc directory.
+
+SOURCES =                   \
+   Makefile                 \
+   $(addsuffix .c,$(UTILS)) \
+   starter.S                \
+   $(SCRIPTS)               \
+   $(GDB_SCRIPTS)           \
+   $(RUNNERS)               \
+
+UTILS =    \
+   phdrs   \
+   strtoul \
+
+SCRIPTS =       \
+   dumps.sh     \
+   regs.sh      \
+   statifier.sh \
+ 
+RUNNERS =    \
+   statifier \
+
+GDB_SCRIPTS =       \
+   dumps.gdb        \
+   map_reg_core.gdb \
+
+TARGETS := $(UTILS) starter
+
+all: 
+all-local: $(TARGETS)
+
+$(UTILS): %: %.c
+	gcc -Wall -O2 -g $< -o $@
+
+# I need starter as raw binary - no elf header, no link with libc,
+# so I have to specify '-Wl,--oformat,binary' and -nostdlib
+# Because linker give warning about _start function I specify
+# pretty dummy '--entry=0x0'
+starter: starter.S
+	gcc $< -o $@ -Wl,--oformat,binary,--entry=0x0 -nostdlib
+
+LIB_DIR = $(DESTDIR)/usr/lib/statifier
+BIN_DIR = $(DESTDIR)/usr/bin
+install-local:
+	$(MKDIR)                             $(LIB_DIR)
+	$(INSTALL_RUN) $(TARGETS) $(SCRIPTS) $(LIB_DIR)
+	$(INSTALL_RO)  $(GDB_SCRIPTS)        $(LIB_DIR)
+
+	$(MKDIR)                  $(BIN_DIR)
+	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
+
+clean-local:
+	rm -f $(TARGETS)
+
+include ../Makefile.include

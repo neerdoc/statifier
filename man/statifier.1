@@ -1,0 +1,21 @@
+.TH statifier 1 "1.0.0" "Valery Reznic" "Elf Statifier"
+.SH NAME
+statifier \- Elf dynamically linked executables statifier
+.SH SYNOPSIS
+.B statifier <exe_file> <statified_exe> 
+.SH DESCRIPTION
+Statifier make from elf dynamically linked executable and 
+all it's required libraries one stand-alone executable.
+This executable can be copied now to another machine without
+any of these DLL and run.
+.SH FILES
+.TP 
+\fB$TMPDIR/statifier.tmpdir.$$\fP
+Directory which contains all temporary files
+.SH ENVIRONMENT VARIABLES
+.LP
+.TP
+\fBTMPDIR\fP
+Directory for temporary files. If not set \fB/tmp/\fP used.
+.SH AUTHORS
+Valery Reznic <valery_reznic@users.sourceforge.net>
