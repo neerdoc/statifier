@@ -1,3 +1,8 @@
+* Mon Sep 13 2004 <valery_reznic@users.sourceforge.net> 1.6.1-1
+- Documentation updated to reflect changes in the 1.6.0 
+- Fixed problem with set_thread_area_addr which can't exit
+  on the RHEL3.2
+
 * Tue Aug 31 2004 <valery_reznic@users.sourceforge.net> 1.6.0-1
 - In the RHEL 3.1 gdb does not stop on the first loader's
   instruction, instead of it stop on next one.
