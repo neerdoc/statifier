@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2004 Valery Reznic
-  This file is part of the Elf Statifier project
-  
-  This project is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License.
-  See LICENSE file in the doc directory.
-*/
+ * Copyright (C) 2004 Valery Reznic
+ * This file is part of the Elf Statifier project
+ * 
+ * This project is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ * See LICENSE file in the doc directory.
+ */
 
 /*
- * This program should print to stdout 
- * offset to thread local storage related system call:
- * in the loader (offset is relative to the loader's base address.
- * System call we are looking for is
+ * This program should print to stdout
+ * offset to thread local storage related system call in the loader
+ * (offset is relative to the loader's base address).
+ * System calls we are looking for are
  * x86:    __NR_set_thread_area
  * x86_64: __NR_arch_prctl
  */ 
@@ -33,21 +33,8 @@
 #include <sys/wait.h>
 #include <sys/syscall.h>
 #include "processor.h"
+#include "thread_local_storage_syscall.h"
 
-#ifdef __i386__
-	#ifdef __NR_set_thread_area
-		#define TLS_SYSCALL __NR_set_thread_area
-	#endif
-#endif
-
-#ifdef __x86_64__
-	#ifdef __NR_arch_prctl
-		#define TLS_SYSCALL __NR_arch_prctl
-	#endif
-#endif
-
-#ifdef __alpha__
-#endif
 #ifndef TLS_SYSCALL
 int main(int argc, char *argv[0])
 {
@@ -136,6 +123,7 @@ void do_work(
 	int stat;
 	unsigned long loader_entry_point, pc_val, syscall_val;
 	const unsigned long syscall_num = TLS_SYSCALL;
+	const char *const syscall_name  = TLS_SYSCALL_NAME;
 	static int first = 1;
 	while(1) {
 		wait(&stat);
@@ -143,10 +131,11 @@ void do_work(
 			if (WEXITSTATUS(stat)) {
 				fprintf(
 					stderr,
-					"%s: '%s' exited with status=%d without execute syscall 'set_thread_area' (%ld)\n",
+					"%s: '%s' exited with status=%d without execute syscall '%s' (%ld)\n",
 					name,
 		       			process,
 					WEXITSTATUS(stat),
+					syscall_name,
 					syscall_num
 				);
 				exit(1);
@@ -157,10 +146,11 @@ void do_work(
 		if (WIFSIGNALED(stat)) {
 			fprintf(
 				stderr,
-				"%s: '%s' killed by signal=%d without pass syscall 'set_thread_area' (%ld)\n",
+				"%s: '%s' killed by signal=%d without pass syscall '%s' (%ld)\n",
 				name,
 		       		process,
 				WTERMSIG(stat),
+				syscall_name,
 				syscall_num
 			);
 			exit(1);
