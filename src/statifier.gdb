@@ -10,7 +10,7 @@
 #############################################
 # Command for print "start separator"
 define my_separator
-	echo STATIFIER_FILE_SEPARATOR $arg0\n
+	echo \nSTATIFIER_FILE_SEPARATOR $arg0\n
 end
 
 # Command for print "end separator"
