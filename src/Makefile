@@ -52,8 +52,8 @@ UTILS =                 \
 
 FILES_TO_BE_EMBEDDED = \
    dl-var              \
+   regs                \
    set_thread_area     \
-   starter             \
 
 SCRIPTS =             \
    dumps.sh           \
