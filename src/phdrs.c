@@ -22,6 +22,7 @@
 #include <string.h>
 #include <errno.h>
 #include <elf.h>
+#include <link.h> /* I need it for define ElfW() */
 
 static FILE *my_fopen(
 	const char *path,
@@ -99,13 +100,13 @@ void *my_malloc(size_t size, const char *item, const char *pgm_name)
 	return result;
 }
 
-static int get_elf32_ehdr_phdrs_and_shdrs(
+static int get_ehdr_phdrs_and_shdrs(
 	const char *path,
 	const char *pgm_name,
-	Elf32_Ehdr *ehdr,
-	Elf32_Phdr **phdrs,
+	ElfW(Ehdr) *ehdr,
+	ElfW(Phdr) **phdrs,
 	int        *first_load_segment,
-	Elf32_Shdr **shdrs
+	ElfW(Shdr) **shdrs
 )
 {
 	FILE *file;
@@ -183,9 +184,9 @@ static off_t my_file_size(const char *path, const char *pgm_name, int *err)
 }
 int main(int argc, char *argv[])
 {
-	Elf32_Ehdr ehdr_exe,   ehdr_core;
-	Elf32_Phdr *phdrs_exe, *phdrs_core, *phdrs_out, *ph_in, *ph_out;
-	Elf32_Shdr *shdrs_exe;
+	ElfW(Ehdr) ehdr_exe,   ehdr_core;
+	ElfW(Phdr) *phdrs_exe, *phdrs_core, *phdrs_out, *ph_in, *ph_out;
+	ElfW(Shdr) *shdrs_exe;
 	int first_load_segment;
 	FILE *input;
 	FILE *output = stdout;
@@ -211,7 +212,7 @@ int main(int argc, char *argv[])
 	starter   = argv[arg_ind++];
 
 	if ( 
-		get_elf32_ehdr_phdrs_and_shdrs(
+		get_ehdr_phdrs_and_shdrs(
 			exe_in, 
 			pgm_name, 
 			&ehdr_exe,
@@ -222,7 +223,7 @@ int main(int argc, char *argv[])
 	) exit(1);
 
 	if ( 
-		get_elf32_ehdr_phdrs_and_shdrs(
+		get_ehdr_phdrs_and_shdrs(
 			core, 
 			pgm_name, 
 			&ehdr_core, 
