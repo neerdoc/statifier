@@ -81,15 +81,19 @@ void do_work(const char *name, const char *process, const pid_t child)
 	while(1) {
 		wait(&stat);
 		if (WIFEXITED(stat)) {
-			fprintf(
-				stderr,
-				"%s: '%s' exited with status=%d without execute syscall 'set_thread_area' (%ld)\n",
-				name,
-		       		process,
-				WEXITSTATUS(stat),
-				syscall_num
-			);
-			exit(1);
+			if (WEXITSTATUS(stat)) {
+				fprintf(
+					stderr,
+					"%s: '%s' exited with status=%d without execute syscall 'set_thread_area' (%ld)\n",
+					name,
+		       			process,
+					WEXITSTATUS(stat),
+					syscall_num
+				);
+				exit(1);
+			} else {
+				exit(0);
+			}
 		}
 		if (WIFSIGNALED(stat)) {
 			fprintf(
@@ -123,37 +127,6 @@ void do_work(const char *name, const char *process, const pid_t child)
 	}	
 }	
 
-static void safe_fd()
-{
-	/* 
-	 * If I somehow miss 'set_thread_area' syscall
-	 * inspected process will continue execution.
-	 * In this case I want following:
-	 * stdin  - close. (I don't ant interactive program sleep forever)
-	 * stdout - redirected to /dev/null
-	 * stderr - leave it as is. I want be able to see
-	 *          possible eror from run-time-loader
-	 * NOTE: solution with stdin is not perfect.
-	 * if same program expect for example to get exactly 'yes' or 'no'
-	 * closed stdin is no help.
-	 * May be I need add timeout and try to kill application after that ?
-	 */
-
-	/* 
-	 * In case of error I not give messages here,
-	 * because inspected process should be stopped before it
-	 * use these file descriptors, so I want to avoid this
-	 * (possible) noise
-	 */
-	int new_stdout;
-	new_stdout = open("/dev/null", O_WRONLY);
-	if (new_stdout >= 0) {
-		dup2(new_stdout, STDOUT_FILENO);
-		close(new_stdout);
-	}
-	close(STDIN_FILENO); 
-}
-
 int main(int argc, char *argv[], char *envp[])
 {
 	pid_t child;
@@ -174,7 +147,6 @@ int main(int argc, char *argv[], char *envp[])
 				);
 				exit(1);
 			}
-			safe_fd();
 			execve(argv[1], &argv[1], envp);
 			fprintf(
 				stderr,
