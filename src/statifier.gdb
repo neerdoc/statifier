@@ -18,6 +18,22 @@ define my_separator_end
 	echo STATIFIER_FILE_SEPARATOR_END\n
 end
 
+# Script dumps.sh generate 'my_dump' commands
+# Let us translate it to the regular gdb's 'dump'.
+# Reason why I not generate raw gdb's 'dump' in the script is following:
+# I need to have object file name on the same line for future processing,
+# but gdb does not accept comments in the end of dump command.
+# So, I'll do this trick with a macro, which just ignore last argument
+# Last argument (object file name) simply ignored by macro.
+
+# arg0 - filename
+# arg1 - start address
+# arg2 - stop address
+# arg3 - (dummy) objfile name
+define my_dump
+	dump binary memory $arg0 $arg1 $arg2
+end
+
 # Conditional delete
 define my_delete
 	if ($arg0 == 0) 
