@@ -25,13 +25,7 @@ function GetSymbol
 	#  1.2. If 'IsMandatory' != 1, i.e Symbol is optional,
 	#       value '0x0' will be prined and return status 0.
 	# 2. Symbol WAS FOUND.
-	#    return status - 0 
-	# 2.1. If VirtAddr = 0x0, then found value is offset,  
-	#      and value + base_addr will be printed.
-	# 2.2. If  VirtAddr != 0x0 then found value is absolute
-	#      address and it will be printed out. 
-	#      I saw loader with VirtAddr != 0x0 on one system
-	#      with 2.6.* kernel
+	#    return status - 0  and it's value printed out
 	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
 		Echo "$0: Usage: GetSymbol_Symtab <Symbol> <IsMandatory>"
 		return 1
@@ -44,7 +38,7 @@ function GetSymbol
 
 	local Value
 	if [ "X$val_interpreter_has_symtab" = "Xyes" ]; then
-		# Interpreter has symtab. Good. Just try to fond symbol in.
+		# Interpreter has symtab. Good. Just try to find symbol in.
 		Value=`awk -vSymbol="$Symbol" '{
 			if ($NF == Symbol) {
 				print "0x" $2; 
@@ -81,7 +75,6 @@ function GetSymbol
 				Value=`                                   \
 					$PgmName                          \
 					$Found                            \
-					$val_base_addr                    \
 					$val_interpreter_file_base_addr   \
 					$val_interpreter_file_rw_seg_addr \
 					$val_interpreter_rw_seg_size      \
@@ -103,11 +96,6 @@ function GetSymbol
 		else
 			Value="0x0"
 		fi
-	else
-		# Symbol found
-		[ "x$val_interpreter_file_base_addr" = "x0x0" ] && {
-			Value=$[Value + $val_base_addr] || return
-		}
 	fi
 
 	printf "0x%x" $Value || return
@@ -127,12 +115,7 @@ function ForStarter
 {
 	local Value 
 	local Var
-	local val_dl_list
-
-	val_dl_list="$val_base_addr"
-	echo "#"
-	echo "# val_base_addr=$val_base_addr"
-	echo "#"
+	local val_dl_list=""
 
 	Var="_dl_argc"
 	Value=`GetSymbol $Var 1` || return
