@@ -18,6 +18,8 @@ function GetSymbol
 	# This function print out address of 'Symbol' in hex.
 	# I am looking for symbol in the output of 
 	# readelf --syms $Interpreter.
+	# (now readelf replaced with statifier's elf_symbols, but output
+	#  is same) 
 	# Function work as following:
 	#  1. Symbol NOT FOUND.
 	#  1.1. If 'IsMandatory'=1, error message will be printed 
