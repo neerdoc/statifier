@@ -7,6 +7,7 @@
      /usr/lib/statifier/@ELF_CLASS@/dl-var
      /usr/lib/statifier/@ELF_CLASS@/elfinfo
      /usr/lib/statifier/@ELF_CLASS@/elf_find_pattern
+     /usr/lib/statifier/@ELF_CLASS@/elf_stripped
      /usr/lib/statifier/@ELF_CLASS@/find_dl_argc
      /usr/lib/statifier/@ELF_CLASS@/find_dl_argv
      /usr/lib/statifier/@ELF_CLASS@/find_dl_auxv
@@ -19,6 +20,7 @@
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
      /usr/lib/statifier/@ELF_CLASS@/strtoul
      /usr/lib/statifier/@ELF_CLASS@/tls_test
+     /usr/lib/statifier/@ELF_CLASS@/properties.src
      /usr/lib/statifier/@ELF_CLASS@/regs.awk
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.sh
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.gdb
