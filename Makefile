@@ -21,12 +21,23 @@ SOURCES =           \
 DOCS =       \
    AUTHORS   \
    ChangeLog \
+   FAQ       \
    INSTALL   \
    LICENSE   \
    NEWS      \
    README    \
    THANKS    \
    TODO      \
+   $(addprefix doc/,$(DOC_DOCS))
+
+DOC_DOCS =            \
+   README             \
+   Background.txt     \
+   DataFlow.txt       \
+   Implementation.txt \
+   MoreDetails.txt    \
+   MoreProblems.txt   \
+   Porting.txt        \
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
