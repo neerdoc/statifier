@@ -124,7 +124,7 @@ void *my_malloc(size_t size, const char *item)
 	return result;
 }
 
-static int get_ehdr_phdrs_and_shdrs(
+/*static*/ int get_ehdr_phdrs_and_shdrs(
 	const char *path,
 	ElfW(Ehdr) *ehdr,
 	ElfW(Phdr) **phdrs,
@@ -230,4 +230,14 @@ static int get_ehdr_phdrs_and_shdrs(
 
 	return data;
 }
-
+/*static*/ unsigned char *my_fread_whole_file(
+		const char *path,
+		const char *item,
+		off_t      *size
+)
+{
+	int err;
+	*size = my_file_size(path, &err);
+	if (err == -1) exit(1);
+	return my_fread_from_position(path, 0, *size, item);
+}
