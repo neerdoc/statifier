@@ -45,6 +45,8 @@ SOURCES =                 \
    $(AWK_FILES)           \
    dl-var.c               \
    dl-var.inc             \
+   find_dl_main.inc.c     \
+   my_lib.inc.c           \
 
 # Service files used to build 
 BUILD_FILES =       \
@@ -65,6 +67,16 @@ UTILS =                 \
    set_thread_area_addr \
    strtoul              \
    tls_test             \
+   $(FIND_UTILS)        \
+
+# Small C utilities used to find various addresses in the loader
+FIND_UTILS =        \
+   elf_find_pattern \
+   find_dl_argc     \
+   find_dl_argv     \
+   find_dl_auxv     \
+   find_dl_platform \
+   find_environ     \
 
 UTILS_SOURCES = $(addsuffix .c,$(UTILS))
 
@@ -159,12 +171,10 @@ VERSION: $(TOP_DIR)/VERSION
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
-$(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@
 
-$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
 
 # Dependencies should be in correct order
 $(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
@@ -173,8 +183,6 @@ $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
 	$(RM) $@
 	/bin/sh $^ $@ || { $(RM) $@; exit 1; }
 
-
-$(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
 
 # I need embedded files as raw binary - no elf header, no link with libc,
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
@@ -193,6 +201,20 @@ OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WI
 # 
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU_DIR)/processor.h ./start.S ./end.S
 	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include $(CPU_DIR)/processor.h -include ./start.S -include $< ./end.S
+
+# Additional dependencies:
+$(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
+$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
+$(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h
+$(ELF_CLASS)/find_dl_argc    : find_dl_main.inc.c
+$(ELF_CLASS)/find_dl_argv    : find_dl_main.inc.c
+$(ELF_CLASS)/find_dl_auxv    : find_dl_main.inc.c
+$(ELF_CLASS)/find_dl_platform: find_dl_main.inc.c
+$(ELF_CLASS)/find_environ    : find_dl_main.inc.c
+
+$(ELF_CLASS)/elf_find_pattern: my_lib.inc.c
+$(ELF_CLASS)/phdrs           : my_lib.inc.c
+# End of additional dependencies
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
 LIB_DIR_ELF = $(LIB_DIR)/$(ELF_CLASS)
