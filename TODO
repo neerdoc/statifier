@@ -14,5 +14,5 @@
   and (I hope !) portable enouth way for dump memory mappings
   and registers. From another side - it's one more dependencies.
 - write de-statifier, which will re-create original exe file
-- write more tech documentation.
+- write more tech documentation. - DONE
 - what about output file license
