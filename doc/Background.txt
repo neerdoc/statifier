@@ -25,8 +25,10 @@ Let's take us /sbin/ldconfig as example
 (sure enough it will present on the system and statically linked.)
 
 Just in case:
-	[test]$ file /sbin/ldconfig
-	/sbin/ldconfig: ELF 32-bit LSB executable, Intel 80386, version 1, statically linked, stripped
+
+[test]$ file /sbin/ldconfig
+/sbin/ldconfig: ELF 32-bit LSB executable, Intel 80386, version 1,
+                statically linked, stripped
 
 Ok, this file is really here and it is really statically linked. 
 
@@ -44,7 +46,8 @@ Program Headers:
 
  Section to Segment mapping:
   Segment Sections...
-   00     .init .text .fini .rodata __libc_subfreeres __libc_atexit __libc_subinit .note.ABI-tag 
+   00     .init .text .fini .rodata __libc_subfreeres __libc_atexit
+           __libc_subinit .note.ABI-tag 
    01     .data .eh_frame .ctors .dtors .got .bss 
    02     .note.ABI-tag 
 
@@ -71,7 +74,7 @@ That's all. Pretty easy, eh ?
 
 Let us take /bin/ls as example.
 
-	[test]$ readelf -l /bin/ls
+[test]$ readelf -l /bin/ls
 
 Elf file type is EXEC (Executable file)
 Entry point 0x8049590
@@ -91,7 +94,9 @@ Program Headers:
   Segment Sections...
    00     
    01     .interp 
-   02     .interp .note.ABI-tag .hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.got .rel.bss .rel.plt .init .plt .text .fini .rodata 
+   02     .interp .note.ABI-tag .hash .dynsym .dynstr .gnu.version 
+          .gnu.version_r .rel.got .rel.bss .rel.plt .init .plt .text .fini 
+          .rodata 
    03     .data .eh_frame .ctors .dtors .got .dynamic .bss 
    04     .dynamic 
    05     .note.ABI-tag 
