@@ -160,8 +160,8 @@ function CreateStarter
 	}
 	local Starter="$1"
 
-	local STARTER=$STATIFIER_ROOT_DIR/starter
-	local REGISTERS_BIN=$WORK_OUT_DIR/reg
+	local REGS=$STATIFIER_ROOT_DIR/regs
+	local REGS_BIN=$WORK_OUT_DIR/regs
 	local DL_VAR=$STATIFIER_ROOT_DIR/dl-var
 	local DL_VAR_BIN=$WORK_OUT_DIR/dl-var
 	local TLS_LIST=
@@ -179,8 +179,8 @@ function CreateStarter
 	local dl_var_list="$DL_BASE $DL_ARGC $DL_ARGV $DL_ENVIRON $DL_AUXV $DL_PLATFORM $DL_PLATFORMLEN"
 	$STATIFIER_ROOT_DIR/strtoul $dl_var_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
-	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
-	cat $DL_VAR $DL_VAR_BIN $TLS_LIST $STARTER $REGISTERS_BIN > $Starter || return
+	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGS_BIN || return
+	cat $DL_VAR $DL_VAR_BIN $TLS_LIST $REGS $REGS_BIN > $Starter || return
 	return 0 
 }
 function CreateNewExe
