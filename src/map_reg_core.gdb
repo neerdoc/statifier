@@ -7,18 +7,12 @@
 
 # Debuggers command for dumping maps, registers and coredump to the files
 
-# I want all gdb messages going to log file, not to the terminal, so...
-set logging overwrite on
-set logging redirect  on
-set logging file @LOG_FILE@
-set logging on
+# Specify file to run
+file @EXECUTABLE_FILE@
 
 # I don't want debugger prompt me to type enter, 
 # so make gdb think a terminal is a very big.
 set height 10000
-
-# Specify file to run
-file @EXECUTABLE_FILE@
 
 # I need to set breakpoint on _dl_start_user (for linux) 
 # But before I run program I can't got (from gdb) _dl_start_user address.
@@ -43,56 +37,23 @@ break @BREAKPOINT@
 # Loader will stop on breakpoint just before running .so _init function
 continue
 
-# Close our log file
-set logging off
-
-# I don't want accumulate information from different invokation
-set logging overwrite on
-# I don't want to see on the terminal what going to the file
-set logging redirect  on
-
-# Set logging file
-set logging file @MAPS_FILE@
-# Enable logging
-set logging on
-# Next command output will go to the file.
 # Save mappings. I need it for start/stop addreses of the segments
 # debugers core-file has start address too, but it miss stop address
+shell echo "STATIFIER_FILE_SEPARATOR"
 info proc mapping
-# Disable logging - just in case
-set logging off
 
-# Set logging file to save registers
-# I know, registers may be found in the coredump,
-# but I afraid it will be too kernel's version dependend
-set logging file @REGISTERS_FILE@
-# Enable logging 
-set logging on
-# Save registers values in the file
+shell echo "STATIFIER_FILE_SEPARATOR"
 info registers
-# Disable logging - I don't want additional output going here
-set logging off
-
-# Once again - redirect gdb messages to the file
-# But now I want append to existing one
-set logging overwrite off 
-# As usual - I don't want see it on the terminal
-set logging redirect  on
-# Set file for logging
-set logging file @LOG_FILE@
-# Enable logging
-set logging on
+shell echo "STATIFIER_FILE_SEPARATOR"
 
 # Save core dump - I need it to get maps permissions
 generate-core-file @CORE_FILE@
-
-# Close log file
-set logging off
 
 # Here I'll run shell script, which got as input 
 # - @MAP_FILE@ file
 # and create as output file with dump command for gdb.
 # this dumps command should save all programms memory mappings.
 # show memory protection.
+shell @SPLIT_SH@ @LOG_FILE@ @MAPS_FILE@ @REGISTERS_FILE@ || kill $PPID
 shell @DUMPS_SH@ @MAPS_FILE@ @WORK_DUMPS_DIR@ @DUMPS_GDB@ || kill $PPID
 #quit

@@ -61,7 +61,13 @@ function GetStartAddress
 
 function DumpRegistersAndMemory
 {
-	gdb --batch -n -x "$WORK_GDB_CMD_DIR/map_reg_core.gdb" -x "$DUMPS_GDB" || return
+	rm -f $LOG_FILE || return
+	gdb                                             \
+		--batch                                 \
+		-n                                      \
+		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb" \
+		-x "$DUMPS_GDB"                         \
+	> $LOG_FILE || return
 	return 0
 }
 
@@ -102,6 +108,8 @@ function Main
 	REGISTERS_FILE="$WORK_GDB_OUT_DIR/registers"
 	CORE_FILE="$WORK_GDB_OUT_DIR/core"
 	DUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
+	SPLIT_SH="$STATIFIER_ROOT_DIR/split.sh"
+	SUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	# End of variables
 	Sanity || return
@@ -135,6 +143,8 @@ function Main
                    -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"   \
                    -e "s#@CORE_FILE@#$CORE_FILE#g"             \
                    -e "s#@DUMPS_SH@#$DUMPS_SH#g"               \
+                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"               \
+                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"               \
                    -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"   \
                    -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"             \
 		< $STATIFIER_ROOT_DIR/$File > $WORK_GDB_CMD_DIR/$File || return
