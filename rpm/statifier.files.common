@@ -15,9 +15,7 @@
      /usr/lib/statifier/regs.sh
      /usr/lib/statifier/set_thread_area.sh
      /usr/lib/statifier/split.sh
-     /usr/lib/statifier/dumps.gdb
-     /usr/lib/statifier/first.gdb
-     /usr/lib/statifier/map_reg_core.gdb
+     /usr/lib/statifier/statifier.gdb
 
      /usr/bin/statifier
 

@@ -23,8 +23,6 @@
      /usr/lib/statifier/@ELF_CLASS@/regs.sh
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.sh
      /usr/lib/statifier/@ELF_CLASS@/split.sh
-     /usr/lib/statifier/@ELF_CLASS@/dumps.gdb
-     /usr/lib/statifier/@ELF_CLASS@/first.gdb
-     /usr/lib/statifier/@ELF_CLASS@/map_reg_core.gdb
+     /usr/lib/statifier/@ELF_CLASS@/statifier.gdb
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.gdb
 %endif
