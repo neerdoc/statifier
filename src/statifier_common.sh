@@ -10,12 +10,6 @@
 # This script have to detect kernel/loader properties
 # 
 
-function GetInterpreterBaseAddr
-{
-	$D/loader_base_test || return
-	return 0
-}
-
 function CheckTls
 {
 	# Test if interpreter/kernel use TLS (thread local storage)
@@ -58,31 +52,12 @@ function Main
 	# Now it will not work for ld-linux with fixed load address.
 	# but anyway I am goint to implement it by another way
 	# and in another place
-	local val_base_addr
-	val_base_addr=`GetInterpreterBaseAddr $val_interpreter` || return
 
-	# I saw it on linux 2.6.6 with ld 2.3.2. which has fixed VirtAddr
-	#[ "x$val_base_addr" = "x0x0" ] && val_base_addr=$val_virt_addr
-	#[ "x$val_base_addr" = "x0x0" ] && {
-	#	# val_virt_addr = 0x0 too. Bad. Give error and exit.
-	#	Echo "$0: Can't find val_base_addr for '$val_interpreter': val_base_addr=val_virt_addr=0x0"
-	#	return 1
-	#}
-
-	#[ "$val_virt_addr" = "$val_base_addr" -o "$val_virt_addr" = "0x0" ] || {
-	#	Echo "$0: Interpreter's '$val_interpreter' val_virt_addr='$val_virt_addr' and val_base_addr='$val_base_addr' are different."
-	#	return 1
-	#}
-
-	# These variables I need only in case when 
-	# autodetection used for dl variables
-	
 	(
 		set -e
 		echo "val_uname_m=$val_uname_m"
 		echo "val_elf_class=$val_elf_class"
 		echo "val_interpreter='$val_interpreter'"
-		echo "val_base_addr='$val_base_addr'"
 		$D/$elf_class/elf_data                       \
 			-T val_interpreter_has_symtab=       \
                    	-E val_interpreter_file_entry=       \
