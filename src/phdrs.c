@@ -199,8 +199,10 @@ int main(int argc, char *argv[])
 	ElfW(Shdr) *shdrs_exe;  /* Shdrs for orig exe */
 	ElfW(Phdr) *ph_starter; /* Phdr pointer for the starter segment */
 
-	int is_stack_under_executable   = 0;
-	int is_starter_under_executable = 1;
+	const char *s_is_stack_under_executable; /* as string */
+	const char *s_is_starter_under_executable; /* as string */
+	int is_stack_under_executable;
+	int is_starter_under_executable;
 	int first_load_segment = 0;
 	FILE *input;
 	FILE *output = stdout;
@@ -215,20 +217,42 @@ int main(int argc, char *argv[])
 	char *starter_segment, *cur_ptr;
 	size_t cur_size;
 
-	if (argc < 5) {
+	if (argc < 7) {
 		fprintf(
 			stderr, 
-			"Usage: %s <exe_in> <gdb_core_file> <starter_program> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n",
+			"Usage: %s <exe_in> <gdb_core_file> <starter_program> <is_stack_under_executable> <is_starter_under_executable> <ignored_seg> <seg_file_1> [<seg_file_2>...]\n",
 		       	pgm_name
 		);
 		exit(1);
 	}
 
-	arg_ind            = 1;
-	exe_in             = argv[arg_ind++];
-	core               = argv[arg_ind++];
-	starter            = argv[arg_ind++];
-	s_ignored_segments = argv[arg_ind++];
+	arg_ind                       = 1;
+	exe_in                        = argv[arg_ind++];
+	core                          = argv[arg_ind++];
+	starter                       = argv[arg_ind++];
+	s_is_stack_under_executable   = argv[arg_ind++];
+	s_is_starter_under_executable = argv[arg_ind++];
+	s_ignored_segments            = argv[arg_ind++];
+
+	is_stack_under_executable = atoi(s_is_stack_under_executable);
+	if (is_stack_under_executable < 0) {
+		fprintf(
+			stderr,
+			"%s: is_stack_under_executable='%s', should be >= 0\n",
+			pgm_name, s_is_stack_under_executable
+		);
+		exit(1);
+	}
+
+	is_starter_under_executable = atoi(s_is_starter_under_executable);
+	if (is_starter_under_executable < 0) {
+		fprintf(
+			stderr,
+			"%s: is_starter_under_executable='%s', should be >= 0\n",
+			pgm_name, s_is_starter_under_executable
+		);
+		exit(1);
+	}
 
 	ignored_segments = atoi(s_ignored_segments);
 	if (ignored_segments <= 0) {
