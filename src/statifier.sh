@@ -65,6 +65,8 @@ function DumpRegistersAndMemory
 	gdb                                             \
 		--batch                                 \
 		-n                                      \
+		-x "$WORK_GDB_CMD_DIR/first.gdb"        \
+		${HAS_TLS:+-x "$WORK_GDB_CMD_DIR/set_thread_area.gdb"} \
 		-x "$WORK_GDB_CMD_DIR/map_reg_core.gdb" \
 		-x "$DUMPS_GDB"                         \
 	> $LOG_FILE || return
@@ -78,12 +80,22 @@ function CreateStarter
 		return 1
 	}
 	local Starter="$1"
+
 	local STARTER=$STATIFIER_ROOT_DIR/starter
 	local REGISTERS_BIN=$WORK_OUT_DIR/reg
+	local TLS_LIST=
+
+	[ "$HAS_TLS" = "yes" ] && {
+		$STATIFIER_ROOT_DIR/set_thread_area.sh $WORK_GDB_OUT_DIR/set_thread_area $WORK_OUT_DIR/set_thread_area || return
+		TLS_LIST="
+			$STATIFIER_ROOT_DIR/set_thread_area 
+			$WORK_OUT_DIR/set_thread_area
+		"
+	}
 
 	# Create binary file with registers' values
 	$STATIFIER_ROOT_DIR/regs.sh $REGISTERS_FILE $REGISTERS_BIN || return
-	cat $STARTER $REGISTERS_BIN > $Starter || return
+	cat $TLS_LIST $STARTER $REGISTERS_BIN > $Starter || return
 	return 0 
 }
 function CreateNewExe
@@ -103,7 +115,7 @@ function CreateNewExe
 	$STATIFIER_ROOT_DIR/phdrs $EXECUTABLE_FILE $CORE_FILE $STARTER $DUMP_FILES > $FIRST_SEGMENT || return
 	rm -f $NewExe || return
 	cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
-	chmod 555 $NewExe || return
+	chmod +x $NewExe || return
 	return 0
 }
 
@@ -116,7 +128,7 @@ function Main
 
 	# Different variables
 	EXECUTABLE_FILE=$OrigExe
-	BREAKPOINT="*$StartFunc"
+	BREAKPOINT_START="*$StartFunc"
 	LOG_FILE="$WORK_GDB_OUT_DIR/log"
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 	REGISTERS_FILE="$WORK_GDB_OUT_DIR/registers"
@@ -138,11 +150,16 @@ function Main
 		return 1
 	}
 
-	objdump --syms $Interp | grep -q "tls"
-	[ $? -eq 0 ] && { # System with TLS
-		echo "$0: TLS not supported yet." 1>&2
-		return 1
+	# Test if interpreter use TLS (thread local storage)
+	HAS_TLS=""
+	objdump --syms $Interp | grep -v "tls" >/dev/null && {
+		HAS_TLS="yes"
+		BREAKPOINT_THREAD="*`set_thread_area_addr $EXECUTABLE_FILE`" || return
 	}
+	#[ $? -eq 0 ] && { # System with TLS
+	#	echo "$0: TLS not supported yet." 1>&2
+	#	return 1
+	#}
 	# Prepare directory structure
 	mkdir -p $WORK_GDB_CMD_DIR || return
 	mkdir -p $WORK_GDB_OUT_DIR || return
@@ -150,26 +167,26 @@ function Main
 	mkdir -p $WORK_OUT_DIR     || return
 
 	# List of files to be transformed
-	FILE_LIST="map_reg_core.gdb dumps.gdb"
+	FILE_LIST="first.gdb ${HAS_TLS:+set_thread_area.gdb} map_reg_core.gdb dumps.gdb"
 
 	# Transform them
 	for File in $FILE_LIST; do
-		sed                                            \
-                   -e "s#\$0#$0#g"                             \
-                   -e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
-                   -e "s#@BREAKPOINT@#$BREAKPOINT#g"           \
-                   -e "s#@LOG_FILE@#$LOG_FILE#g"               \
-                   -e "s#@MAPS_FILE@#$MAPS_FILE#g"             \
-                   -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"   \
-                   -e "s#@CORE_FILE@#$CORE_FILE#g"             \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"               \
-                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"               \
-                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"               \
-                   -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"   \
-                   -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"             \
+		sed                                                \
+                   -e "s#\$0#$0#g"                                 \
+                   -e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"     \
+                   -e "s#@BREAKPOINT_START@#$BREAKPOINT_START#g"   \
+                   -e "s#@BREAKPOINT_THREAD@#$BREAKPOINT_THREAD#g" \
+                   -e "s#@LOG_FILE@#$LOG_FILE#g"                   \
+                   -e "s#@MAPS_FILE@#$MAPS_FILE#g"                 \
+                   -e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"       \
+                   -e "s#@CORE_FILE@#$CORE_FILE#g"                 \
+                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                   \
+                   -e "s#@DUMPS_SH@#$DUMPS_SH#g"                   \
+                   -e "s#@SPLIT_SH@#$SPLIT_SH#g"                   \
+                   -e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"       \
+                   -e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                 \
 		< $STATIFIER_ROOT_DIR/$File > $WORK_GDB_CMD_DIR/$File || return
 	done || return
-	# Start addres to be passed to gdb's commands 
 	DumpRegistersAndMemory || return
 
 	CreateNewExe $NewExe || return
