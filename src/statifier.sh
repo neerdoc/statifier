@@ -218,18 +218,6 @@ function Main
 	local StartFunc="_dl_start_user"
 	local WorkDir=$WORK_DIR
 
-	# Different variables
-	EXECUTABLE_FILE=$OrigExe
-	BREAKPOINT_START="*$StartFunc"
-	LOG_FILE="$WORK_GDB_OUT_DIR/log"
-	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
-	REGISTERS_FILE="$WORK_GDB_OUT_DIR/registers"
-	CORE_FILE="$WORK_GDB_OUT_DIR/core"
-	DUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
-	SPLIT_SH="$STATIFIER_ROOT_DIR/split.sh"
-	SUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
-	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
-	# End of variables
 	Sanity || return
 	Interp=`GetProgramInterpreter`
 	[ "x$Interp" = "x" ] && {
@@ -246,6 +234,18 @@ function Main
 	[ -d $STATIFIER_ROOT_DIR ] || {
 		echo "$0: ElfClass '$ElfClass' do not supported on this system." 1>&2
 	}
+	# Different variables
+	EXECUTABLE_FILE=$OrigExe
+	BREAKPOINT_START="*$StartFunc"
+	LOG_FILE="$WORK_GDB_OUT_DIR/log"
+	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
+	REGISTERS_FILE="$WORK_GDB_OUT_DIR/registers"
+	CORE_FILE="$WORK_GDB_OUT_DIR/core"
+	DUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
+	SPLIT_SH="$STATIFIER_ROOT_DIR/split.sh"
+	SUMPS_SH="$STATIFIER_ROOT_DIR/dumps.sh"
+	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
+	# End of variables
 	Dl_Data="`GetDataFromInterp $Interp`" || return
 	eval "$Dl_Data" || return
 
@@ -300,8 +300,6 @@ function Main
 
 OrigExe=$1
 NewExe=$2
-# Where Look For Other Programs
-STATIFIER_ROOT_DIR=`dirname $0` || exit
 
 # Temporary Work Directory
 WORK_DIR="${TMPDIR:-/tmp}/statifier.tmpdir.$$"
@@ -318,6 +316,10 @@ WORK_GDB_OUT_DIR=$WORK_DIR/gdb_out
 
 # Directory for temp files built during new exe file constructions.
 WORK_OUT_DIR=$WORK_DIR/out
+
+# Where Look For Other Programs
+# This wariable will be changed, so put it last, to be sure
+STATIFIER_ROOT_DIR=`dirname $0` || exit
 
 rm   -rf $WORK_DIR || exit
 mkdir -p $WORK_DIR || exit
