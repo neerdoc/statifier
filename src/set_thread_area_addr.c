@@ -42,6 +42,33 @@ int main(int argc, char *argv[0])
 }
 #else
 
+static const char *pgm_name;
+
+unsigned long my_strtoul(const char *string)
+{
+	unsigned long result;
+	char *endptr;
+	result = strtoul(string, &endptr, 0);
+	if ( (*endptr != 0) || *string == 0) {
+		fprintf(
+			stderr,
+			"%s: '%s' can't be converted with strtoul\n",
+			pgm_name,
+			string
+		);
+		exit(1);
+	}
+	if (errno != 0) {
+		fprintf(
+			stderr,
+			"%s: '%s' - overflow in strtoul\n",
+			pgm_name,
+			string
+		);
+		exit(1);
+	}
+	return result;
+}
 void one_syscall(const char *name, pid_t child)
 {
 	long int res;
@@ -77,10 +104,15 @@ void one_getreg(const char *name, pid_t child, long reg, unsigned long *result)
 #define one_get_pc_reg(name, child, result) \
 	one_getreg(name, child, PC_REG, result)
 
-void do_work(const char *name, const char *process, const pid_t child)
+void do_work(
+		const char *name, 
+		const char *process, 
+		const pid_t child, 
+		unsigned long loader_file_entry_point
+)
 {
 	int stat;
-	unsigned long pc_val_base, pc_val, syscall_val;
+	unsigned long loader_entry_point, pc_val, syscall_val;
 	const unsigned long syscall_num = __NR_set_thread_area;
 	static int first = 1;
 	while(1) {
@@ -115,12 +147,12 @@ void do_work(const char *name, const char *process, const pid_t child)
 		if (WIFSTOPPED(stat)) {
 			if (first) {
 				first = 0;
-				one_get_pc_reg(name, child, &pc_val_base);
+				one_get_pc_reg(name, child, &loader_entry_point`);
 			} else {
 				one_get_syscall_reg(name, child, &syscall_val);
 				if (syscall_val == syscall_num) {
 					one_get_pc_reg(name, child, &pc_val);
-					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL - pc_val_base);
+					printf("0x%lx\n", pc_val - PC_OFFSET_AFTER_SYSCALL - (loader_entry_point - loader_file_entry_point));
 					ptrace(PTRACE_KILL, child, 0, 0);
 					exit(0);
 				}
@@ -135,12 +167,27 @@ void do_work(const char *name, const char *process, const pid_t child)
 
 int main(int argc, char *argv[], char *envp[])
 {
+	const char *program;
+	const char *s_loader_file_entry_point;
+	unsigned long loader_file_entry_point;
+
 	pid_t child;
 	long int long_res;
-	if (argc != 2) {
-		fprintf(stderr, "Usage: %s <program>\n", argv[0]);
+
+	pgm_name = argv[0];
+	if (argc != 3) {
+		fprintf(
+			stderr, 
+			"Usage: %s <loader_file_entry_point> <program>\n", 
+			pgm_name
+		);
 		exit(1);
 	}
+
+	s_loader_file_entry_point = argv[1];
+	program = argv[2];
+	loader_file_entry_point = my_strtoul(s_loader_file_entry_point);
+
 	child = fork();
 	switch(child) {
 		case 0: /* It's child */
@@ -149,15 +196,15 @@ int main(int argc, char *argv[], char *envp[])
 				fprintf(
 					stderr,
 					"%s (child): can't PTRACE_TRACEME errno=%d (%s)\n",
-					argv[0], errno, strerror(errno)
+					pgm_name, errno, strerror(errno)
 				);
 				exit(1);
 			}
-			execve(argv[1], &argv[1], envp);
+			execve(program, &argv[2], envp);
 			fprintf(
 				stderr,
 				"%s (child): can't execve '%s' errno=%d (%s)\n",
-				argv[0], argv[1], errno, strerror(errno)
+				pgm_name, program, errno, strerror(errno)
 			);
 			exit(1);
 		break;
@@ -166,12 +213,17 @@ int main(int argc, char *argv[], char *envp[])
 			fprintf(
 				stderr, 
 				"%s: Can't fork: errno=%d (%s)\n",
-				argv[0], errno, strerror(errno)
+				pgm_name, errno, strerror(errno)
 			);
 		exit(1);
 
 		default: /* Parent */
-			do_work(argv[0], argv[1], child);
+			do_work(
+				pgm_name, 
+				program, 
+				child, 
+				loader_file_entry_point
+			);
 		break;
 	}
 	exit(0);
