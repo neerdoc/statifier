@@ -9,7 +9,7 @@
 #
 # RH9.0 used TLS - thread local storage.
 
-MY_DATA RAX
+MY_DATA SYSCALL_NUM
 MY_DATA ENTRY_NUMBER
 MY_DATA BASE
 MY_DATA LIMIT
@@ -21,7 +21,7 @@ MY_DATA FLAGS
 	push 	LIMIT(%rax)
 	push 	BASE(%rax)
 	push 	ENTRY_NUMBER(%rax)
-	mov 	RAX(%rax), %rax
+	mov 	SYSCALL_NUM(%rax), %rax
 	mov 	%rsp,	%rbx
 	syscall
 	# Restore stack pointer now
