@@ -1,13 +1,22 @@
-PACKAGE = statifier
-VERSION := $(shell cat VERSION)
+# Copyright (C) 2004 Valery Reznic
+# This file is part of the Elf Statifier project
+# 
+# This project is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License.
+# See LICENSE file in the doc directory.
+
 SUBDIRS  = src man rpm 
+
 SOURCES =           \
+   configure        \
    Makefile         \
+   Makefile.common  \
    Makefile.include \
    Makefile.top     \
    VERSION          \
    RELEASE          \
    $(DOCS)          \
+   $(CONFIGS)       \
 
 DOCS =       \
    AUTHORS   \
@@ -18,6 +27,20 @@ DOCS =       \
    README    \
    TODO      \
 
-all:
+CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))
 
+all: config
+
+extra-dist: config
+
+# It is simpler always re-make config and do not check dependencies.
+# Configure care not change config's timestamp if content was not changed
+.PHONY: config
+config: configure
+	/bin/sh ./configure
+
+clean-local:
+	$(RM) config
+
+TOP_DIR := .
 include Makefile.top
