@@ -66,20 +66,17 @@ addr:
 					# Because we somehow get here I hope
 					# %cs is ok and do not restore it.
 
-					# eflags - as long as i know
-					# it can be restored only by 'iret'
-					# instruction. But i have no any wish
-					# to deal with iret in protection mode -
-					# too complicated. 
-					# Anyway %eflags will  be changed 
-					# on the first instruction 
-					# after control transfer
+	pushl	EFLAGS(%eax)		# save it on the stack
+					# before return to %eip I'll 'popf' it.
+					# I think flags here pretty useless,
+					# but let's be on the safe side...
 
 					# %esp and %ss - stack pointer and stack
 					# segment - our stack already set
 					# somehow, live it as is
 
 	movl	EAX(%eax),	%eax	# Only register left to resore 
+	popf				# restore processor's flags
 
 	ret				# make two things:
 					# - restore %esp to the value which it
@@ -87,5 +84,7 @@ addr:
 					# - transfer control to the 
 					#   run-time loader shared library
 					#   initialization.
+					# And (I hope) do not change too mach
+					# eflags
 regs:
 	# Here will be registers values
