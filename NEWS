@@ -1,3 +1,10 @@
+1.1.1
+   Added missing path to set_threa_area_addr
+   Fixed segfault in the statified executables which used
+   function dlsym, and dlsym can't find symbol.
+   But now statifier more depend on symbols to be found in the interpreter.
+   (SuSE with stripted symbols will not work)
+
 1.1.0
    Added support for TLS - thread local storage.
    Now statifier work on Linux RH9 too.

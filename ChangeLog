@@ -1,3 +1,19 @@
+* Wed Apr  7 2004 <valery_reznic@users.sourceforge.net> 1.1.1-1
+- reworked tsl detection. added tls_test program
+- add readlink program
+- add dl-var
+- set some loader variables as they should be
+- fixed segfault in statified exe, which use dlsym function and dlsym
+  can't find symbol. (May by it fix other segfaults too)
+
+* Mon Mar 30 2004 <valery_reznic@users.sourceforge.net> 1.1.1-1
+- fixed bug in the statifier.sh - added path to the set_thread_area_addr
+- set_thread_area_addr program if it somehow miss syscall 
+  'set_thread_area' exit with status 1, instead of status of
+  inspected program.
+- set_thread_area_addr.c - added function safe_fd - in case
+  i miss 'set_thread_area' syscall
+
 * Wed Mar 24 2004 <valery_reznic@users.sourceforge.net> 1.1.0-1
 - a lot of change in order to support TLS (thread local storage)
 
