@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 	ElfW(Phdr) *pl;
 	ElfW(Shdr) *se;
 	ElfW(Shdr) *so;
+	size_t page_size;
 
 	pgm_name = argv[0];	
 	if (argc != 4) {
@@ -96,6 +97,9 @@ int main(int argc, char *argv[])
 	exe_in     = argv[1];
 	phdrs_name = argv[2];
 	e_entry    = argv[3];
+
+	page_size  = getpagesize();
+	
 
 	/* Get ehdr, phdrs and shdrs from original exe */
 	if ( 
@@ -115,6 +119,7 @@ int main(int argc, char *argv[])
 		for (i = 0; i < ehdr_exe.e_phnum; i++) {
 			if (phdrs_exe[i].p_type == PT_LOAD) {
 				align = phdrs_exe[i].p_align;
+				if (align > page_size) align = page_size;
 				break;
 			}
 		}
@@ -288,13 +293,18 @@ int main(int argc, char *argv[])
 	{
 		int i, j;
 		for (i = 0, pe = phdrs_exe; i < ehdr_exe.e_phnum; i++, pe++) {
+			unsigned long min_align = 1;
 			if (pe->p_type != PT_LOAD) continue;
 			for (
 				j = 0, pl = phdrs_pt_load; 
 				j < pt_load_num; 
 				j++, pl++
 			) {
-				if ((pe->p_vaddr & ~(pe->p_align - 1)) == pl->p_vaddr) {
+				min_align = (pe->p_align < page_size) 
+					? pe->p_align
+					: page_size
+				;
+				if ((pe->p_vaddr & ~(min_align - 1)) == pl->p_vaddr) {
 					/* Find it ! */
 					map_pt_load[i] = j;
 					break;
@@ -305,7 +315,7 @@ int main(int argc, char *argv[])
 					stderr,
 					"%s: warning: can't find segment with v_addr=0x%lx\n",
 					pgm_name, 
-					(unsigned long)(pe->p_vaddr & ~(pe->p_align - 1))
+					(unsigned long)(pe->p_vaddr & ~(min_align - 1))
 				);
 				map_pt_load[i] = -1;
 			}
@@ -321,6 +331,7 @@ int main(int argc, char *argv[])
 			i < ehdr_exe.e_shnum; 
 			i++, se++, so++
 		) {
+			unsigned long min_align;
 			/* Ignore non-allocated sections */
 			if ( (so->sh_flags & SHF_ALLOC) == 0) continue;
 			/* 
@@ -334,6 +345,10 @@ int main(int argc, char *argv[])
 			) {
 				/* Ignore non PT_LOAD segments */
 				if (pe->p_type != PT_LOAD) continue;
+				min_align = (pe->p_align < page_size) 
+					? pe->p_align
+					: page_size
+				;
 				if (
 					(se->sh_offset >= pe->p_offset) && 
 					(se->sh_offset < (pe->p_offset + pe->p_filesz) ) ) {
@@ -343,7 +358,7 @@ int main(int argc, char *argv[])
 					so->sh_offset = 
 						pl->p_offset +
 						se->sh_offset - pe->p_offset +
-						(pe->p_vaddr % pe->p_align)
+						(pe->p_vaddr % min_align)
 					;
 				}
 			}
@@ -382,6 +397,8 @@ int main(int argc, char *argv[])
 				j < ehdr_exe.e_phnum; 
 				j++, pe1++
 			) {
+				unsigned long min_align;
+
 				if (pe1->p_type != PT_LOAD) continue;
 
 				if (
@@ -391,10 +408,14 @@ int main(int argc, char *argv[])
 					/* This segment is part of PT_LOAD */
 					if (map_pt_load[j] == -1) break;
 					pl = &phdrs_pt_load[map_pt_load[j]];
+					min_align = (pe1->p_align < page_size) 
+						? pe1->p_align
+						: page_size
+					;
 					pe->p_offset = 
 						pl->p_offset +
 						pe->p_offset - pe1->p_offset +
-						(pe1->p_vaddr % pe1->p_align)
+						(pe1->p_vaddr % min_align)
 					;
 					break;
 				}
