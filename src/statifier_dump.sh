@@ -68,7 +68,7 @@ function Main
 	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
 	SPLIT_SH="$D/split.sh"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
-	GDB_ENV="$WORK_GDB_CMD_DIR/env.gdb"
+	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
 	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
 	# End of variables
 
@@ -91,15 +91,15 @@ function Main
 		current=$[current + 1]               || return
 		eval var="\$opt_loader_var_$current" || return
 		echo "$var"                          || return 
-	done > $GDB_ENV || return
+	done > $ENV_GDB || return
 			
 	# Transform file for gdb
 	local File="statifier.gdb"
 	sed                                                          \
         	-e "s#@CORE_FILE@#$CORE_FILE#g"                      \
-        	-e "s#@GDB_ENV@#$GDB_ENV#g"                          \
         	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                      \
         	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                        \
+        	-e "s#@ENV_GDB@#$ENV_GDB#g"                          \
         	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"          \
         	-e "s#@LOG_FILE@#$LOG_FILE#g"                        \
         	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                      \
