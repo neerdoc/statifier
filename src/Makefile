@@ -28,9 +28,10 @@ ifeq "$(Problem)" "yes"
    INSTALL_LOCAL_32 := $(ALL_LOCAL_32)
 endif
 
-FLAGS_ELF     := $(FLAGS_$(ELF_CLASS))
-PROCESSOR_ELF := $(PROCESSOR_$(ELF_CLASS))
-CPU_DIR       := cpus/$(PROCESSOR_ELF)
+FLAGS_ELF          := $(FLAGS_$(ELF_CLASS))
+FLAGS_C_TO_ASM_ELF := $(FLAGS_C_TO_ASM_$(ELF_CLASS))
+PROCESSOR_ELF      := $(PROCESSOR_$(ELF_CLASS))
+CPU_DIR            := cpus/$(PROCESSOR_ELF)
 
 SOURCES =                 \
    $(BUILD_FILES)         \
@@ -57,6 +58,7 @@ INCLUDE_FILES = \
 
 # small C programs, used by statifier.
 UTILS =                 \
+   copy_ehdr            \
    elfinfo              \
    loader_base_test     \
    phdrs                \
@@ -110,22 +112,26 @@ GDB_SCRIPTS =          \
    first.gdb           \
    map_reg_core.gdb    \
 
-# ane as above, but with per-cpu difference
+# one as above, but with per-cpu difference
 PER_CPU_GDB_SCRIPTS =  \
    set_thread_area.gdb \
 
+PER_CPU_INCLUDE_SCRIPTS = \
+   properties.src         \
+
 PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 
-PER_CPU_SOURCES =         \
-   $(PER_CPU_ASM_SOURCES) \
-   $(PER_CPU_GDB_SCRIPTS) \
-   processor.h            \
-   regs.list              \
+PER_CPU_SOURCES =             \
+   $(PER_CPU_ASM_SOURCES)     \
+   $(PER_CPU_GDB_SCRIPTS)     \
+   $(PER_CPU_INCLUDE_SCRIPTS) \
+   processor.h                \
+   regs.list                  \
 
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
 LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS))
-PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS))
+PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS) $(PER_CPU_INCLUDE_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
@@ -158,7 +164,7 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 $(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
-	gcc $(FLAGS_ELF) -Wall -mregparm=0 -O2 -S $< -o $@
+	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@
 
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
 
@@ -187,7 +193,7 @@ OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WI
 # My workaround - pretend I am build end.S 
 # with -include processor.h, start.S and $<
 # 
-$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU_DIR)/processor.h start.S end.S
+$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU_DIR)/processor.h ./start.S ./end.S
 	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include $(CPU_DIR)/processor.h -include ./start.S -include $< ./end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
