@@ -1,3 +1,8 @@
+1.6.4
+   nasty bug in the 1.6.3 distribution fixed - gdb_ruuner.gdb
+   file was incorrect. So unless you use 1.6.3 from CVS
+   it simple does not work.
+
 1.6.3
    support for kernel 2.6 (with thread local storage) on x86_64
 

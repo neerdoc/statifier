@@ -1,3 +1,6 @@
+* Mon Mar 14 2005 <valery_reznic@users.sourceforge.net> 1.6.4-1
+- exec-file moved to the very begin of the gdb_runner.gdb
+
 * Wed Feb 16 2005 <valery_reznic@users.sourceforge.net> 1.6.3-1
 - updated FAQ and doc/Porting.txt
 - thread local storage related ifdefs were moved frpm set_thread_area_addr.c
