@@ -38,7 +38,21 @@ function CreateStarter
 
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
-	$D/strtoul $val_dl_list > $DL_VAR_BIN || return
+	local val_offset
+	val_offset=`printf "0x%x" $[$val_base_addr - $val_interpreter_file_base_addr]`
+	full_dl_list=`
+		printf "$val_base_addr" &&
+		for i in $val_dl_list; do
+			case "$i" in
+				0 | 0x0) :;;  # do nothing
+				*)
+					i=$[$i + $val_offset]
+				;;
+			esac
+			printf " 0x%x" $i
+		done
+	`
+	$D/strtoul $full_dl_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$D/regs.sh $REGISTERS_FILE $REGS_BIN || return
 	cat $DL_VAR $DL_VAR_BIN $TLS_LIST $REGS $REGS_BIN > $Starter || return
