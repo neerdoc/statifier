@@ -26,6 +26,9 @@ ifeq "$(Problem)" "yes"
    INSTALL_LOCAL_32 := $(ALL_LOCAL_32)
 endif
 
+FLAGS_ELF     := $(FLAGS_$(ELF_CLASS))
+PROCESSOR_ELF := $(PROCESSOR_$(ELF_CLASS))
+
 SOURCES =                                  \
    Makefile                                \
    $(addsuffix .c,$(UTILS))                \
@@ -86,11 +89,11 @@ all-local-32 all-local-64: $(TARGETS)
 
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	@$(MKDIR) $(ELF_CLASS)
-	gcc -Wall -O2 -g $< -o $@
+	gcc $(FLAGS_ELF) -Wall -O2 -g $< -o $@
 
 $(ELF_CLASS)/set_thread_area_addr: processor.h
 
-$(ELF_CLASS)/dl-var: $(ELF_CLASS)/AT.h
+$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
 
 $(ELF_CLASS)/AT.h: /usr/include/elf.h 
 	$(RM) $@
@@ -107,9 +110,17 @@ $(ELF_CLASS)/AT.h: /usr/include/elf.h
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
-$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(PROCESSOR_$(ELF_CLASS))/%.S processor.h start.S end.S
+#$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(PROCESSOR_ELF)/%.S processor.h start.S end.S
+#	@$(MKDIR) $(ELF_CLASS)
+#	gcc -o $@ $(FLAGS_ELF) -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S -Wl,--oformat,binary,--entry=0x0 -nostdlib
+
+$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
+	gcc -o $@ $< $(FLAGS_ELF) -Wl,--oformat,binary,--entry=0x0 -nostdlib
+
+OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
+$(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(PROCESSOR_ELF)/%.S processor.h start.S end.S
 	@$(MKDIR) $(ELF_CLASS)
-	gcc -o $@ $(FLAGS_$(ELF_CLASS)) -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S -Wl,--oformat,binary,--entry=0x0 -nostdlib
+	gcc -c -o $@ $(FLAGS_ELF) -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
 LIB_DIR_ELF = $(LIB_DIR)/$(ELF_CLASS)
