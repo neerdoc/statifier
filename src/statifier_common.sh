@@ -42,7 +42,6 @@ function GetInterpreterVirtAddr
 		return 1
 	}
 	local Interpreter="$1"
-		#Interp="/home/src/user/vreznic/mail/ld-2.3.2.so"
 	readelf --program-headers $Interpreter > $LOADER_PHDRS || return
 	awk -vInterp=$Interp -vName="$0 $Func: " -vAP="'" '
 		BEGIN {
