@@ -5,18 +5,7 @@
 %dir /usr/lib/statifier
      /usr/lib/statifier/VERSION
      /usr/lib/statifier/statifier.sh
-     /usr/lib/statifier/statifier_lib.src
      /usr/lib/statifier/statifier_parser.src
-     /usr/lib/statifier/statifier_common.sh
-     /usr/lib/statifier/statifier_loader.sh
-     /usr/lib/statifier/statifier_dump.sh
-     /usr/lib/statifier/statifier_create_starter.sh
-     /usr/lib/statifier/statifier_create_exe.sh
-     /usr/lib/statifier/dumps.sh
-     /usr/lib/statifier/regs.sh
-     /usr/lib/statifier/set_thread_area.sh
-     /usr/lib/statifier/split.sh
-     /usr/lib/statifier/statifier.gdb
 
      /usr/bin/statifier
 

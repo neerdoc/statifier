@@ -19,17 +19,6 @@
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
      /usr/lib/statifier/@ELF_CLASS@/strtoul
      /usr/lib/statifier/@ELF_CLASS@/tls_test
-     /usr/lib/statifier/@ELF_CLASS@/properties.src
-     /usr/lib/statifier/@ELF_CLASS@/statifier_lib.src
-     /usr/lib/statifier/@ELF_CLASS@/statifier_common.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_loader.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_dump.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_create_starter.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier_create_exe.sh
-     /usr/lib/statifier/@ELF_CLASS@/dumps.sh
      /usr/lib/statifier/@ELF_CLASS@/regs.awk
-     /usr/lib/statifier/@ELF_CLASS@/regs.sh
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.sh
-     /usr/lib/statifier/@ELF_CLASS@/split.sh
-     /usr/lib/statifier/@ELF_CLASS@/statifier.gdb
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.gdb
