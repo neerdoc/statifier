@@ -9,18 +9,22 @@
 
 # ELF32
    # Have elf32 ?
-   ELF32         := yes
+   ELF32             := yes
    # Special flags to compile elf32
-   FLAGS_32      := -m32
+   FLAGS_32          := -m32
+   # Flags to compile C to asm elf32 (mostly to be sure calling convention)
+   FLAGS_C_TO_ASM_32 := -mregparm=0
    # Processor name (directory name for assembler sources)
-   PROCESSOR_32  := i386
+   PROCESSOR_32      := i386
 # End ELF32
 
 # ELF64
-   # Have elf32 ?
-   ELF64         := yes
+   # Have elf64 ?
+   ELF64             := yes
    # Special flags to compile elf64
-   FLAGS_64      := -m64
+   FLAGS_64          := -m64
+   # Flags to compile C to asm elf64 (mostly to be sure calling convention)
+   FLAGS_C_TO_ASM_64 := -mregparm=0
    # Processor name (directory name for assembler sources)
-   PROCESSOR_64  := x86_64
+   PROCESSOR_64      := x86_64
 # End ELF64
