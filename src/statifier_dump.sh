@@ -56,16 +56,13 @@ function GDB_Name
 
 function Main
 {
-	local ElfClass
 	local GDB
-	local UnameM
 
 	set -e
 		source $OPTION_SRC || return
 		source $COMMON_SRC || return
 		source $DUMP_SRC   || return
 	set +e
-	UnameM=`uname -m` || return
 
 	# Different variables
 	EXECUTABLE_FILE=$opt_orig_exe
@@ -78,7 +75,7 @@ function Main
 	# End of variables
 
 	# Determine debugger name
-	GDB=`GDB_Name $val_elf_class $UnameM` || return
+	GDB=`GDB_Name $val_elf_class $val_uname_m` || return
 
 	# List of files to be transformed
 	FILE_LIST="first.gdb ${val_has_tls:+set_thread_area.gdb} map_reg_core.gdb dumps.gdb"
