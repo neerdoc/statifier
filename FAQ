@@ -17,5 +17,7 @@ Submitted by Jack (jask-statifier-sf-net at mudshark dot com)
  > binaries without the TLS
  > system calls. Move /lib/tls to /lib/tls.old, and then restatify. 
 A better way:
+for i386:
  LD_ASSUME_KERNEL=2.2.5 statifier <orig_exe> <new_exe>
-
+for x86_64:
+ LD_ASSUME_KERNEL=2.4   statifier <orig_exe> <new_exe>
