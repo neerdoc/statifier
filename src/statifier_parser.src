@@ -1,0 +1,176 @@
+# to be sourced from bash
+
+# Copyright (C) 2004 Valery Reznic
+# This file is part of the Elf Statifier project
+# 
+# This project is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License.
+# See LICENSE file in the doc directory.
+
+function Usage
+{
+	cat <<EOF || return
+Usage: $0 [option]... <orig_exe> <new_exe>
+Options:
+   -s, --set=Variable=Value     set environment variable 'Variable' to Value
+   -u, --unset=Variable         unset environment variable 'Variable'
+   -h, --help                   display this help and exit
+   -V, --version                output version and exit
+EOF
+	return 0
+}
+
+function Try_Help
+{
+	Echo "Try \`$0 --help' for more information."
+}
+
+###############################################################################
+function UnrecognizedOption
+{
+	Echo "$0: unrecognized option \`--$LONG_OPTION'"
+	Try_Help
+}
+
+###############################################################################
+function RequeredArgument
+{
+	[ "x$SHORT_OPTION" = "x-" ] || return 0  # we use short option,
+                                                 # do nothing
+	if [ "$OPTARG_EXIST" ]; then
+		[ "$OPTIND_INCR" ] && OPTIND=`expr $OPTIND + 1`
+	else
+		Echo "$0: option \`$LONG_OPTION' requires an argument"
+		Try_Help
+		return 1
+	fi
+	return 0
+}
+###############################################################################
+function CommandLineParsing
+{
+	opt_loader_num_var=0
+
+	# Default flags' values. To be sure they don't came from environment
+	while getopts "hs:u:vV-:" opt; do
+		OPTIND_INCR=""
+		case "$opt" in
+			h) LONG_OPTION=help;;
+			s) LONG_OPTION=set;;
+			v) LONG_OPTION=verbose;;
+			V) LONG_OPTION=version;;
+			u) LONG_OPTION=unset;;
+	
+                	-)
+				case "x$OPTARG" in
+					x*=*)
+						LONG_OPTION=${OPTARG%%=*}
+						OPTARG=${OPTARG#*=}
+						OPTARG_EXIST=1
+					;;
+
+					*)
+                   				LONG_OPTION="$OPTARG"
+                   				if [ $OPTIND -le $# ]; then
+                      					eval OPTARG=\$$OPTIND
+                      					OPTARG_EXIST=1
+							OPTIND_INCR=1
+                   				else
+                      					OPTARG=""
+                      					OPTARG_EXIST=""
+                   				fi
+					;;
+				esac
+                	;;
+
+			*)
+				Try_Help
+				return 1
+			;;
+		esac
+
+		SHORT_OPTION="$opt"
+		case "$LONG_OPTION" in
+			set)
+				RequeredArgument || return
+				opt_loader_num_var=$[opt_loader_num_var + 1]
+				eval opt_loader_var_$opt_loader_num_var="'set environment $OPTARG'" || return
+			;;
+
+			unset)
+				RequeredArgument || return
+				opt_loader_num_var=$[opt_loader_num_var + 1]
+				eval opt_loader_var_$opt_loader_num_var="'unset environment $OPTARG'" || return
+			;;
+
+			help)
+				Usage
+				exit 0
+			;;
+
+			verbose)
+				:
+			;;
+
+			version)
+				set -e
+					source $D/VERSION || return
+				set +e
+				echo "$VERSION"
+				exit 0
+			;;
+
+			*)
+				UnrecognizedOption
+				return 1
+			;;
+		esac
+	done || return
+	# I need shift by (OPTIND - 1) 
+	# Instead of I add first dummy argument and shift by OPTIND
+	set dummy "$@" 
+	shift $OPTIND || return
+
+	# Now options parsing is done.  Verify arguments.
+
+	[ $# -lt 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
+		Echo "$0: too few arguments"
+		Try_Help
+		return 1
+	}
+	[ $# -gt 2 ] && {
+		Echo "$0: too much arguments"
+		Try_Help
+		return 1
+	}
+
+	opt_orig_exe="$1"
+	opt_new_exe="$2"
+
+	# Gdb try to find exe in $PATH.
+	# In order to avoid it I'll prepend ./ in case Executable
+	# have no absolute path
+	case "x$opt_orig_exe" in
+		x/*) ;; # Do nothing, absolute path
+		*) opt_orig_exe="./$opt_orig_exe"
+	esac
+
+	return 0
+}
+
+function SaveOptions
+{
+	echo "opt_orig_exe='$opt_orig_exe'" || return
+	echo "opt_new_exe='$opt_new_exe'"   || return
+
+	local current=0;
+	local var
+	while [ $current -lt $opt_loader_num_var ]; do
+		current=$[current + 1]
+		eval var="\$opt_loader_var_$current"  || return
+		echo "opt_loader_var_$current='$var'" || return
+	done || return
+	echo "opt_loader_num_var=$opt_loader_num_var" || return
+	return 0
+}
+
