@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 	unsigned long rest;
 	ElfW(Ehdr) ehdr;         /* Ehdr */
 	ElfW(Phdr) *phdrs;       /* Phdrs */
+	size_t page_size;
 
 	pgm_name = argv[0];	
 	if (argc != 4) {
@@ -86,13 +87,7 @@ int main(int argc, char *argv[])
 	starter_size = my_file_size(starter_name, &err);
 	if (err == -1) exit(1);
 
-	/* 
-	 * I want starter aligned on the 16 boundary,
-	 * For some (perfomance ? ) reason so do kernel with a stack
-	 * So, let us round up starter_size
-	 */ 
-	rest = starter_size % 16;
-	if (rest) starter_size += (16 - rest);
+	page_size = getpagesize();
 
 	/* Try to find segment, which has enought room to host starter */
 	for (i = 0; i < ehdr.e_phnum; i++) {
@@ -101,6 +96,7 @@ int main(int argc, char *argv[])
 		unsigned long unused_space;
 		unsigned long file_start_addr;
 		unsigned long e_entry;
+		unsigned long align;
 
 		/* Look for PT_LOAD segment */
 		if (phdrs[i].p_type != PT_LOAD) continue;
@@ -113,6 +109,14 @@ int main(int argc, char *argv[])
 		/* Look for segment with PF_X permissions */
 		if ( (phdrs[i].p_flags & PF_X) == 0) continue;
 
+		/* Sanity */
+		/* If memsz and filesz are different I don't like it.
+		 * It's looks like data segment occassionly has 
+		 * execute permission. I don't touch it - 
+		 * my code may destroy .bss data
+		 */
+		if (phdrs[i].p_filesz != phdrs[i].p_memsz) continue;
+
 		/* Have many space used in this segment ? */ 
 		used_space = phdrs[i].p_memsz; /* 
 						* ok, usually for exec seg
@@ -120,10 +124,32 @@ int main(int argc, char *argv[])
 						* But I want to be on the 
 						* safe side...
 						*/ 
+		/* 
+	 	 * I want starter aligned on the 16 boundary,
+	 	 * For some (perfomance ? ) reason so do kernel with a stack
+		 * One more reason alpha (at least ) need proper instruction
+		 * alignment
+	 	 * So, let us round up used_space
+	  	 */ 
+		rest = used_space % 16;
+		if (rest) used_space += (16 - rest);
+
 		/* Segment's total space */
+		/*
+		 * If p_align != getpagesize() kernel/loader (alpha, amd64)
+		 * will do funny things:
+		 * - non-used pages may be marked us non-accessable
+		 *   (permission ---) or unmmapped at all.
+		 * So, in order to find room for starter I use not
+		 * p_align, but getpagesize().
+		 * Ok, really I use mimimum of both of them.
+		 * I can't see how p_align may be < then getpagesize(),
+		 * just in case...
+		align = (phdrs[i].p_align < page_size) ? phdrs[i].p_align : page_size;
+
 		total_space = used_space;
-		rest = used_space % phdrs[i].p_align;
-		if (rest) total_space += (phdrs[i].p_align - rest);
+		rest = used_space % align;
+		if (rest) total_space += (align - rest);
 
 		/* How many unused space left here ? */
 		unused_space = total_space - used_space;
