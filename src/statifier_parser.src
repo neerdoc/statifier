@@ -12,9 +12,13 @@ function Usage
 	cat <<EOF || return
 Usage: $0 [option]... <orig_exe> <new_exe>
 Options:
+   -h, --help                   display this help and exit
+   -k, --keep-work-dir          do not remove working directory.
+                                working dir will be .statifier instead of
+                                \$TMPDIR/statifier.tmpdir.\$\$
    -s, --set=Variable=Value     set environment variable 'Variable' to Value
    -u, --unset=Variable         unset environment variable 'Variable'
-   -h, --help                   display this help and exit
+   -v, --verbose                verbose output
    -V, --version                output version and exit
 EOF
 	return 0
@@ -32,6 +36,11 @@ function UnrecognizedOption
 	Try_Help
 }
 
+function AmbiguousOption
+{
+	Echo "$0: option \`--$LONG_OPTION' is ambiguous"
+	Try_Help
+}
 ###############################################################################
 function RequeredArgument
 {
@@ -49,17 +58,21 @@ function RequeredArgument
 ###############################################################################
 function CommandLineParsing
 {
-	opt_loader_num_var=0
-
 	# Default flags' values. To be sure they don't came from environment
-	while getopts "hs:u:vV-:" opt; do
+	NEED_EXIT=""
+	opt_loader_num_var=0
+	opt_keep_working_directory=""
+	opt_verbose=""
+
+	while getopts "hks:u:vV-:" opt; do
 		OPTIND_INCR=""
 		case "$opt" in
 			h) LONG_OPTION=help;;
+			k) LONG_OPTION=keep-working-directory;;
 			s) LONG_OPTION=set;;
+			u) LONG_OPTION=unset;;
 			v) LONG_OPTION=verbose;;
 			V) LONG_OPTION=version;;
-			u) LONG_OPTION=unset;;
 	
                 	-)
 				case "x$OPTARG" in
@@ -91,33 +104,82 @@ function CommandLineParsing
 
 		SHORT_OPTION="$opt"
 		case "$LONG_OPTION" in
+			h | \
+			he | \
+			hel | \
+			help)
+				Usage
+				NEED_EXIT=0
+				return 0
+			;;
+
+			k | \
+			ke | \
+			kee | \
+			keep | \
+			keep- | \
+			keep-w | \
+			keep-wo | \
+			keep-wor | \
+			keep-work | \
+			keep-worki | \
+			keep-workin | \
+			keep-working | \
+			keep-working- | \
+			keep-working-d | \
+			keep-working-di | \
+			keep-working-dir | \
+			keep-working-dire | \
+			keep-working-direc | \
+			keep-working-direct | \
+			keep-working-directo | \
+			keep-working-director | \
+			keep-working-directory) 
+				opt_keep_working_directory="yes"
+			;;
+
+			s | \
+			se | \
 			set)
 				RequeredArgument || return
 				opt_loader_num_var=$[opt_loader_num_var + 1]
 				eval opt_loader_var_$opt_loader_num_var="'set environment $OPTARG'" || return
 			;;
 
+			u | \
+			un | \
+			uns | \
+			unse | \
 			unset)
 				RequeredArgument || return
 				opt_loader_num_var=$[opt_loader_num_var + 1]
 				eval opt_loader_var_$opt_loader_num_var="'unset environment $OPTARG'" || return
 			;;
 
-			help)
-				Usage
-				exit 0
+			v | \
+			ve | \
+			ver)
+				AmbiguousOption
+				return 1
 			;;
 
+			verb | \
+			verbo | \
+			verbos | \
 			verbose)
-				:
+				opt_verbose="yes"
 			;;
 
+			vers | \
+			versi | \
+			versio | \
 			version)
 				set -e
 					source $D/VERSION || return
 				set +e
 				echo "$VERSION"
-				exit 0
+				NEED_EXIT=0
+				return 0
 			;;
 
 			*)
@@ -170,7 +232,9 @@ function SaveOptions
 		eval var="\$opt_loader_var_$current"  || return
 		echo "opt_loader_var_$current='$var'" || return
 	done || return
-	echo "opt_loader_num_var=$opt_loader_num_var" || return
+	echo "opt_loader_num_var='$opt_loader_num_var'" || return
+	echo "opt_keep_working_directory='$opt_keep_working_directory'" || return
+	echo "opt_verbose='$opt_verbose'" || return
 	return 0
 }
 
