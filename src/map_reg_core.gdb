@@ -7,13 +7,6 @@
 
 # Debuggers command for dumping maps, registers and coredump to the files
 
-# Specify file to run
-file @EXECUTABLE_FILE@
-
-# I don't want debugger prompt me to type enter, 
-# so make gdb think a terminal is a very big.
-set height 10000
-
 # I need to set breakpoint on _dl_start_user (for linux) 
 # But before I run program I can't got (from gdb) _dl_start_user address.
 # So, trick is following:
@@ -25,10 +18,12 @@ set height 10000
 #   4) unset stop on solib-events 
 #   5) Continue.
 #   6) Next stop - is _dl_start_user
+
 set stop-on-solib-events 1
-run
+run_continue
+	
 set stop-on-solib-events 0
-break @BREAKPOINT@
+break @BREAKPOINT_START@
 
 # Continue execution - real time loader will finish 
 # mapping exe itself and all needed .so library 
@@ -39,12 +34,13 @@ continue
 
 # Save mappings. I need it for start/stop addreses of the segments
 # debugers core-file has start address too, but it miss stop address
-shell echo "STATIFIER_FILE_SEPARATOR"
-info proc mapping
+shell echo "STATIFIER_FILE_SEPARATOR maps"
+	info proc mapping
+shell echo "STATIFIER_FILE_SEPARATOR_END"
 
-shell echo "STATIFIER_FILE_SEPARATOR"
-info registers
-shell echo "STATIFIER_FILE_SEPARATOR"
+shell echo "STATIFIER_FILE_SEPARATOR registers"
+	info registers
+shell echo "STATIFIER_FILE_SEPARATOR_END"
 
 # Save core dump - I need it to get maps permissions
 generate-core-file @CORE_FILE@
@@ -54,6 +50,7 @@ generate-core-file @CORE_FILE@
 # and create as output file with dump command for gdb.
 # this dumps command should save all programms memory mappings.
 # show memory protection.
-shell @SPLIT_SH@ @LOG_FILE@ @MAPS_FILE@ @REGISTERS_FILE@ || kill $PPID
+shell @SPLIT_SH@ @LOG_FILE@                               || kill $PPID
 shell @DUMPS_SH@ @MAPS_FILE@ @WORK_DUMPS_DIR@ @DUMPS_GDB@ || kill $PPID
+
 #quit
