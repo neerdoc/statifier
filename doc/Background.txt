@@ -102,17 +102,20 @@ Program Headers:
    05     .note.ABI-tag 
 
 Something new. There is INTERP segment here.
-When kernel see it, instead of loading executable itself,
-it load specified program interpreter (in this example /lib/ld-linux.so.2)
-and jump to interpreter's entry point.
+When kernel see it, t load all LOAD segments from executable itself, then
+all load segments from specified program interpreter 
+(in this example /lib/ld-linux.so.2) and jump to interpreter's entry point.
+
 Now action has been moved from kernel-space to user-space and it's
-completly up to interpreter(loader) to load and run dynamically linked
+completly up to interpreter(loader) to prepare and run dynamically linked
 executable.
 
-5. How loader load and run dynamically linked executable.
+5. What loader do with dynamically linked executable.
 
-Loader (like a kernel) load  to the memory all executable's 'LOAD' segment.
-After that, it load all libraries (if any), specified by LD_PRELOAD
+Ok, all executable's and  loader's load segments are loaded by the kernel
+and loader got control.
+
+Now it load all libraries (if any), specified by LD_PRELOAD
 environment variable.
 After that, it look at 'DYNAMIC' segment of executable and load
 all needed libraries:

@@ -8,8 +8,9 @@ Life is not as easy, as I think at beginning of the project.
     Note.
     Linux kernels version >= 2.5 create not just stack segment but one more -
     on address 0xfffd000-0xfffe000.
-    What is good for I have no idea, but I know it has ELF-header,
-    so it cam be easy detected.
+    This one also created by kernal, and it's dynamic shared object (DSO) 
+    with soname 'linux-gate.so.1", so it can be easely detected.
+    
 
 2. _dl_start_user got some values in registers.
    Registers's values were set somewere in _dl_start.

@@ -10,3 +10,11 @@ StatifiedLayout.x86.txt
 StatifiedLayout.alpha.txt
 DataFlow.txt
 Porting.txt
+
+Files in the 1.5.0 directory
+describe how it was implemented in the version <= 1.5.0
+
+StatifiedLayout.txt
+StarterLayout.txt
+StatifiedLayout.x86.txt
+StatifiedLayout.alpha.txt
