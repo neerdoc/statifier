@@ -1,0 +1,91 @@
+# to be sourced from bash
+
+# Copyright (C) 2004 Valery Reznic
+# This file is part of the Elf Statifier project
+# 
+# This project is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License.
+# See LICENSE file in the doc directory.
+
+# This file contains variable and functions common for
+# statifier's scripts
+
+# Temporary Work Directory - WORK_DIR
+[ "x$WORK_DIR" = "x" ] && {
+	echo "$0: internal error: 'WORK_DIR' variable is empty." 1>&2
+	exit 1
+}
+# Directory for files to be sourced and temp files for use in different stages
+WORK_COMMON_DIR=$WORK_DIR/common
+
+LOADER_SYMBOLS=$WORK_COMMON_DIR/ld.syms
+LOADER_PHDRS=$WORK_COMMON_DIR/ld.phdrs
+
+COMMON_SRC=$WORK_COMMON_DIR/common.src
+DUMP_SRC=$WORK_COMMON_DIR/dump.src
+STARTER_SRC=$WORK_COMMON_DIR/starter.src
+
+# Directoty for adjusted files.
+WORK_GDB_CMD_DIR=$WORK_DIR/gdb_cmd
+
+# Directory for segment files
+WORK_DUMPS_DIR=$WORK_DIR/dumps
+
+# Directory for misc output from gdb
+WORK_GDB_OUT_DIR=$WORK_DIR/gdb_out
+
+REGISTERS_FILE=$WORK_GDB_OUT_DIR/registers
+CORE_FILE=$WORK_GDB_OUT_DIR/core
+
+# Directory for temp files built during new exe file constructions.
+WORK_OUT_DIR=$WORK_DIR/out
+
+function GetSymbol
+{
+	# This function print out address of 'Symbol' in hex.
+	# I am looking for symbol in the output of 
+	# objdump --syms $Interpreter.
+	# Function work as following:
+	#  1. Symbol NOT FOUND.
+	#  1.1. If 'IsMandatory'=1, error message will be printed 
+	#       and return status 1
+	#  1.2. If 'IsMandatory' != 1, i.e Symbol is optional,
+	#       value '0x0' will be prined and return status 0.
+	# 2. Symbol WAS FOUND.
+	#    return status - 0 
+	# 2.1. If VirtAddr = 0x0, then found value is offset,  
+	#      and value + base_addr will be printed.
+	# 2.2. If  VirtAddr != 0x0 then found value is absolute
+	#      address and it will be printed out. 
+	#      I saw loader with VirtAddr != 0x0 on one system
+	#      with 2.6.* kernel
+	[ $# -ne 4 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" -o "x$4" = "x" ] && {
+		echo "$0: Usage: GetSymbol <Symbol> <IsMandatory> <VirtAddr> <BaseAddr>" 1>&2
+		return 1
+	}
+	local Symbol=$1
+	local IsMandatory=$2
+	local VirtAddr=$3
+	local BaseAddr=$4
+	local Value
+	Value=`awk -vSymbol="$Symbol" '{
+		if ($NF == Symbol) {
+			print "0x" $1; 
+			exit 0;
+		}
+	}' < $LOADER_SYMBOLS` || return
+	[ "x$Value" = "x" ] && {
+		if [ "x$IsMandatory" = "x1" ]; then
+			echo "$0: Symbol '$Symbol' not found in the interpreter '$Interpreter'" 1>&2
+			return 1 
+		else
+			echo "0x0"
+			return 0
+		fi
+	}
+	[ "x$VirtAddr" = "x0x0" ] && {
+		Value=$[Value + $BaseAddr] || return
+	}
+	printf "0x%x" $Value || return
+	return 0
+}
