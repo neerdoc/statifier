@@ -25,7 +25,7 @@ function CheckTls
 		}' < $LOADER_SYMBOLS
 	`" || return
 	[ "x$res" = "x" ] || {
-		val_breakpoint_thread="`$D/set_thread_area_addr $D/tls_test`" || return
+		val_breakpoint_thread="`$D/set_thread_area_addr $val_interpreter_file_entry $D/tls_test`" || return
 		[ \! "x$val_breakpoint_thread" = "x" ] && {
 			val_has_tls="1"
 		}
@@ -55,12 +55,13 @@ function Main
 
 	(
 		set -e
+		val_interpreter_file_entry=`$D/$elf_class/elf_data -e $val_interpreter`
 		echo "val_uname_m=$val_uname_m"
 		echo "val_elf_class=$val_elf_class"
 		echo "val_interpreter='$val_interpreter'"
+		echo "val_interpreter_file_entry='$val_interpreter_file_entry'"
 		$D/$elf_class/elf_data                       \
 			-T val_interpreter_has_symtab=       \
-                   	-E val_interpreter_file_entry=       \
 			-B val_interpreter_file_base_addr=   \
                    	-W val_interpreter_file_rw_seg_addr= \
 			-S val_interpreter_rw_seg_size=      \
