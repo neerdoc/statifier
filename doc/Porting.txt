@@ -31,3 +31,4 @@ Porting ELF statifier to new cpu
    regs.S              - module to restore registers 
                          and jump to _dl_start_user 
 
+   properties.src      - define different system properties.
