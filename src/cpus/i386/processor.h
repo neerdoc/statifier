@@ -17,5 +17,14 @@
 	#define PC_REG        (EIP)
 	#define PC_OFFSET_AFTER_SYSCALL 2
 
-#endif /* processor_h */
+	#ifdef __ASSEMBLER__
+		.macro GET_DATA_ADDR reg
+ 			call	addr
+		addr:
+ 			pop	\reg
+ 			add	$(data - addr),	\reg
+		.endm
 
+		#define MY_JUMP jmp
+	#endif /* __ASSEMBLER__ */ 
+#endif /* processor_h */
