@@ -58,9 +58,9 @@ static size_t shdrs_size_exe;      /* size of shdrs for original exe */
 
 /* End of variables */
 
+#if 0
 static int create_sections()
 {
-#if 0
 	/* Adjust shdrs */
 	/* Sections which are not allocated, should be copied from
 	 * the original executable and appended to the end of 
@@ -152,9 +152,9 @@ static int create_sections()
 	/* Close output */
 	result = my_fclose(output, sections);
 	if (result == -1) exit(1);
-#endif
  	return 0;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -231,8 +231,11 @@ int main(int argc, char *argv[])
 	if (phdrs_size % sizeof(ElfW(Phdr)) != 0) {
 		fprintf(
 			stderr,
-			"%s: size=%ld of the file '%s' is not multiple of phdr size=%d\n",
-			pgm_name, phdrs_size, phdrs_name, sizeof(ElfW(Phdr))
+			"%s: size=%ld of the file '%s' is not multiple of phdr size=%lu\n",
+			pgm_name,
+			phdrs_size,
+			phdrs_name,
+			(unsigned long)sizeof(ElfW(Phdr))
 		);
 		exit(1);
 	}
