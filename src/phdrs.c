@@ -272,7 +272,18 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((num_load_segment_in_core - ignored_segments) != (argc - arg_ind)) {
+	/*
+	 * linux 2.5, 2.6 create one more segment
+	 * gdb 6.0 save it in the core file, but gdb 6.1 not
+	 * so check
+	 * num_load_segment_in_core - ignored_segments) != (argc - arg_ind))
+	 * not always correct.
+	 * Let's try to use something less strict.
+	 */
+	if (
+		((argc - arg_ind) >  num_load_segment_in_core) ||
+		((argc - arg_ind) < (num_load_segment_in_core - ignored_segments))
+	) {
 		fprintf(
 			stderr,
 			"%s: mismatch: core file '%s' has %lu LOAD segments but command line supply ignored_segments='%d' and %d files\n",
@@ -286,9 +297,8 @@ int main(int argc, char *argv[])
 	}
 
 	num_seg_out = 
-		num_load_segment_in_core
+		  (argc - arg_ind)
 		+ 1 /* My segment */
-		- ignored_segments /* last segment with stack, etc */
 	;
 
 	align = phdrs_exe[first_load_segment].p_align;
