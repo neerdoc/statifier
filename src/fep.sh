@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # Copyright (C) 2004 Valery Reznic
 # This file is part of the Elf Statifier project
