@@ -9,6 +9,7 @@ Source:	       %{name}-%{version}.tar.gz
 Url:           http://%{name}.sourceforge.net	
 ExclusiveOs:   Linux
 ExclusiveArch: i386
+ExclusiveArch: x86_64
 BuildRoot:     %{_builddir}/%{buildsubdir}-install-root
 
 %description
