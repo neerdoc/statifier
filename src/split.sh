@@ -7,27 +7,25 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-[ $# -ne 3 -o "x$1" = "x" -o "x$3" = "x" ] && {
-	echo "Usage: $0 <input> <output_1> <output_2>" 1>&2
+[ $# -ne 1 -o "x$1" = "x" ] && {
+	echo "Usage: $0 <input_file>" 1>&2
 	exit 1
 }
 Input=$1
-Output1=$2
-Output2=$3
+OutputDir=`dirname $Input` || exit
 
-awk -vOutput="" -vOutput1="$Output1" -vOutput2="$Output2" '
+awk -vOutputDir="$OutputDir" '
 	BEGIN {
-		Index = 0;
-		Outputs[0] = "";
-		Outputs[1] = Output1;
-		Outputs[2] = Output2;
-		Outputs[3] = "";
-		Output = Outputs[Index];
+		Output = "";
 	}
 	{
-		if ($0 == "STATIFIER_FILE_SEPARATOR") {
-			Index++;
-			Output = Outputs[Index];
+		if ($1 == "STATIFIER_FILE_SEPARATOR") {
+			Output = OutputDir "/" $2;
+			next;
+		}
+
+		if ($1 == "STATIFIER_FILE_SEPARATOR_END") {
+			Output = ""
 			next;
 		}
 
