@@ -40,7 +40,8 @@ function CreateStarter
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
 	full_dl_list=`
-		for i in $val_interpreter_file_base_addr $val_dl_list; do
+		printf "0x%x" $[val_interpreter_file_base_addr + $val_offset] &&
+		for i in $val_dl_list; do
 			case "$i" in
 				0 | 0x0) :;;  # do nothing
 				*)
