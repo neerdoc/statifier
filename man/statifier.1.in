@@ -14,8 +14,10 @@ any of these DLL and run.
 \fB\-h, \-\-help\fP
 display this help and exit
 .TP 
-\fB\-V, \-\-version\fP
-output version and exit
+\fB\-k, \-\-keep\-working\-directory\fP
+Do not remove working directory.
+Also change it from \fB$TMPDIR/statifier.tmpdir.$$\fP
+to \fB./.statifier\fP
 .TP 
 \fB\-s, \-\-set=VAR=VALUE\fP
 Set environment variable \fBVAR\fP to value \fBVALUE\fP.
@@ -24,6 +26,12 @@ Multiple 'set' options accepted.
 \fB\-u, \-\-unset=VAR\fP
 Unset environment variable \fBVAR\fP.
 Multiple 'unset' options accepted.
+.TP 
+\fB\-v, \-\-verbose\fP
+verbose output
+.TP 
+\fB\-V, \-\-version\fP
+output version and exit
 .SH FILES
 .TP 
 \fB$TMPDIR/statifier.tmpdir.$$\fP
@@ -46,7 +54,7 @@ startup.
 \fBstatifier --set=LD_PRELOAD=/some/library/to/by/preloaded /bin/df df.static\fP
 Will "link" /bin/df with preloaded library.
 .SH NOTE
-Environment variables and described in the run-time loader's man page.
+Environment variables are described in the run-time loader's man page.
 .SH LIMITATIONS
 Currently it work only on Linux x86 and x86_64.
 It was tested on RH7.2, 7.3 and 9 (x86) and SuSE (SLES 8) 8.1 amd64
