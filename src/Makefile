@@ -13,9 +13,10 @@ SOURCES =                   \
    $(GDB_SCRIPTS)           \
    $(RUNNERS)               \
 
-UTILS =    \
-   phdrs   \
-   strtoul \
+UTILS =                 \
+   phdrs                \
+   set_thread_area_addr \
+   strtoul              \
 
 SCRIPTS =       \
    dumps.sh     \
@@ -26,11 +27,13 @@ SCRIPTS =       \
 RUNNERS =    \
    statifier \
 
-GDB_SCRIPTS =       \
-   dumps.gdb        \
-   map_reg_core.gdb \
+GDB_SCRIPTS =          \
+   dumps.gdb           \
+   first.gdb           \
+   map_reg_core.gdb    \
+   set_thread_area.gdb \
 
-TARGETS := $(UTILS) starter
+TARGETS := $(UTILS) starter set_thread_area
 
 all: 
 all-local: $(TARGETS)
@@ -42,7 +45,7 @@ $(UTILS): %: %.c
 # so I have to specify '-Wl,--oformat,binary' and -nostdlib
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
-starter: starter.S
+starter set_thread_area: %: %.S
 	gcc $< -o $@ -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 LIB_DIR = $(DESTDIR)/usr/lib/statifier
