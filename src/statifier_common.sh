@@ -13,7 +13,7 @@
 function GetProgramInterpreter
 {
 	[ $# -ne 1 -o "x$1" = "x" ] && {
-		echo "$0: Usage: GetProgramInterpreter <executable>" 1>&2
+		Echo "$0: Usage: GetProgramInterpreter <executable>"
 		return 1
 	}
 	local Executable="$1"
@@ -38,7 +38,7 @@ function GetInterpreterVirtAddr
 {
 	local Func=GetInterpreterVirtAddr
 	[ $# -ne 1 -o "x$1" = "x" ] && {
-		echo "$0: Usage: $Func <Interpreter>" 1>&2
+		Echo "$0: Usage: $Func <Interpreter>"
 		return 1
 	}
 	local Interpreter="$1"
@@ -87,11 +87,14 @@ function CheckTls
 
 function Main
 {
-	local Interpreter
+	set -e
+		source $OPTION_SRC || return
+	set +e
 
-	Interpreter=`GetProgramInterpreter $Executable`
+	local Interpreter
+	Interpreter=`GetProgramInterpreter $opt_orig_exe`
 	[ "x$Interpreter" = "x" ] && {
-		echo "$0: Interpreter not found in the '$Executable'" 1>&2
+		Echo "$0: Interpreter not found in the '$opt_orig_exe'"
 		return 1
 	}
 
@@ -105,16 +108,15 @@ function Main
 	[ "x$BaseAddr" = "x0x0" ] && BaseAddr=$VirtAddr
 	[ "x$BaseAddr" = "x0x0" ] && {
 		# VirtAddr = 0x0 too. Bad. Give error and exit.
-		echo "$0: Can't find BaseAddr for '$Interpreter': BaseAddr=VirtAddr=0x0" 1>&2
+		Echo "$0: Can't find BaseAddr for '$Interpreter': BaseAddr=VirtAddr=0x0"
 		return 1
 	}
 	[ "$VirtAddr" = "$BaseAddr" -o "$VirtAddr" = "0x0" ] || {
-		echo "$0: Interpreter's '$Interpreter' VirtAddr='$VirtAddr' and BaseAddr='$BaseAddr' are different." 1>&2 
+		Echo "$0: Interpreter's '$Interpreter' VirtAddr='$VirtAddr' and BaseAddr='$BaseAddr' are different."
 		return 1
 	}
 
 	{
-		echo "Executable='$Executable'"   && \
 		echo "Interpreter='$Interpreter'" && \
 		echo "VirtAddr='$VirtAddr'"       && \
 		echo "BaseAddr='$BaseAddr'"       && \
@@ -125,17 +127,18 @@ function Main
 }
 
 #################### Main Part ###################################
-[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-	echo "Usage: $0 <work_dir> <orig_executable>" 1>&2
-	exit 1
-}
-
-WORK_DIR=$1
-Executable=$2
 
 # Where Look For Other Programs
 D=`dirname $0`               || exit
 source $D/statifier_lib.src  || exit
 
-Main > $COMMON_SRC           || exit
+[ $# -ne 1 -o "x$1" = "x" ] && {
+	Echo "Usage: $0 <work_dir>"
+	exit 1
+}
+
+WORK_DIR=$1
+
+SetVariables $WORK_DIR || exit
+Main > $COMMON_SRC     || exit
 exit 0
