@@ -181,8 +181,15 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 $(ELF_CLASS)/gdb_runner: gdb_runner.c
 	gcc $(FLAGS_ELF) -static -Wall -O2 -g $< -o $@
 
+# For some unknown reason (at least) on amd64 gcc (at least gcc 3.2.2 SuSE )
+# generate a huge 'dl-var' file when used 'binary'output format.
+# Without output format (i.e. default elf) file is reasonable small.
+# The immediate reason is the string in assemble code:
+#	.section	.eh_frame,"aw",@progbits
+# So, I need to remove it from the generated .s file
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
-	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@
+	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
+	awk '{ if ($$2 !~ ".eh_frame") print $$0}' < $@.s > $@  || { $(RM) $@; exit 1; }
 
 
 # Dependencies should be in correct order
@@ -198,7 +205,7 @@ $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
 $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
-	gcc $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
+	gcc $(FLAGS_ELF) -v -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
 
