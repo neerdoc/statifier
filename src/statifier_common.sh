@@ -110,7 +110,7 @@ function Main
 		return 1
 	}
 
-	objdump --syms $val_interpreter > $LOADER_SYMBOLS || return
+	readelf --syms $val_interpreter > $LOADER_SYMBOLS || return
 
 	local val_virt_addr val_base_addr
 	val_virt_addr=`GetInterpreterVirtAddr $val_interpreter` || return
