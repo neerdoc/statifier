@@ -18,5 +18,29 @@
 	#define PC_REG        (EF_PC)
 	#define PC_OFFSET_AFTER_SYSCALL 4
 
-#endif /* processor_h */
+	#ifdef __ASSEMBLER__
+		/* Definition for registers' softname */
+		#include "/usr/include/alpha/regdef.h"
+		/*
+		 * There is a bug in regdef (or gcc)
+		 * AT defined as $at, but $at unknown for assembler.
+		 * anyway, I need AT as my label for register's data
+		 *  So:
+		 */
+		#undef AT
+		#define at $28
 
+		.set	noat
+		.set	noreorder
+
+		.macro GET_DATA_ADDR reg
+			bsr	\reg, addr
+		addr:
+			mb
+			lda	\reg,	(data-addr)(\reg)
+			mb
+		.endm
+
+		#define MY_JUMP br
+	#endif /* __ASSEMBLER__ */ 
+#endif /* processor_h */

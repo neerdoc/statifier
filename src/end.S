@@ -26,7 +26,7 @@
  */
 
 MY_DATA NEXT_CODE
-	jmp	data + NEXT_CODE
+	MY_JUMP	data + NEXT_CODE
 	/* .org . + ((REGISTER_SIZE - (. % REGISTER_SIZE )) % REGISTER_SIZE) */
 	/* 
 	 * Now I use 16 instead of REGISTER_SIZE.

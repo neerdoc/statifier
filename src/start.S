@@ -9,13 +9,6 @@
 
 /* Include file for all .S sources. */
 
-.macro GET_DATA_ADDR reg
-	call	addr
-addr:
-	pop	\reg
-	add	$(data - addr),	\reg
-.endm
-
 CURRENT_OFFSET = 0
 .macro MY_DATA Name
 	\Name = CURRENT_OFFSET
