@@ -9,106 +9,15 @@
 
 # Adjust some _dl variables.
 
-# It is file with AT_ includes generated from /usr/include/elf.h
-#include "AT.h"
+#include <dl-var.inc>
 
-MY_DATA BASE
-MY_DATA DL_ARGC
-MY_DATA DL_ARGV
-MY_DATA ENVIRON
-MY_DATA DL_AUXV
-MY_DATA DL_PLATFORM      /* May be 0 */
-MY_DATA DL_PLATFORMLEN   /* May be 0 */
+	jmp		after_func
+	#include <dl-var.s>
+after_func:
 
-	GET_DATA_ADDR	%edx
-
-	movl	%esp,		%eax	# eax = &argc_on_the_stack
-	movl	(%eax),		%ecx	# ecx = argc
-	pushl	%ecx			# save argc
-
-	addl	$REG_SIZE,	%eax	# eax = &argv_on_the_stack
-	pushl	%eax			# save argv
-
-	incl	%ecx			# ecx = argc + 1
-
-	addl 	%ecx,		%eax	
-	addl 	%ecx,		%eax	
-	addl 	%ecx,		%eax	
-	addl 	%ecx,		%eax	# eax = argv + (argc + 1) * REG_SIZE,
-					# i.e, eax = &env
-
-	pushl	%eax			# save _environ
-	
-	jmp	f_auxv_0
-f_auxv:
-	addl	$REG_SIZE,	%eax
-f_auxv_0:
-	cmpl	$0, (%eax)
-	jne	o_auxv			# yet no found end of environment
-o_auxv:
-	addl	$REG_SIZE,	%eax    # found, skip NULL. now %eax = _dl_auxv
-	movl	%eax,		%ecx	# ecx = eax = &_dl_auxv
-
-	movl	BASE(%edx),	%eax	# eax - base address of elf-interpreter
-
-	movl	DL_AUXV(%edx),	%ebx	# ebx = &_dl_auxv
-	movl	%ecx,	(%ebx)		#
-
-	movl	ENVIRON(%edx),	%ebx	# ebx = &_environ
-	popl	(%ebx)
-	movl	DL_ARGV(%edx),	%ebx	# ebx = &_dl_argv
-	popl	(%ebx)
-	movl	DL_ARGC(%edx), 	%ebx	# ebx = &_dl_args
-	popl	(%ebx)
-
-	# Now i am going process _dl_auxv.
-	# I am looking for AT_BASE and AT_PLATFORM
-	# Finish on AT_NULL
-	jmp	auxv_0
-auxv:
-	addl	$(REG_SIZE + REG_SIZE),	%ecx	# next auxv entry
-auxv_0:
-	cmpl	$AT_BASE, (%ecx)
-	je	auxv_base
-	cmpl	$AT_PLATFORM, (%ecx)
-	je	auxv_platform
-	cmpl	$AT_NULL, (%ecx)
-	je	auxv_end
-	jmp	auxv
-auxv_base:
-	mov	%eax,	REG_SIZE(%ecx)
-	jmp	auxv
-auxv_platform:
-	movl	DL_PLATFORM(%edx),	%ebx	# ebx = &_environ
-	cmpl	$0,	%ebx			# have i platform addr ?
-	je	plat_len			# no
-	pushl	REG_SIZE(%ecx)
-	popl	(%ebx)
-	cmpl	$0,	REG_SIZE(%ecx)		# Is it NULL ?
-	je	auxv
-	# Now find out _dl_platformlen
-plat_len:
-	movl	REG_SIZE(%ecx),	%esi	# address of _dl_platform
-	jmp	platform_len_0
-platform_len:
-	incl	%esi
-platform_len_0:
-	cmpb	$0,	(%esi)
-	jne	platform_len
-platform_len_end:	
-	decl	%esi
-	movl	DL_PLATFORMLEN(%edx),	%ebx	# ebx = &_environ
-	cmpl	$0,	%ebx			# have i platformlen addr ?
-	je	auxv				# no
-	movl	%esi,	(%ebx)
-
-	jmp	auxv
-auxv_end:
-#data:
-#BASE:		.long 0x40000000
-#DL_ARGC:	.long 0x40015ec4
-#DL_ARGV:	.long 0x40015ec8
-#ENVIRON:	.long 0x40015890
-#DL_AUXV:	.long 0x12345678
-#PLATFORM:	.long 0x12345678
-
+	GET_DATA_ADDR	%eax
+	push		%esp	/* second argument */
+	push		%eax    /* first argument  */
+	call		do_work
+	pop		%eax
+	pop		%eax
