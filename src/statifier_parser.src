@@ -47,7 +47,7 @@ function RequeredArgument
 	[ "x$SHORT_OPTION" = "x-" ] || return 0  # we use short option,
                                                  # do nothing
 	if [ "$OPTARG_EXIST" ]; then
-		[ "$OPTIND_INCR" ] && OPTIND=`expr $OPTIND + 1`
+		[ "$OPTIND_INCR" ] && OPTIND=$[OPTIND + 1]
 	else
 		Echo "$0: option \`$LONG_OPTION' requires an argument"
 		Try_Help
