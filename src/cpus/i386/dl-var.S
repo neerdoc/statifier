@@ -52,14 +52,14 @@ o_auxv:
 	movl	BASE(%edx),	%eax	# eax - base address of elf-interpreter
 
 	movl	DL_AUXV(%edx),	%ebx	# ebx = &_dl_auxv
-	movl	%ecx,	(%ebx,%eax)	#
+	movl	%ecx,	(%ebx)		#
 
 	movl	ENVIRON(%edx),	%ebx	# ebx = &_environ
-	popl	(%ebx,%eax)
+	popl	(%ebx)
 	movl	DL_ARGV(%edx),	%ebx	# ebx = &_dl_argv
-	popl	(%ebx,%eax)
+	popl	(%ebx)
 	movl	DL_ARGC(%edx), 	%ebx	# ebx = &_dl_args
-	popl	(%ebx,%eax)
+	popl	(%ebx)
 
 	# Now i am going process _dl_auxv.
 	# I am looking for AT_BASE and AT_PLATFORM
@@ -83,7 +83,7 @@ auxv_platform:
 	cmpl	$0,	%ebx			# have i platform addr ?
 	je	plat_len			# no
 	pushl	REG_SIZE(%ecx)
-	popl	(%ebx,%eax)
+	popl	(%ebx)
 	cmpl	$0,	REG_SIZE(%ecx)		# Is it NULL ?
 	je	auxv
 	# Now find out _dl_platformlen
@@ -100,15 +100,15 @@ platform_len_end:
 	movl	DL_PLATFORMLEN(%edx),	%ebx	# ebx = &_environ
 	cmpl	$0,	%ebx			# have i platformlen addr ?
 	je	auxv				# no
-	movl	%esi,	(%ebx,%eax)
+	movl	%esi,	(%ebx)
 
 	jmp	auxv
 auxv_end:
 #data:
 #BASE:		.long 0x40000000
-#DL_ARGC:	.long 0x00015ec4
-#DL_ARGV:	.long 0x00015ec8
-#ENVIRON:	.long 0x00015890
+#DL_ARGC:	.long 0x40015ec4
+#DL_ARGV:	.long 0x40015ec8
+#ENVIRON:	.long 0x40015890
 #DL_AUXV:	.long 0x12345678
 #PLATFORM:	.long 0x12345678
 
