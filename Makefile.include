@@ -6,6 +6,7 @@
 # See LICENSE file in the doc directory.
 
 MKDIR       = mkdir --parents
+MV          = mv --force
 RM          = rm --force
 RMDIR       = rm --force --recursive
 LN          = ln --symbolic --force --no-dereference
