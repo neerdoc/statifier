@@ -91,7 +91,6 @@ function Main
 	set +e
 
 	# Different variables
-	CONST_GDB="$D/const.gdb"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	DUMPS_SH="$D/dumps.sh"
 	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
@@ -106,6 +105,7 @@ function Main
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
 	SET_THREAD_AREA_GDB="$D/set_thread_area.gdb"
 	SPLIT_SH="$D/split.sh"
+	SYSCALL_GDB="$D/syscall.gdb"
 
 	File="statifier.gdb"
 	STATIFIER_GDB_IN="$D/$File"
@@ -137,11 +137,11 @@ function Main
 	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
 
 	sed                                                 \
-        	-e "s#@CONST_GDB@#$CONST_GDB#g"             \
         	-e "s#@ENV_GDB@#$ENV_GDB#g"                 \
         	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
         	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"           \
         	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"     \
+        	-e "s#@YSCALL_GDB@#$SYSCALL_GDB#g"          \
         	-e "s#@VAR_GDB@#$VAR_GDB#g"                 \
 	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
