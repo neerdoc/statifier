@@ -147,7 +147,7 @@ void do_work(
 		if (WIFSTOPPED(stat)) {
 			if (first) {
 				first = 0;
-				one_get_pc_reg(name, child, &loader_entry_point`);
+				one_get_pc_reg(name, child, &loader_entry_point);
 			} else {
 				one_get_syscall_reg(name, child, &syscall_val);
 				if (syscall_val == syscall_num) {
