@@ -146,6 +146,11 @@ function ForStarter
 	echo "# $Var=$Value"     || return
 	val_dl_list="$val_dl_list $Value"
 
+	Var="__libc_stack_end"
+	Value=`GetSymbol $Var 0` || return
+	echo "# $Var=$Value"     || return
+	val_dl_list="$val_dl_list $Value"
+
 	echo "val_dl_list='$val_dl_list'" || return
 	return 0
 }

@@ -19,3 +19,4 @@ MY_DATA DL_AUXV;	/* _dl_auxv address */
 MY_DATA DL_PLATFORM;    /* _dl_platform    address - may be 0 */
 MY_DATA DL_PLATFORMLEN; /* _dl_platformlen address - may be 0 */
 
+MY_DATA LIBC_STACK_END; /* __libc_stack_end adderss */ 
