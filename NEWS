@@ -1,3 +1,10 @@
+1.6.2
+   statifier now work with loader ld-2.3.3
+   Innovation in this loader, which affect statifier are:
+      (possible) spliiting stack to two segments (rw and rwx)
+      GNU_RELRO segment - after data written to segment it's 
+      permission changed to read-only
+
 1.6.1
    statifier work on RHEL3.2
 
