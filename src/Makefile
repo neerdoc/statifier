@@ -61,10 +61,11 @@ INCLUDE_FILES = \
 
 # small C programs, used by statifier.
 UTILS =                 \
-   copy_ehdr            \
    elfinfo              \
    elf_data             \
-   phdrs                \
+   inject_starter       \
+   non_pt_load          \
+   pt_load_1            \
    set_thread_area_addr \
    strtoul              \
    tls_test             \
@@ -98,6 +99,7 @@ SCRIPTS =             \
 HELPER_SCRIPTS =      \
    dumps.sh           \
    maps.sh            \
+   pt_load.sh         \
    regs.sh            \
    set_thread_area.sh \
    split.sh           \
