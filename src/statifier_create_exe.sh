@@ -137,6 +137,35 @@ function IsIgnoredSegment
 	return 0
 }
 
+# In the starter program I have to fix some variables:
+# _dl_argc, _dl_argv, etc.
+# The problem is PT_GNU_RELRO segment: these variable
+# ( at least  in the ld-2.3.3) reside in this segment.
+# loader set them and after that make segment read-only.
+# So if segments contain _dl_argc, etc I have to be sure
+# this segment has write permission.
+# Generally speak i have test addresses of all variables
+# which I set in the starter, but for now let's assume
+# that all of them are in the same segment ant test only for _dl_argc
+function FixLoaderDataSegmentPermission
+{
+	local full_dl_argc=$[$val__dl_argc + $val_offset]
+	local is_inside
+	IsInside $full_dl_argc $Start $Stop || return
+	if [ "$is_inside" = "yes" ]; then
+		case "$Perm" in
+			?w*)
+				: # already has write permission, do nothing
+			;;
+
+			?-*) # Change second symbol (i.e '-' to 'w'
+				Perm="${Perm%%-*}w${Perm#*-}"
+			;;
+		esac
+	fi
+	return 0
+}
+
 function pt_load
 {
 	# This function create two outputs:
@@ -151,12 +180,14 @@ function pt_load
 	set -- Dummy $WORK_DUMPS_DIR/* || return
 	local Start Stop Perm Offset Name Dummy
 	local is_ignored
+	local is_inside
 	PT_LOAD_FILES=""
 	while :; do
 		shift || return
 		read Start Stop Perm Offset Name Dummy || break
 		IsIgnoredSegment $1    || return
 		[ $is_ignored = 1 ]    && continue # skip segment to be ignored
+		FixLoaderDataSegmentPermission  || return
 		$D/pt_load_1 $Start $Stop $Perm || return
 		PT_LOAD_FILES="$PT_LOAD_FILES $1"
 	done || return
@@ -215,6 +246,7 @@ function Main
 	set -e
 		source $OPTION_SRC || return
 		source $COMMON_SRC || return
+		source $LOADER_SRC || return
 		source $MISC_SRC   || return
 	set +e
 
