@@ -14,19 +14,44 @@ function Main
 	set -e
 		source $COMMON_SRC || return
 	set +e
-	local Value
-	local val_dl_list="$val_base_addr"
-	Value=`GetSymbol _dl_argc        1 $val_virt_addr $val_base_addr` || return
+	local Value 
+	local Var
+	local Param
+	local val_dl_list
+
+	Param="$val_virt_addr $val_base_addr"
+	val_dl_list="$val_base_addr"
+	echo "#"
+	echo "# val_base_addr=$val_base_addr"
+	echo "#"
+
+	Var="_dl_argc"
+	Value=`GetSymbol $Var 1 $Param` || return
 	val_dl_list="$val_dl_list $Value"
-	Value=`GetSymbol _dl_argv        1 $val_virt_addr $val_base_addr` || return
+
+	Var="_dl_argv"
+	Value=`GetSymbol $Var 1 $Param` || return
+	echo "# $Var=$Value"            || return
 	val_dl_list="$val_dl_list $Value"
-	Value=`GetSymbol _environ        1 $val_virt_addr $val_base_addr` || return
+
+	Var="_environ"
+	Value=`GetSymbol $Var 1 $Param` || return
+	echo "# $Var=$Value"            || return
 	val_dl_list="$val_dl_list $Value"
-	Value=`GetSymbol _dl_auxv        1 $val_virt_addr $val_base_addr` || return
+
+	Var="_dl_auxv"
+	Value=`GetSymbol $Var 1 $Param` || return
+	echo "# $Var=$Value"            || return
 	val_dl_list="$val_dl_list $Value"
-	Value=`GetSymbol _dl_platform    0 $val_virt_addr $val_base_addr` || return
+
+	Var="_dl_platform"
+	Value=`GetSymbol $Var 0 $Param` || return
+	echo "# $Var=$Value"            || return
 	val_dl_list="$val_dl_list $Value"
-	Value=`GetSymbol _dl_platformlen 0 $val_virt_addr $val_base_addr` || return
+
+	Var="_dl_platformlen"
+	Value=`GetSymbol $Var 0 $Param` || return
+	echo "# $Var=$Value"            || return
 	val_dl_list="$val_dl_list $Value"
 
 	echo "val_dl_list='$val_dl_list'" || return
