@@ -26,47 +26,6 @@ define my_delete
 end
 #################################################
 
-# Read in system dependent variables
-source @VAR_GDB@
-
-# Read in (optional) setenv commands
-source @ENV_GDB@
-
-### Initialize some gdb variables ###
-
-# I don't want debugger prompt me to type enter, 
-# so make gdb think a terminal is a very big.
-set height 10000
-
-# Specify file to run
-# Pay attention, gdb will not read symbols from it
-exec-file @EXECUTABLE_FILE@
-
-# I have two differen problem with gdb messages:
-# 1) For gdb >= 6.0 
-#   messages like:
-#   <line:> <file>: No such file or directory
-
-# 2) For alpha and mips platform message
-#    warning: Hit heuristic-fence-post without finding
-#    warning: enclosing function for address 0xXXXXXXX     
-
-# There are two way to eliminate first one:
-# - 'silent' in the commands for breakpoint
-# - set auto-solib-add off
-# Second message can be eliminated only by 'set auto-solib-add one'
-# (I.e on alpha I have to have symbols table for the loader)
-
-# So,  anyway I put 'silent' in the command
-# and I'll set auto-solib-add 'off' or 'on' depend on 
-# the 'val_has_hit_msg' variable.
-# It will work if always on, but I want it off when possible
-# (for perfomance and simplicity reason)
-if $val_has_hit_msg
-	set auto-solib-add on
-else
-	set auto-solib-add off
-end
 # Now, let us set breakpoints of interest
 
 ###################
@@ -91,9 +50,7 @@ end
 # source set_thread_area file with define for set_thread_area command
 source @SET_THREAD_AREA_GDB@
 
-set $val_base_addr = $val_interpreter_entry - $val_interpreter_file_entry
-
-break *($BREAKPOINT_THREAD + $val_base_addr)
+break *($BREAKPOINT_THREAD + $val_offset)
 commands
 	silent
 	my_separator set_thread_area
@@ -111,7 +68,7 @@ my_delete $val_has_tls
 # and do relocation.
 # Also (depend on LD_BIND_NOW) symbols binding can be done too.
 # Loader will stop on this breakpoint just before running .so _init function
-break *($BREAKPOINT_START + $val_base_addr)
+break *($BREAKPOINT_START + $val_offset)
 commands
 	silent
 	# Save mappings. I need it for start/stop addreses of the segments
@@ -146,6 +103,11 @@ commands
 	# so there is NO continue command here
 end
 
+# Print stack pointer and loader's offset
+my_separator misc.src
+	printf "stack_pointer=0x%x\n", $sp
+	printf "val_offset=0x%x\n", $val_offset
+my_separator_end
 # Do everything.
 # When program will be run, it will hit a first breakpoint, stopped
 # and gdb will execute all commands assotiaited with this breakpoint.
@@ -154,5 +116,5 @@ end
 # Last command - continue, so it'll be procedded to the next one, etc.
 # Last breakpoint have no continue command, so gdb (and program) will 
 # be finished/
-run
+continue
 #quit
