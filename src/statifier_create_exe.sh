@@ -11,8 +11,9 @@
 
 function GetIgnoredSegments
 {
+	local Func=GetIgnoredSegments
 	[ $# -eq 0 ] && {
-		echo "$0: Usage: GetIgnoredSegments <file> [<file>...]" 1>&2
+		Echo "$0: Usage: $Func <file> [<file>...]"
 		return 1
 	}
 
@@ -41,8 +42,9 @@ function GetIgnoredSegments
 
 function GetDumpFiles
 {
+	local Func="GetDumpFiles"
 	[ $# -le 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-		echo "$0: Usage: GetDumpFiles <ignored_segments> <file> [<file>...]" 1>&2
+		Echo "$0: Usage: $Func <ignored_segments> <file> [<file>...]"
 		return 1
 	}
 	local IgnoredSegments=$1
@@ -52,13 +54,13 @@ function GetDumpFiles
 		;;
 
 		*)
-			echo "$0: GetDumpsFile: IgnoredSegments='$IgnoredSegments' should be integer." 1>&2
+			Echo "$0: $Func: IgnoredSegments='$IgnoredSegments' should be integer."
 			return 1
 		;;
 	esac
 	shift # ($# = $# - 1, i.e $# now is number of files)
 	[ $IgnoredSegments -gt $# ] && {
-		echo "$0: GetDumpFiles: try to ignore more files ($IgnoredSegments) than supplied ($#)." 1>&2
+		Echo "$0: $Func: try to ignore more files ($IgnoredSegments) than supplied ($#)."
 		return 1
 	}
 	local DumpFiles=""
@@ -71,11 +73,13 @@ function GetDumpFiles
 
 function CreateNewExe
 {
-	[ $# -ne 1 -o "x$1" = "x" ] && {
-		echo "$0: Usage: CreateNewExe <NewExecutable>" 1>&2
+	local Func=CreateNewExe
+	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
+		Echo "$0: Usage: $Func <OrigExe> <NewExe>"
 		return 1
 	}
-	local NewExecutable="$1"
+	local OrigExe="$1"
+	local NewExe="$2"
 
 	local STARTER=$WORK_OUT_DIR/starter
 	local FIRST_SEGMENT=$WORK_OUT_DIR/first.seg
@@ -85,35 +89,37 @@ function CreateNewExe
 
 	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
 	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
-	$D/phdrs $Executable $CORE_FILE $STARTER $IGNORED_SEGMENTS $DUMP_FILES > $FIRST_SEGMENT || return
-	rm -f $NewExecutable || return
-	cat $FIRST_SEGMENT $DUMP_FILES > $NewExecutable || return
-	chmod +x $NewExecutable || return
+	$D/phdrs $OrigExe $CORE_FILE $STARTER $IGNORED_SEGMENTS $DUMP_FILES > $FIRST_SEGMENT || return
+	rm -f $NewExe || return
+	cat $FIRST_SEGMENT $DUMP_FILES > $NewExe || return
+	chmod +x $NewExe || return
 	return 0
 }
 
 function Main
 {
 	set -e
+		source $OPTION_SRC || return
 		source $COMMON_SRC || return
 	set +e
 
-	CreateNewExe $NewExe || return
+	CreateNewExe $opt_orig_exe $opt_new_exe || return
 	return 0
 }
 
 #################### Main Part ###################################
-[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-	echo "Usage: $0 <work_dir> <statified_exe>" 1>&2
-	exit 1
-}
-
-WORK_DIR=$1
-NewExe=$2
 
 # Where Look For Other Programs
 D=`dirname $0`              || exit
 source $D/statifier_lib.src || exit
 
-Main                        || exit
+[ $# -ne 1 -o "x$1" = "x" ] && {
+	Echo "Usage: $0 <work_dir>"
+	exit 1
+}
+
+WORK_DIR=$1
+
+SetVariables $WORK_DIR || exit
+Main                   || exit
 exit 0
