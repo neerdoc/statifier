@@ -1,4 +1,4 @@
-Starter Layout for x86_64
+Starter Layout for x86(x86_64)
 
 Statified executable has following layout:
 

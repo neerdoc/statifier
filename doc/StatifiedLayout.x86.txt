@@ -1,4 +1,4 @@
-Memory Layout for statified executable for x86 (and x86_64)
+Memory Layout for statified executable for x86 (x86_64)
 
 As we already saw in 'MoreDetails.txt' memory layout 
 for /bin/ls (our example) looks like: 
