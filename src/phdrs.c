@@ -342,8 +342,13 @@ int main(int argc, char *argv[])
 	;
 
 	/* Get place for output phdrs */
+	/*
+	 * I'll allocate space for number of ALL segment's in the
+	 * core file plus 1 for the starter segment.
+	 * It's a bigger than strictly needed but it simplify logic
+	 */
 	phdrs_out = my_malloc(
-		ehdr_core.e_phentsize * num_seg_out,
+		ehdr_core.e_phentsize * (ehdr_core.e_phnum + 1),
 		"phdrs for output exe file",
 		pgm_name
 	);
