@@ -37,19 +37,8 @@ TmpFile=$Output.S
 D=`dirname $0` || exit
 
 rm -f $TmpFile || exit
-awk --file $D/regs.awk --source '
-	{
-		R[$1] = $2; 
-	}
-	END {
-		for (ind = 0; ind < reg_max; ind++) {
-			reg_name = P[ind];
-			reg_value = R[reg_name];
-			if (reg_value == "") reg_value = "0x0";
-			printf("%s:\t.long %s\n", reg_name, reg_value);
-		}
-	}
-' < $Input > $TmpFile || exit
+awk -f $D/regs.awk < $Input > $TmpFile || exit
+
 Regs="`awk '{print $3}' < $TmpFile`" || exit
 rm -f $Output || exit
 $D/strtoul $Regs > $Output || exit
