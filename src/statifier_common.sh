@@ -74,7 +74,16 @@ function CheckTls
 	# Test if interpreter/kernel use TLS (thread local storage)
 	local val_has_tls=""
 	local val_breakpoint_thread=""
-	grep "tls" < $LOADER_SYMBOLS >/dev/null && {
+	local res
+	res="`
+		awk '{ 
+			if ($0 ~ "tls") { 
+				print "yes"; 
+				exit(0);
+			} 
+		}' < $LOADER_SYMBOLS
+	`" || return
+	[ "x$res" = "x" ] || {
 		val_breakpoint_thread="`$D/set_thread_area_addr $D/tls_test`" || return
 		[ \! "x$val_breakpoint_thread" = "x" ] && {
 			val_has_tls="yes"
