@@ -136,13 +136,12 @@ static int get_ehdr_phdrs_and_shdrs(
 	FILE *file;
 	size_t result;
 	size_t my_phdrs_size, my_shdrs_size;
-	int    res = 0;
 
 	file = my_fopen(path, "r");
-	if (file == NULL) goto err_open;
+	if (file == NULL) return 0;
 
 	result = my_fread(ehdr, sizeof(*ehdr), file, "ehdr", path);
-	if (result == -1) goto err_opened;
+	if (result == -1) return 0;
 
 	if ( ehdr->e_phentsize == 0) {
 		fprintf(
@@ -150,7 +149,7 @@ static int get_ehdr_phdrs_and_shdrs(
 			"%s: in the file '%s' e_phentsize == 0\n",
 			pgm_name, path
 		);
-		goto err_opened;
+		return 0;
 	}
 
 	if ( ehdr->e_phnum == 0) {
@@ -159,41 +158,30 @@ static int get_ehdr_phdrs_and_shdrs(
 			"%s: in the file '%s' e_phnum == 0\n",
 			pgm_name, path
 		);
-		goto err_opened;
+		return 0;
 	}
 	my_phdrs_size = ehdr->e_phentsize * ehdr->e_phnum;
 	if (phdrs != NULL) {
 		*phdrs = my_malloc(my_phdrs_size, "phdrs");
-		if (*phdrs == NULL) goto err_opened;
+		if (*phdrs == NULL) return 0;
 
-		if (my_fseek(file, ehdr->e_phoff, path) == -1) goto err_phdrs;
-		if (my_fread(*phdrs, my_phdrs_size, file, "phdrs", path) == -1) goto err_phdrs;
+		if (my_fseek(file, ehdr->e_phoff, path) == -1) return 0;
+		if (my_fread(*phdrs, my_phdrs_size, file, "phdrs", path) == -1) return 0;
 	}
 	if (phdrs_size != NULL) *phdrs_size = my_phdrs_size;
 
 	my_shdrs_size = ehdr->e_shentsize * ehdr->e_shnum;
 	if (shdrs != NULL) {
 		*shdrs = my_malloc(my_shdrs_size, "shdrs");
-		if (*shdrs == NULL) goto err_phdrs;
+		if (*shdrs == NULL) return 0;
 
-		if (my_fseek(file, ehdr->e_shoff, path) == -1) goto err_shdrs;
-		if (my_fread(*shdrs, my_shdrs_size, file, "shdrs", path) == -1) goto err_shdrs;
+		if (my_fseek(file, ehdr->e_shoff, path) == -1) return 0;
+		if (my_fread(*shdrs, my_shdrs_size, file, "shdrs", path) == -1) return 0;
 	}
 	if (shdrs_size != NULL) *shdrs_size = my_shdrs_size;
 
-
-	res = 1;
-	goto ret_ok;
-
-err_shdrs:
-	if (shdrs != NULL) free(*shdrs); 
-err_phdrs:
-	if (phdrs != NULL) free(*phdrs); 
-err_opened:
-ret_ok:
-	fclose(file);
-err_open:
-	return res;
+	if (my_fclose(file, path) == -1) return 0;
+	return 1;
 }
 
 /*static*/ off_t my_file_size(const char *path, int *err)
