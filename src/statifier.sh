@@ -40,6 +40,16 @@ function GetProgramInterpreter
 	return 0
 }
 
+function GetElfClass
+{
+	res="`readelf --file-header $OrigExe`" || return 
+	echo "$res" | awk '{
+		if ($NF == "ELF32") { print "32"; exit 0;}
+		if ($NF == "ELF64") { print "64"; exit 0;}
+	}' || return
+	return 0
+}
+
 function GetStartAddress
 {
 	[ $# -ne 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
@@ -122,6 +132,7 @@ function CreateNewExe
 function Main
 {
 	local Interp
+	local ElfClass
 	local StartAddr
 	local StartFunc="_dl_start_user"
 	local WorkDir=$WORK_DIR
@@ -142,6 +153,11 @@ function Main
 	Interp=`GetProgramInterpreter`
 	[ "x$Interp" = "x" ] && {
 		echo "$0: Interpreter not found in the '$OrigExe'" 1>&2
+		return 1
+	}
+	ElfClass=`GetElfClass`
+	[ "x$ElfClass" = "x" ] && {
+		echo "$0: Can't determine ELF CLASS for the '$OrigExe'" 1>&2
 		return 1
 	}
 	StartAddr="`GetStartAddress $Interp $StartFunc`" || return
