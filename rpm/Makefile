@@ -9,21 +9,6 @@ TOP_DIR = ..
 include $(TOP_DIR)/config
 
 PACKAGE := statifier
-Problem := yes
-FILES_32 := :
-FILES_64 := :
-ifeq "$(ELF32)" "yes"
-   FILES_32 = sed -e "s/@ELF_CLASS@/32/g" < $(PACKAGE).files.elf.in
-   Problem  = no
-endif
-ifeq "$(ELF64)" "yes"
-   FILES_64 = sed -e "s/@ELF_CLASS@/64/g" < $(PACKAGE).files.elf.in
-   Problem  = no
-endif
-
-ifeq "$(Problem)" "yes"
-   FILES_ERROR = @echo "At least one of the ELF32 and ELF64 should be set to 'yes'" 1>&2; exit 1
-endif
 
 SOURCES =                  \
    Makefile                \
@@ -52,17 +37,16 @@ $(PACKAGE).spec: $(PACKAGE).spec.in $(PACKAGE).files $(TOP_DIR)/VERSION $(TOP_DI
 	$(SpecFile) > $@ || { $(RM) $@; exit 1; }
 
 define Files
-   {                                 \
-      cat $(PACKAGE).files.common && \
-      $(FILES_32)                 && \
-      $(FILES_64)                 && \
-      :                           ;  \
+   {                                             \
+      cat $@.common                           && \
+      sed -e "s/@ELF_CLASS@/32/g" < $@.elf.in && \
+      sed -e "s/@ELF_CLASS@/64/g" < $@.elf.in && \
+      :                                       ;  \
    }
 endef
 
 
-$(PACKAGE).files: $(PACKAGE).files.common $(PACKAGE).files.elf.in $(TOP_DIR)/config
-	@$(FILES_ERROR)
+$(PACKAGE).files: $(PACKAGE).files.common $(PACKAGE).files.elf.in
 	$(RM) $@
 	$(Files) > $@ || { $(RM) $@; exit 1; }
 
