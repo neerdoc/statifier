@@ -33,16 +33,18 @@ function Main
 	return 0
 }
 #################### Main Part ###################################
+
+# Where Look For Other Programs
+D=`dirname $0`              || exit
+source $D/statifier_lib.src || exit
+
 [ $# -ne 1 -o "x$1" = "x" ] && {
-	echo "Usage: $0 <work_dir>" 1>&2
+	Echo "Usage: $0 <work_dir>"
 	exit 1
 }
 
 WORK_DIR=$1
 
-# Where Look For Other Programs
-D=`dirname $0`                || exit
-source $D/statifier_lib.src   || exit
-
-Main > $STARTER_SRC           || exit
+SetVariables $WORK_DIR || exit
+Main > $STARTER_SRC    || exit
 exit 0

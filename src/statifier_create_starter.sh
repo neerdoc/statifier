@@ -12,7 +12,7 @@
 function CreateStarter
 {
 	[ $# -ne 1 -o "x$1" = "x" ] && {
-		echo "$0: Usage: CreateStarter <Starter>" 1>&2
+		Echo "$0: Usage: CreateStarter <Starter>"
 		return 1
 	}
 
@@ -52,16 +52,18 @@ function Main
 }
 
 #################### Main Part ###################################
-[ $# -ne 1 -o "x$1" = "x" ] && {
-	echo "Usage: $0 <work_dir>" 1>&2
-	exit 1
-}
-
-WORK_DIR=$1
 
 # Where Look For Other Programs
 D=`dirname $0`              || exit
 source $D/statifier_lib.src || exit
 
-Main                        || exit
-exit 0
+[ $# -ne 1 -o "x$1" = "x" ] && {
+	Echo "Usage: $0 <work_dir>"
+	exit 1
+}
+
+WORK_DIR=$1
+
+SetVariables $WORK_DIR || exit
+Main                   || exit
+exit 
