@@ -1,4 +1,4 @@
-.TH statifier 1 "1.2.0" "Valery Reznic" "Elf Statifier"
+.TH statifier 1 "@VERSION@" "Valery Reznic" "Elf Statifier"
 .SH NAME
 statifier \- Elf dynamically linked executables statifier
 .SH SYNOPSIS
