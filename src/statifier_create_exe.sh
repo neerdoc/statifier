@@ -9,95 +9,39 @@
 
 # This script finally create statified exe
 
-function GetIgnoredSegments
+function IsStack
 {
-	local Func=GetIgnoredSegments
-	[ $# -eq 0 ] && {
-		Echo "$0: Usage: $Func <file> [<file>...]"
-		return 1
-	}
-
-	local IgnoredSegments
-	case "$prop_stack_under_executable" in
-		0) # platform like x86, x86_64
-			# For Linux before 2.5 I only need to ignore stack
-			# segment (last)
-			# In the 2.5-2.6 kernel create one more segment, 
-			# which contains
-			# ELF heasder of something (what is it ?)
-			# But gdb 6.1 (opposite to gdb 6.0) does not save
-			# this last elf-segment in the core file
-			# For this reason I can't relay on the kernel version
-			# So, if last dump file has elf-header,
-			# i need to ignore both it and stack segment,
-			# i.e IgnoredSegments=2.
-	
-			# Otherwise I need to ignore only stack segment, 
-			# i.e IgnoredSegment=1
-
-			# Let's implement it.
-			local LastFileName
-			local Output
-			while [ $# -ne 1 ]; do
-				shift || return
-			done
-			LastFileName=$1
-			Output=`$D/elfinfo $LastFileName` || return
-			case "x$Output" in
-				x[Ee][Ll][Ff]) IgnoredSegments=2;; # Kernel 2.5+
-				*)             IgnoredSegments=1;; # Kernel <2.5
-			esac
-		;;
-
-		1) # platforms like alpha
-			# I have no alpha with 2.6 kernel
-			# and I have no idea were I should look 
-			# for additional segment (if any)
-			# So, for now IgnoredSegments is just 1
-			IgnoredSegments=1
-		;;
-	esac
-	echo "$IgnoredSegments" || return
+	if [[ $val_stack_pointer -ge $Start && $val_stack_pointer -lt $Stop ]]; then 
+		# It's stack seg
+		is_stack=1
+	else
+		is_stack=0
+	fi
 	return 0
 }
 
-function GetDumpFiles
+function IsLinuxGate
 {
-	local Func="GetDumpFiles"
-	[ $# -le 2 -o "x$1" = "x" -o "x$2" = "x" ] && {
-		Echo "$0: Usage: $Func <ignored_segments> <file> [<file>...]"
-		return 1
-	}
-	local IgnoredSegments=$1
-	case "x$IgnoredSegments" in
-		x[0-9] | x[0-9][0-9] | x[0-9][0-9][0-9] | x[0-9][0-9][0-9][0-9])
-			: # ok, nothing to do
-		;;
+	# To do
+	is_linux_gate=0
+	return 0
+}
 
-		*)
-			Echo "$0: $Func: IgnoredSegments='$IgnoredSegments' should be integer."
-			return 1
-		;;
-	esac
-	shift # ($# = $# - 1, i.e $# now is number of files)
-	[ $IgnoredSegments -gt $# ] && {
-		Echo "$0: $Func: try to ignore more files ($IgnoredSegments) than supplied ($#)."
-		return 1
-	}
-	case "$prop_stack_under_executable" in
-		0)
-			local DumpFiles=""
-			while [ $# -gt $IgnoredSegments ]; do
-				echo $1 || return
-				shift   || return
-			done || return
-		;;
-
-		1)
-			shift # remove first(stack segment)
-			echo $@ || return
-		;;
-	esac
+function pt_load
+{
+	set -- Dummy $WORK_DUMPS_DIR/* || return
+	local Start Stop Perm Offset Name Dummy
+	local is_stack is_linux_gate
+	while :; do
+		shift
+		read Start Stop Perm Offset Name Dummy || break
+		IsStack                || return
+		[ $is_stack = 1 ]      && continue # skip stack segment
+		IsLinuxGate            || return
+		[ $is_linux_gate = 1 ] && continue # skip linux-gate segment
+		$D/pt_load_1 $Start $Stop $Perm || return
+		PT_LOAD_FILES="$PT_LOAD_FILES $1"
+	done || return
 	return 0
 }
 
@@ -115,18 +59,15 @@ function CreateNewExe
 	local NON_PT_LOAD=$WORK_OUT_DIR/non_pt_load
 	local STARTER=$WORK_OUT_DIR/starter
 
-	local IGNORED_SEGMENTS
-	local DUMP_FILES
+	local PT_LOAD_FILES
 	local E_ENTRY
 
 	# Find entry point (i.e place) for the starter
 	E_ENTRY=`$D/fep.sh $MAPS_FILE $STARTER` || return
 
-	IGNORED_SEGMENTS=`GetIgnoredSegments $WORK_DUMPS_DIR/*` || return
-	DUMP_FILES="`GetDumpFiles $IGNORED_SEGMENTS $WORK_DUMPS_DIR/*`" || return
-	# Create file with PT_LOAD headers
+	# Create file with PT_LOAD headers and set variable PT_LOAD_FILES
 	rm -f $PT_LOAD_PHDRS || return
-	$D/pt_load.sh $val_stack_pointer < $MAPS_FILE > $PT_LOAD_PHDRS || return
+	pt_load < $MAPS_FILE > $PT_LOAD_PHDRS || return
 
 	# Create non-pt-load part of the executable
 	rm -f $NON_PT_LOAD || return
@@ -134,7 +75,7 @@ function CreateNewExe
 
 	# Concatenate it with PT_LOAD part
 	rm -f $NewExe || return
-	cat $NON_PT_LOAD $DUMP_FILES > $NewExe || return
+	cat $NON_PT_LOAD $PT_LOAD_FILES > $NewExe || return
 
 	# Inject starter into executable
 	$D/inject_starter $STARTER $NewExe || return
