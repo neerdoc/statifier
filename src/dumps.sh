@@ -29,16 +29,17 @@ awk -vDumpsDir="$DumpsDir" '
    		if (NeedOutput) {
 			StartAddr = $1
 			EndAddr   = $2
+			ObjFile   = $5
                         FileName  = sprintf("%s/%.6d.dmp", DumpsDir, FileNumber);
 			FileNumber++
-   			printf "dump binary memory %s %s %s\n", FileName, StartAddr, EndAddr;
+   			printf "my_dump %s %s %s %s\n", FileName, StartAddr, EndAddr, ObjFile;
    		}
 	}
 ' < $Maps > $Output || exit
 exit 0 
 
 # This awk get input looks like following:
-# (without '#') and generate input file for gdb with 'dump' command
+# (without '#') and generate command file for gdb with 'my_dump' commands
 #process 24039
 #cmdline = '/bin/df'
 #cwd = '/home/users/valery'
