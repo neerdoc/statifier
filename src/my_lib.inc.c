@@ -201,3 +201,33 @@ static int get_ehdr_phdrs_and_shdrs(
 	*err = 0;
 	return buf.st_size;
 }
+
+/*static*/ unsigned char *my_fread_from_position(
+		const char *path,
+		long        offset, 
+		size_t      size,
+		const char *item
+)
+{
+	FILE *input;
+	int result;
+	unsigned char *data;
+
+	data = my_malloc(size, item);
+	if (data == NULL) exit(1);
+
+	input = my_fopen(path, "r");
+	if (input == NULL) exit(1);
+
+	result = my_fseek(input, offset, path);
+	if (result == -1) exit(1);
+
+	result = my_fread(data, size, input, item, path);
+	if (result == -1) exit(1);
+
+	result = my_fclose(input, path);
+	if (result == -1) exit(1);
+
+	return data;
+}
+
