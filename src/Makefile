@@ -156,7 +156,12 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 
 $(ELF_CLASS)/set_thread_area_addr: processor.h
 
-$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
+#$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/AT.h
+
+$(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
+	gcc $(FLAGS_ELF) -Wall -O2 -S $< -o $@
+
+$(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
 
 # Dependencies should be in correct order
 $(ELF_CLASS)/AT.h:     elf2at.make.sh  /usr/include/elf.h
@@ -185,7 +190,7 @@ OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WI
 # -include $<
 # 
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S processor.h start.S end.S
-	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I./$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
+	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include ./processor.h -include ./start.S -include ./$< end.S
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
 LIB_DIR_ELF = $(LIB_DIR)/$(ELF_CLASS)
