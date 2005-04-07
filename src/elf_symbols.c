@@ -321,10 +321,10 @@ int main(int argc, char *argv[])
 					);
 				}
 				printf(
-					"%6s: %*s %5s %-7s %-6s %-7s %4s %s\n",
+					"%6s: %-*s %5s %-7s %-6s %-7s %4s %s\n",
 					"Num",
 					(int) (sizeof(long) * 2),
-					"Value",
+					"   Value",
 					"Size",
 					"Type",
 					"Bind",
