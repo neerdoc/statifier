@@ -1,3 +1,11 @@
+1.6.5   7-Apr-2005
+   Fixed segfault in the statified executables on system where
+   loader's PT_LOAD segment has vaddr != 0 and loader have no
+   symbol table.
+   Fixed race condition: gdb_runner/gdb, which sometimes prevent
+   statifier from working.
+   Statifier now no more use readelf
+
 1.6.4
    nasty bug in the 1.6.3 distribution fixed - gdb_ruuner.gdb
    file was incorrect. So unless you use 1.6.3 from CVS

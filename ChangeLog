@@ -1,3 +1,19 @@
+* Wed Apr  6 2005 <valery_reznic@users.sourceforge.net> 1.6.5-1
+- added files elf_class.c and elf_symbols.c, which allows
+  get rid from readelf.
+- src/Makefile all-local-internal and install-local-internal
+- statifier.sh changed to use elf_class instead of ElfClass function
+  (removed)
+- statifier_common.sh changed to use elf_symbols instead of 'readelf --syms'
+- gdb_runner.c - fixed race condition - instead of sending async signal
+  using raise(), generate sync SIGPIPE
+- gdb_runner.gdb changed to use SIGPIPE instead if SIGQUIT.
+
+* Tue Mar 15 2005 <valery_reznic@users.sourceforge.net> 1.6.5-1
+- fixed segmentation fault in the statified exe if loader has
+  fixed virtual address and not have symbol table.
+  (find_dl_main.inc.c was fixed)
+
 * Mon Mar 14 2005 <valery_reznic@users.sourceforge.net> 1.6.4-1
 - exec-file moved to the very begin of the gdb_runner.gdb
 
