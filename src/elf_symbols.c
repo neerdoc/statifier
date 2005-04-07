@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
 				printf(
 					"%6s: %*s %5s %-7s %-6s %-7s %4s %s\n",
 					"Num",
-					sizeof(long) * 2,
+					(int) (sizeof(long) * 2),
 					"Value",
 					"Size",
 					"Type",
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 					printf(
 						"%6lu: %.*lx %5lu %-7s %-6s %s %s %s%s\n",
 						(unsigned long)current,
-						sizeof(long) * 2,
+						(int) (sizeof(long) * 2),
 						(unsigned long)sym->st_value,
 						(unsigned long)sym->st_size,
 						get_st_type(sym->st_info),
