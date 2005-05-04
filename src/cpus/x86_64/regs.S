@@ -32,12 +32,24 @@
 					# %rax should be restored last
 	#mov 	FS_BASE(%rax),	%fs_base # no idea what is fs_base
 	#mov 	GS_BASE(%rax),	%gs_base # no idea what is gs_base
+	/*
+	 * It's looks like i shouldn't restore segments registers:
+	 * when running statified executable on the same system it's ok,
+	 * but if it moved to another system sometimes statified exe
+	 * segfault here.
+	 * As long as i can see on x86_64 segment registers,
+	 * i.e DS, ES, FS, GS are cleared by kernel, and not changed
+	 * by loader (at least till _dl_start_user)
+	 * So let us left them untouched.
+	 */
+	#if 0
 	mov 	DS(%rax),	%ds	
 	mov 	ES(%rax),	%es	
 	mov 	FS(%rax),	%fs	
 	
 	# With RH9.0 (i.e with TLS) I got segfault here
 	mov 	GS(%rax),	%gs	
+	#endif
 					# orig_rax - what is it ?
 	push 	RIP(%rax)		# It is impossible put value to the %rip
 					# by the normal way (movl), so

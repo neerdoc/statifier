@@ -22,12 +22,27 @@
 	movl	EDI(%eax),	%edi	
 	movl	EBP(%eax),	%ebp	
 					# %eax should be restored last
+	/*
+	 * It's looks like i shouldn't restore segments registers:
+	 * when running statified executable on the same system it's ok,
+	 * but if it moved to another system sometimes statified exe
+	 * segfault here.
+	 * DS and ES. As long as i can see on all x86
+	 * (and x86_64 for 32-bit executables) kernel pass to the program
+	 * DS = ES = SS.
+	 * in the _dl_start_user point these registers are same, i.e 
+	 * loader do nothing with it.
+	 * FS = 0 and loader not changed it.
+	 * GS = 0 and it set by loader after set_thread_area
+	 */
+	#if 0
 	movl	DS(%eax),	%ds	
 	movl	ES(%eax),	%es	
 	movl	FS(%eax),	%fs	
 	
 	# With RH9.0 (i.e with TLS I got segfault here)
 	movl	GS(%eax),	%gs	
+	#endif
 					# orig_eax - what is it ?
 	pushl	EIP(%eax)		# It is impossible put value to the %eip
 					# by the normal way (movl), so
