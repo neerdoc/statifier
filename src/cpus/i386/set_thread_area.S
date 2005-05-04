@@ -26,8 +26,15 @@ MY_DATA FLAGS
 	movl	SYSCALL_NUM(%eax), %eax
 	movl	%esp,	%ebx
 	int	$0x80
-	# Restore stack pointer now
-	popl	%ebx
-	popl	%ebx
-	popl	%ebx
-	popl	%ebx
+	/* Restore stack pointer now */
+	popl	%esi	/* ENTRY_NUMBER */
+	popl	%ecx	/* BASE */
+	popl	%ecx	/* LIMIT */
+	popl	%ecx	/* FLAG */
+
+	/* 
+	 * gs should be set as ENTRY_NUMBER * 8 + 3
+	 * Why ? No idea - stollen from the kernel or glibc code
+	 */
+	lea    0x3(,%esi,8),	%ecx
+	mov    %ecx,		%gs
