@@ -128,6 +128,12 @@ my_separator init_maps
 	info proc mappings
 my_separator_end
 
+# Save registers' value passed by kernel to the program.
+# It'll serve two purposes: my curiosity and debug
+# Now it's NOT used in the statifying process.
+my_separator regs_from_kernel
+		info registers
+my_separator_end
 
 # Do everything.
 # When program will be run, it will hit a first breakpoint, stopped
