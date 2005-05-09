@@ -1,3 +1,10 @@
+* Wed May  4 2005 <valery_reznic@users.sourceforge.net> 1.6.6-1
+- src/statifier.gdb dump registers' value as loader get them from kernel
+  (just in case)
+- src/cpus/{i386,x86_64}/regs.S - doesn't restore segments registers anymore
+  (ds, es, fs, gs)
+- src/cpus/i386/set_thread_area.S set %gs register
+
 * Wed Apr  6 2005 <valery_reznic@users.sourceforge.net> 1.6.5-1
 - added files elf_class.c and elf_symbols.c, which allows
   get rid from readelf.
