@@ -29,7 +29,7 @@
 
 #include "./my_lib.inc.c"
 
-static const char *const get_st_bind(unsigned char val)
+static const char *const  get_st_bind(unsigned char val) 
 {
 	static const char *const binds[] = {
 		"LOCAL",
@@ -85,7 +85,7 @@ static const char *const get_st_visibility(unsigned char val)
 	};
 	return visibilities[ELF32_ST_VISIBILITY(val)];
 }
-static char *const get_st_index(ElfW(Section) val)
+static char *const  get_st_index(ElfW(Section) val)
 {
 	static char buffer[6];
 	switch(val) {
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 	#endif /* USE_VERSION */
 
 	if (ehdr.e_shstrndx != SHN_UNDEF) {
-		section_names = my_fread_from_position(
+		section_names = (char *)my_fread_from_position(
 			file_name,
 			shdrs[ehdr.e_shstrndx].sh_offset,
 			shdrs[ehdr.e_shstrndx].sh_size,
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 					shdrs[count].sh_size,
 					"symtab/dynsym section"
 				);
-				names    = my_fread_from_position(
+				names    = (char *)my_fread_from_position(
 					file_name,
 					shdrs[link].sh_offset,
 					shdrs[link].sh_size,

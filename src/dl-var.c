@@ -95,11 +95,11 @@ void do_work(struct dl_var_data *data, unsigned long *stack)
 				 * In this case I anyway put to AT_BASE real
 				 * load address and hope it'll not hurt.
 				 */
-				auxv->a_un.a_ptr = data->BASE;
+				auxv->a_un.a_val = (signed long)data->BASE;
 			break;
 
 			case AT_PLATFORM:
-				platform = auxv->a_un.a_ptr;
+				platform = (char *)auxv->a_un.a_val;
 				if ( data->DL_PLATFORM != 0) {
 					*(data->DL_PLATFORM) = (unsigned long)platform;
 				}

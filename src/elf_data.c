@@ -270,7 +270,7 @@ static void i_func()
 		);
 		exit(1);
 	}
-	interpreter = my_fread_from_position(
+	interpreter = (char *)my_fread_from_position(
 			filename,
 			phdrs[ind_interp].p_offset,
 			phdrs[ind_interp].p_filesz,

@@ -188,7 +188,7 @@ int main(int argc, char *argv[], char *envp[])
 		auxv = (ElfW(auxv_t) *) tmp; /* start of auxv */
 		for (; auxv->a_type != AT_NULL; auxv++) {
 			if (auxv->a_type == AT_BASE) {
-				base = (unsigned long)auxv->a_un.a_ptr;
+				base = (unsigned long)auxv->a_un.a_val;
 				break;
 			}
 		}
