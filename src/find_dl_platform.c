@@ -17,7 +17,7 @@ static int init_my_pattern(int argc, char *argv[], char *envp[])
 	env++;
 	for (auxv = (ElfW(auxv_t)*)env; auxv->a_type != AT_NULL; auxv++) {
 		if (auxv->a_type == AT_PLATFORM) {
-			my_pattern = (char *)auxv->a_un.a_ptr;
+			my_pattern = (char *)auxv->a_un.a_val;
 			return 0;
 		}	
 	}
