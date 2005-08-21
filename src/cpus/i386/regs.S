@@ -51,13 +51,6 @@
 					# Because we somehow get here I hope
 					# %cs is ok and do not restore it.
 
-	#if 0
-	No restore eflags - if _dl_start_user breakpoint was hit
-	in the single-step mode TRAP flag will be set.
-	If i restore eflags statified program will be killed with
-	Trap/breakpoint signal
-	I can clean Trap flag, but simpler don't restore eflags at all.
-
 	pushl	EFLAGS(%eax)		# save it on the stack
 					# before return to %eip I will 'popf' it
 					# I think flags here pretty useless,
@@ -66,13 +59,9 @@
 					# %esp and %ss - stack pointer and stack
 					# segment - our stack already set
 					# somehow, live it as is
-	#endif
 
 	movl	EAX(%eax),	%eax	# Only register left to resore 
-
-	#if 0
 	popfl				# restore processors flags
-	#endif
 
 	ret				# make two things:
 					# - restore %esp to the value which it
