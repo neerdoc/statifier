@@ -127,6 +127,7 @@ function Main
 	set +e
 
 	# Different variables
+	CLEAR_TRACE_BIT_GDB="$D/clear_trace_bit.gdb"
 	DUMPS_GDB="$WORK_GDB_CMD_DIR/dumps.gdb"
 	DUMPS_SH="$D/dumps.sh"
 	ENV_GDB="$WORK_GDB_CMD_DIR/env.gdb"
@@ -176,6 +177,7 @@ function Main
 	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
 
 	sed                                                 \
+        	-e "s#@CLEAR_TRACE_BIT_GDB@#$CLEAR_TRACE_BIT_GDB#g" \
         	-e "s#@ENV_GDB@#$ENV_GDB#g"                 \
         	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
         	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"           \

@@ -218,5 +218,12 @@ set $val_offset = (unsigned long)$val_offset & ~ (unsigned long)(0x100 - 1)
 # It's needed only for alpha but I don't want to insert conditions here,
 # so lets do it on any computer.
 si
+
+# he, for kernel 2.6.12 (at least on i386) i got 
+# 'Program received signal SIGTRAP, Trace/breakpoint trap.'
+# in ordet to deal with it i have to clean Trace bit in the processor status
+# world
+
+source @CLEAR_TRACE_BIT_GDB@
 # now, finally, let us do a real work
 source @STATIFIER_GDB@

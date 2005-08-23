@@ -3,6 +3,7 @@
 # not links to the common ones
 #
 %dir /usr/lib/statifier/@ELF_CLASS@
+     /usr/lib/statifier/@ELF_CLASS@/clear_trace_bit.gdb
      /usr/lib/statifier/@ELF_CLASS@/dl-var
      /usr/lib/statifier/@ELF_CLASS@/elf_data
      /usr/lib/statifier/@ELF_CLASS@/elf_find_pattern
