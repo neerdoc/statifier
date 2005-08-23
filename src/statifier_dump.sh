@@ -176,14 +176,14 @@ function Main
         	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"           \
 	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
 
-	sed                                                 \
+	sed                                                         \
         	-e "s#@CLEAR_TRACE_BIT_GDB@#$CLEAR_TRACE_BIT_GDB#g" \
-        	-e "s#@ENV_GDB@#$ENV_GDB#g"                 \
-        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g" \
-        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"           \
-        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"     \
-        	-e "s#@SYSCALL_GDB@#$SYSCALL_GDB#g"         \
-        	-e "s#@VAR_GDB@#$VAR_GDB#g"                 \
+        	-e "s#@ENV_GDB@#$ENV_GDB#g"                         \
+        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"         \
+        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"                   \
+        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"             \
+        	-e "s#@SYSCALL_GDB@#$SYSCALL_GDB#g"                 \
+        	-e "s#@VAR_GDB@#$VAR_GDB#g"                         \
 	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
 	DumpRegistersAndMemory || return
