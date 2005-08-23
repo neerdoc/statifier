@@ -131,6 +131,7 @@ GDB_SCRIPTS =     \
 
 # one as above, but with per-cpu difference
 PER_CPU_GDB_SCRIPTS =  \
+   clear_trace_bit.gdb \
    set_thread_area.gdb \
    syscall.gdb         \
 
