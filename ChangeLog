@@ -1,3 +1,11 @@
+* Mon Aug 22 2005 <valery_reznic@users.sourceforge.net> 1.6.7-1
+- added cpus/*/clear_trace_bit.gdb files (for dealing with 2.6.12 strange behavour)
+- gdb_runner.gdb now source @CLEAR_TRACE_BIT_GDB@
+- statifier_dump.sh adopted to deal with @CLEAR_TRACE_NIT_GDB@
+
+* Wed Aug 17 2005 <valery_reznic@users.sourceforge.net> 1.6.7-1
+- fix compilation for GCC4 
+
 * Wed May  4 2005 <valery_reznic@users.sourceforge.net> 1.6.6-1
 - src/statifier.gdb dump registers' value as loader get them from kernel
   (just in case)

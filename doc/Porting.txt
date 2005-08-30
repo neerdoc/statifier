@@ -29,6 +29,8 @@ Porting ELF statifier to new cpu
 			 for thread local storage, file should define
 			 nothing, but still it should exist.
    regs.list           - list of processor's integer registers
+   clear_trace_bit.gdb - command for clear processor's trace bit.
+			 status world
    set_thread_area.gdb - command file for gdb to dump set_thread_area
                          parameters.
    syscall.gdb         - syscall instruction number of bytes and bytes
