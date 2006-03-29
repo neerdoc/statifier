@@ -194,7 +194,7 @@ set $val_offset = $val_interpreter_entry - $val_interpreter_file_entry
 #  glibc     2.3.2-95.6             2.3.2-95.3
 #  gdb       6.0post-0.20031117.6rh 5.3.90-0.20030710.40rh
 # I have no idea which one (or combination) change the gdb's behavour.
-# Anyware, I have to deal with.
+# Anyway, I have to deal with.
 # Idea is following: let us hope the first instruction is not 'jump' or 'call'.
 # So, progam counter will not changed significantly.
 # Because val_offset is multiply of page_size, I can just round it down to the
