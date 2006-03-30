@@ -1,7 +1,15 @@
+* Thu Mar 30 2006 <valery_reznic@users.sourceforge.net> 1.6.8-1
+- cpus/*/clear_trace_bit.gdb converted to just define command.
+  Command (for x86/x86_64) included 'si 10', in order to deal
+  with gdb-6.4, which otherwise give error
+  'value being assign to is no longer active.'
+- statifier.gdb before 'continue' call 'clear_trace_bit', defined in the
+  cpus/*/clear_trace_bit.gdb
+
 * Mon Aug 22 2005 <valery_reznic@users.sourceforge.net> 1.6.7-1
 - added cpus/*/clear_trace_bit.gdb files (for dealing with 2.6.12 strange behavour)
 - gdb_runner.gdb now source @CLEAR_TRACE_BIT_GDB@
-- statifier_dump.sh adopted to deal with @CLEAR_TRACE_NIT_GDB@
+- statifier_dump.sh adopted to deal with @CLEAR_TRACE_BIT_GDB@
 
 * Wed Aug 17 2005 <valery_reznic@users.sourceforge.net> 1.6.7-1
 - fix compilation for GCC4 
