@@ -30,7 +30,7 @@ Just in case:
 /sbin/ldconfig: ELF 32-bit LSB executable, Intel 80386, version 1,
                 statically linked, stripped
 
-Ok, this file is really here and it is really statically linked. 
+OK, this file is really here and it is really statically linked. 
 
 	[test]$ readelf -l /sbin/ldconfig
 
@@ -62,7 +62,7 @@ FileSize - Size of segment in the file
 MemSize  - Size of segment in the memory
 Flg      - Permissions
 
-When statically linked executabl exec'ed kernel do following:
+When statically linked executable exec'ed kernel do following:
 - Load each segment of type 'LOAD' to the specified VirtAddress,
   and set memory protection as specified by Flg.
 - jump to the "Entry Point"
@@ -102,17 +102,17 @@ Program Headers:
    05     .note.ABI-tag 
 
 Something new. There is INTERP segment here.
-When kernel see it, t load all LOAD segments from executable itself, then
-all load segments from specified program interpreter 
+When kernel see interpreter, it load all LOAD segments from executable itself,
+then all load segments from specified program interpreter 
 (in this example /lib/ld-linux.so.2) and jump to interpreter's entry point.
 
 Now action has been moved from kernel-space to user-space and it's
-completly up to interpreter(loader) to prepare and run dynamically linked
+completely up to interpreter(loader) to prepare and run dynamically linked
 executable.
 
 5. What loader do with dynamically linked executable.
 
-Ok, all executable's and  loader's load segments are loaded by the kernel
+OK, all executable's and  loader's load segments are loaded by the kernel
 and loader got control.
 
 Now it load all libraries (if any), specified by LD_PRELOAD
@@ -165,16 +165,16 @@ Statifier take "memory snapshot" of the process, created by loader
 when loader ALREADY finish relocation and BEFORE loader invoke any
 INIT function.
 
-What now ? Now this "memory shapshot" should be somehow loaded
+What now ? Now this "memory snapshot" should be somehow loaded
 and run from the point were loader was stopped.
 
 Who will be so kind to do it for us ?
 Kernel !
 
-Let's safe "memory shapshot", i.e all segments from executable and
+Let's save "memory snapshot", i.e all segments from executable and
 libraries loaded by loader as ELF file with program's header of type
 'LOAD' for each segment, and entry point set to the address,
-where execution was stopped to take shapshot.
+where execution was stopped to take sharpshoot.
 
 In this case, kernel will think, it's a statically linked executable.
 (Because there is no 'INTERP' segment)

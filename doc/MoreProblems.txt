@@ -8,22 +8,22 @@ Life is not as easy, as I think at beginning of the project.
     Note.
     Linux kernels version >= 2.5 create not just stack segment but one more -
     on address 0xfffd000-0xfffe000.
-    This one also created by kernal, and it's dynamic shared object (DSO) 
+    This one also created by kernel, and it's dynamic shared object (DSO) 
     with soname 'linux-gate.so.1", so it can be easely detected.
     
 
 2. _dl_start_user got some values in registers.
-   Registers's values were set somewere in _dl_start.
+   Registers's values were set somewhere in _dl_start.
    So, I can not  just set _dl_start_user's address as entry point -
    I have adjust registers values before.
 
    Now, the question is: which registers should be restored ?
-   I want to be as independed from loader's implementation as possible,
-   so answer is "All". Ok, "all" - is "all integer registers".
+   I want to be as independent from loader's implementation as possible,
+   so answer is "All". OK, "all" - is "all integer registers".
    I can't imagine loader dealing with floating-point.
 
    But what is "all integer registers" ?
-   The answer is processor-dependend.
+   The answer is processor-dependent.
    for x386 there are: 
       eax, ebx, ecx, edx, ebp, esi, edi - general registers
       eflags                            - register with processor's flags
@@ -44,8 +44,8 @@ All others should be restored to their values on the "snapshot time".
    Note. Kernel >= 2.4 can be configured to use TLS (thread local storage).
    At least on i386 TLS implemented by restricting %gs changes.
    So, TLS-aware loader, before setting %gs to desired value
-   invoke 'set_thread_area' system call. Unfortunally, it happened
-   not in the_dl_start_user, which I'll call in any case, but in _dl_start
+   invoke 'set_thread_area' system call. Unfortunately, it happened
+   not in the _dl_start_user, which I'll call in any case, but in _dl_start
    which I like to bypass.
 
 3. loader, during _dl_start, save some information in it's variables.
@@ -61,7 +61,7 @@ All others should be restored to their values on the "snapshot time".
    _dl_platformlen - length of platform name (optional) 
    
 _dl_argc is a number of arguments and it's obviously can changed from one
-   invokation to another.
+   invocation to another.
 all other are pointers to the kernel created segment, and depend on
 command line arguments and environment, so they are variable too.
 
