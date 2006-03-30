@@ -1,4 +1,4 @@
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004-2006 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -134,6 +134,9 @@ my_separator_end
 my_separator regs_from_kernel
 		info registers
 my_separator_end
+
+# clear trace bit
+clear_trace_bit
 
 # Do everything.
 # When program will be run, it will hit a first breakpoint, stopped
