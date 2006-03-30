@@ -221,9 +221,15 @@ si
 
 # he, for kernel 2.6.12 (at least on i386) i got 
 # 'Program received signal SIGTRAP, Trace/breakpoint trap.'
-# in ordet to deal with it i have to clean Trace bit in the processor status
+# in order to deal with it i have to clean Trace bit in the processor status
 # world
-
+# he-he. Here used to be 'source @CLEAR_TRACE_BIT_GDB@', which clean trace bit.
+# but gdb-6.4 will not allow us do it here, we'll need do some 'si' in the
+# '@CLEAR_TRACE_BIT_GDB@'.
+# But after that in the @STATIFIER_GDB@, i have to save registers from kernel
+# and it'll change them. So, i'll do it later, in the '@STATIFIER_GDB@'
+# '@CLEAR_TRACE_BIT_GDB@' now just define command 'clear_trace_bit'
 source @CLEAR_TRACE_BIT_GDB@
+
 # now, finally, let us do a real work
 source @STATIFIER_GDB@
