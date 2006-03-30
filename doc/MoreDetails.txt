@@ -93,7 +93,7 @@ Let us examine what's mapped into memory:
 Lines 1 and 2  -mappings for two 'LOAD' segment of /bin/ls
 Line 3 - is bss mapping for /bin/ls (bss contains non-initialized variables)
 
-Lines 4 and 5 - mappings for 'LOAD' sgements of loader itself
+Lines 4 and 5 - mappings for 'LOAD' segments of loader itself
 (ld-linux.so.2 is link to ld-2.2.4.so)
 Line 6 - bss for loader.
 
@@ -104,7 +104,7 @@ mapping 8, and have no own mapping.
 Lines 9 and 10 - mappings for 'LOAD' segments of libc library.
 Line 11 - bss for libc.
 
-Reason for existance of mappings 1..11 is pretty obvious.
+Reason for existence of mappings 1..11 is pretty obvious.
 But what is mapping 12 good for ?
 Where is it came from ?
 
@@ -142,7 +142,7 @@ argv0     - once more time - filename of the program, NULL-terminated.
 
 2. When loader finish relocations ? 
 
-Let's look to the source code of loader (or, simpler dissassemble it)
+Let's look to the source code of loader (or, simple disassemble it)
 
 [test]$ objdump -d -j.text /lib/ld-linux.so.2
 

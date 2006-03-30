@@ -9,7 +9,7 @@ On the top level "statifing" process do following:
 - "inject" starter.
 
 Note. Before version 1.6.0 starter got loadable segment for itself.
-But someone need to deside what virtual address got this additional segment.
+But someone need to decide what virtual address got this additional segment.
 x86 and alpha (for example) have different memory layouts.
 Worse, there are such thing like exec-shield and randomization, which
 make memory layout different and hardly predictable.
