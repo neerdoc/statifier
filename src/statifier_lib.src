@@ -38,6 +38,7 @@ function SetVariables
 	# Directory for misc output from gdb
 	WORK_GDB_OUT_DIR=$WORK_DIR/gdb_out
 	MAPS_FILE="$WORK_GDB_OUT_DIR/maps"
+	INIT_MAPS_FILE="$WORK_GDB_OUT_DIR/init_maps"
 
 	REGISTERS_FILE=$WORK_GDB_OUT_DIR/registers
 	MISC_SRC=$WORK_GDB_OUT_DIR/misc.src
