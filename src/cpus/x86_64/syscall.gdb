@@ -7,9 +7,6 @@
 
 # Syscalls defines forx86_64 
 # syscall instruction is 'syscall'
-# first byte
-set $val_syscall_byte_1 = 0x0f
-# second byte
-set $val_syscall_byte_2 = 0x05
-# bytes number
-set $val_syscalls_bytes = 2
+define is_it_syscall
+	is_it_syscall_2 0x0f 0x05
+end

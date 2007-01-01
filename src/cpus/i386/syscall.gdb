@@ -6,10 +6,11 @@
 # See LICENSE file in the doc directory.
 
 # Syscalls defines for i386
-# syscall instruction is 'int 0x80'
-# first byte
-set $val_syscall_byte_1 = 0xcd
-# second byte
-set $val_syscall_byte_2 = 0x80
-# bytes number
-set $val_syscalls_bytes = 2
+define is_it_syscall
+	# syscall instruction is 'int 0x80'
+	is_it_syscall_2 0xcd 0x80
+
+	# Additional syscall instruction is 'sysenter'
+	# There are boxes, where this instrucion used in VDSO
+	is_it_syscall_2 0x0f 0x34
+end
