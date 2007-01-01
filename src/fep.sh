@@ -27,12 +27,20 @@ FileAddr="`awk '
 	{
 		Start = $1
 		Name = $5
-		if (Name != "") {
-			if ( !(Name in Names)) {
-				Names[Name] = ""
-				Output[ind++] = Name " " Start
-			}
+		if (Name == "") {
+			# No file here
+			next;
 		}
+		if (Name ~ ".*]") {
+			# dummies, like [vdso], [stack], [heap]
+			next;
+		}
+		if ( (Name in Names)) {
+			# I already meet this Name
+			next;
+		}
+		Names[Name] = ""
+		Output[ind++] = Name " " Start
 	}
 	END {
 		for (i = 0; i < ind; i++) print Output[i];	
