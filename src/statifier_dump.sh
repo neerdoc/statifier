@@ -165,6 +165,7 @@ function Main
 	sed                                                         \
         	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                     \
         	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                       \
+        	-e "s#@INIT_MAPS_FILE@#$INIT_MAPS_FILE#g"           \
         	-e "s#@LOG_FILE@#$LOG_FILE#g"                       \
         	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                     \
         	-e "s#@MAPS_SH@#$MAPS_SH#g"                         \

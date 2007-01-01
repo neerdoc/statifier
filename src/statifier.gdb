@@ -99,6 +99,10 @@ commands
 
 	# "Run" command for save memory's mappings
 	source @DUMPS_GDB@
+	# kill debugged program. without this instruction
+	# on some kernels (for example FC5) program
+	# not killed, but continued to run :(
+	kill
 
 	# This breakpoint should be last (in order of execution)
 	# so there is NO continue command here
@@ -111,6 +115,11 @@ my_separator misc.src
 	printf "val_offset=0x%lx\n", $val_offset
 my_separator_end
 
+# I'll get process ID from here
+my_separator process
+	info proc
+my_separator_end
+
 # The ld-linix (2.3.3) got a bad inhabit to split stack into to segments:
 # one with 'rwx' permissions and another one with  'rw-'.
 # Later I'll use $sp to find out stack segment, but it doesn't help
@@ -120,13 +129,23 @@ my_separator_end
 # It'll help me later to find both of the stack segments.
 
 # Save initial mappings
-# I use 'info proc mappings' instaed of MAPS_SH, because at this point
+# I use 'info proc mappings' instead of MAPS_SH, because at this point
 # I haven't got PROCESS_FILE.'
 # Anyway, from this mapping i need only addresses, not permissions,
 # so it's ok
-my_separator init_maps
-	info proc mappings
-my_separator_end
+# It was OK, now (at least FC5) it is not.
+# On FC5 'info proc mappings' for some strange reason give me only vdso
+# mappings, but MAPS_SH (i.e cat /proc/PID/maps work OK).
+#
+# So let us split log file here (I need procees id)
+shell @SPLIT_SH@ @LOG_FILE@ || kill $PPID
+
+# And now run MAPS_SH, to get initial mappings
+shell @MAPS_SH@  @PROCESS_FILE@ @INIT_MAPS_FILE@ @val_uname_m@ || kill $PPID
+
+#my_separator init_maps
+#	info proc mappings
+#my_separator_end
 
 # Save registers' value passed by kernel to the program.
 # It'll serve two purposes: my curiosity and debug
