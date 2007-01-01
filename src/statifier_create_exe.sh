@@ -166,6 +166,55 @@ function FixLoaderDataSegmentPermission
 	return 0
 }
 
+function FixWriteExecPermission
+{
+	# Kernel on FC5 () and some others set really non-exist 
+	# execte permissions in the /proc/PID/maps files, for example:
+	#
+	# [valery@localhost ~]$ cat /proc/self/maps
+	# 0049c000-0049d000 r-xp 0049c000 00:00 0          [vdso]
+	# 00b60000-00b79000 r-xp 00000000 08:01 130547     /lib/ld-2.4.so
+	# 00b79000-00b7a000 r-xp 00018000 08:01 130547     /lib/ld-2.4.so
+	# 00b7a000-00b7b000 rwxp 00019000 08:01 130547     /lib/ld-2.4.so
+	# 00b7d000-00ca9000 r-xp 00000000 08:01 130548     /lib/libc-2.4.so
+	# 00ca9000-00cac000 r-xp 0012b000 08:01 130548     /lib/libc-2.4.so
+	# 00cac000-00cad000 rwxp 0012e000 08:01 130548     /lib/libc-2.4.so
+	# 00cad000-00cb0000 rwxp 00cad000 00:00 0
+	# 08048000-0804d000 r-xp 00000000 08:01 768776     /bin/cat
+	# 0804d000-0804e000 rw-p 00004000 08:01 768776     /bin/cat
+	# 09ea3000-09ec4000 rw-p 09ea3000 00:00 0          [heap]
+	# b7d9f000-b7f9f000 r--p 00000000 08:01 580331     /usr/lib/locale/locale-archive
+	# b7f9f000-b7fa0000 rw-p b7f9f000 00:00 0
+	# b7fab000-b7fac000 rw-p b7fab000 00:00 0
+	# bf997000-bf9ac000 rw-p bf997000 00:00 0          [stack]
+	# [valery@localhost ~]$
+	#
+	# All 'rwx' permissions are wrong - it should be 'rw-'
+	# No idea, where it came from and why, but have to deal with it,
+	# otherwise:
+	# - it'll weaken statified program security 
+	#   ('rwx' permission, who need more for exploit ? )
+	# - and even worse, when statified program invoked on the system with 
+	#   SELLinux, SElinux will give (at least) warning about every segment 
+	#   with write/execute permissions.
+
+	# Change ?wx permission to rw-
+	case "$Perm" in
+		-wx*)
+			Perm="-w-"
+		;;
+
+		rwx*)
+			Perm="rw-"
+		;;
+
+		*)
+			: # do nothing
+		;;
+	esac
+	return 0
+}
+
 function pt_load
 {
 	# This function create two outputs:
@@ -188,6 +237,7 @@ function pt_load
 		IsIgnoredSegment $1    || return
 		[ $is_ignored = 1 ]    && continue # skip segment to be ignored
 		FixLoaderDataSegmentPermission  || return
+		FixWriteExecPermission          || return
 		$D/pt_load_1 $Start $Stop $Perm || return
 		PT_LOAD_FILES="$PT_LOAD_FILES $1"
 	done || return
