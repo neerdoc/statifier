@@ -75,10 +75,10 @@ end
 # For system where "syscall" instruction is 4 bytes long
 # test if current instruction is "syscall"
 define is_it_syscall_4
-	if (*($my_pc) == $val_syscall_byte_1)
-		if (*($my_pc+1) == $val_syscall_byte_2)
-			if (*($my_pc+2) == $val_syscall_byte_3)
-				if (*($my_pc+3) == $val_syscall_byte_4)
+	if (*($my_pc) == $arg0)
+		if (*($my_pc+1) == $arg1)
+			if (*($my_pc+2) == $arg2)
+				if (*($my_pc+3) == $arg3)
 					set $it_is_syscall = 1
 				end
 			end
@@ -89,23 +89,9 @@ end
 # For system where "syscall" instruction is 2 bytes long
 # test if current instruction is "syscall"
 define is_it_syscall_2
-	if (*($my_pc) == $val_syscall_byte_1)
-		if (*($my_pc+1) == $val_syscall_byte_2)
+	if (*($my_pc) == $arg0)
+		if (*($my_pc+1) == $arg1)
 			set $it_is_syscall = 1
-		end
-	end
-end
-
-# test if current instruction is "syscall"
-define is_it_syscall
-	if ($val_syscalls_bytes == 2)
-		is_it_syscall_2
-	else
-		if ($val_syscalls_bytes == 4)
-			is_it_syscall_4
-		else
-			shell echo "gdb: unsupported syscalls_bytes: should be 2 or 4" 1>&2
-			quit 1
 		end
 	end
 end

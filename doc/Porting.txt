@@ -33,8 +33,8 @@ Porting ELF statifier to new CPU
                          trace bit in the status world
    set_thread_area.gdb - command file for gdb to dump set_thread_area
                          parameters.
-   syscall.gdb         - syscall instruction number of bytes and bytes
-			 themselves
+   syscall.gdb         - should define 'is_it_syscall' - command that check
+                         for syscall instruction(s)
    dl-var.S            - module for set _dl variables
    set_thread_area.S   - module for invoke set_thread_area syscall
    regs.S              - module to restore registers 
