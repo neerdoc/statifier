@@ -7,7 +7,7 @@ statifier \- Elf dynamically linked executables statifier
 Statifier make from elf dynamically linked executable and 
 all it's required libraries one stand-alone executable.
 This executable can be copied to another machine without
-any of these DLL and run.
+any of these shared libraries and run.
 .SH "OPTIONS"
 .LP 
 .TP 
