@@ -100,6 +100,9 @@ end
 # Catch SIGPIPE signal (gdb_runner will provoke it)
 handle SIGPIPE stop nopass
 
+# Show disassembler - it can make debugging easier
+display/i $pc
+
 # run gdb_runner with parameter "program to be statified"
 run @EXECUTABLE_FILE@
 
