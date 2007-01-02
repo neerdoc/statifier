@@ -1,3 +1,9 @@
+1.6.9  ??-???-????
+   fix for [vdso], [heap], [stack] in the /proc/PID/maps
+   wrongly reported by some kernels (for example on FC5) 'rwx' permissions
+   replaced by 'rw-'
+   support for 'sysenter' instruction in the VDSO on the i386 platform.
+
 1.6.8  30-Mar-2006
    statifier able work with gdb-6.4
 
