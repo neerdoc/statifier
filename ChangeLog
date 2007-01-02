@@ -1,3 +1,21 @@
+* Mon Jan  1 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
+- fep.sh - support for dummy files, like [vdso], [stack], [heap]
+  in the /proc/PID/maps
+- statifier.gdb - kill program before quit gdb.
+- statifier.gdb - use @MAPS_SH@ instead of 'info proc mappings'
+  for getting initial mappings ('info proc mappings' show just
+  VDSO mappings at least on FC5 kernel 2.6.15-1.2054_FC5)
+- statifier_dump.sh and statifier_lib.src adopted to deal with INIT_MAPS_FILE
+- statifier_create_exe.sh - added (and used :) FixWriteExecPermission function.
+  for some reason  FC5's (and some others) kernel show in the /proc/PID/maps
+  output really non-exsist execute-permission. 
+  Permission changed from '?wx' to '?w-'
+- gdb_runner.gdb - removed is_it_syscall. is_it_syscall_[24] changed to work
+  with arg0...arg4
+- cpus/*/syscall.gdb changed to define is_it_syscall instead of just variables.
+  cpus/i386/syscall.gdb now recognized both 
+  'int $0x80' (0xcd 0x80) and 'sysenter' (0x0f 0x34)
+
 * Thu Mar 30 2006 <valery_reznic@users.sourceforge.net> 1.6.8-1
 - cpus/*/clear_trace_bit.gdb converted to just define command.
   Command (for x86/x86_64) included 'si 10', in order to deal
