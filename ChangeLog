@@ -1,5 +1,5 @@
 * Wed Apr 11 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
-- Soem fixes for docs spelling.
+- Some fixes for docs spelling.
 
 * Mon Jan  1 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
 - fep.sh - support for dummy files, like [vdso], [stack], [heap]
