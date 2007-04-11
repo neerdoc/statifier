@@ -18,7 +18,7 @@ Because starter segment may be added before any others, in order to satisfy
 this requirement starter segment size should be multiple of the p_align
 
 Please note, starter segment not always be "first PT_LOAD segment".
-For example, on Alpha stack is immediatly under executable, so there is
+For example, on Alpha stack is immediately under executable, so there is
 no room here for the starter segment. Anyway, I'd like to keep format
 of the starter segment unified for all architectures, so starter segment
 should always fulfill above requirements.

@@ -21,7 +21,7 @@ Memory layout for /bin/ls (our example) looks like:
 02000020a000-020000218000 rwxp 00020000 08:01 165455 /lib/libpthread-0.9.so
 
 It's different from memory layout on x86:
-stack segment is IMMEDIATLY under first executable
+stack segment is IMMEDIATELY under first executable
 segment, so, put starter segment in this place is impossible.
 
 So, where it will go ?

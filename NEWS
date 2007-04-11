@@ -1,4 +1,4 @@
-1.6.9  ??-???-????
+1.6.9  11-Apr-2007
    fix for [vdso], [heap], [stack] in the /proc/PID/maps
    wrongly reported by some kernels (for example on FC5) 'rwx' permissions
    replaced by 'rw-'
@@ -37,7 +37,7 @@
 1.6.2
    statifier now work with loader ld-2.3.3
    Innovation in this loader, which affect statifier are:
-      (possible) spliting stack to two segments (rw and rwx)
+      (possible) splitting stack to two segments (rw and rwx)
       GNU_RELRO segment - after data written to segment it's 
       permission changed to read-only
 
@@ -64,7 +64,7 @@
 
 1.3.1
    Added documentation.
-   Some underground work for future portings
+   Some underground work for future porting
 
 1.3.0
    Now it's really work for linux kernel >= 2.5
@@ -87,7 +87,7 @@
    Fixed segfault in the statified executables which used
    function dlsym, and dlsym can't find symbol.
    But now statifier more depend on symbols to be found in the interpreter.
-   (SuSE with stripted symbols will not work)
+   (SuSE with striped symbols will not work)
 
 1.1.0
    Added support for TLS - thread local storage.

@@ -5,14 +5,14 @@
 - rework tls_test - I'll need to specify interpreter from real exe,
   instead of hardcoded one.
 - do not use objdump for finding _dl variables - it's not work
-  for stripted /lib/ld-linux (for example some SuSE versions) - DONE
+  for striped /lib/ld-linux (for example some SuSE versions) - DONE
 - add support for RTLD environment variables. - DONE
 - support linux on the platforms other than x86, x86_64 and alpha
 - support other unixes.
 - minimize usage of external programs: readelf, etc.
   ( awk, sh, sed looks ok,  aren't they ?)
 - think about gdb. From one side it's provide an easy
-  and (I hope !) portable enouth way for dump memory mappings
+  and (I hope !) portable enough way for dump memory mappings
   and registers. From another side - it's one more dependencies.
 - write de-statifier, which will re-create original exe file
 - write more tech documentation. - DONE
@@ -23,9 +23,10 @@
 - support -PIE executables
 - update documentation about memory layout. - DONE
 
-- now statified executable got (if any)  PT_GNU_STACK segment from original one.  usually it's ok, but if original exe has PT_GNU_STACK segment with permission
+- now statified executable got (if any)  PT_GNU_STACK segment from original one.
+  usually it's ok, but if original exe has PT_GNU_STACK segment with permission
   rw AND (at least) one of the executables DLL or preloaded DLL have no 
-  this segment or it has rwx permisssion (and really need executable stack)
+  this segment or it has rwx permission (and really need executable stack)
   It'll be a trouble: stack will be set to rw (as required by executable's
   PT_GNU_STACK) and during library initialization / functions execution
-  should occurer SEGFAULT. For now let's wait and see is it a real scenario.
+  should occure SEGFAULT. For now let's wait and see is it a real scenario.

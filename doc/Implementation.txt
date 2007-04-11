@@ -130,7 +130,7 @@ it print syscall's address to stdout, otherwise
 - how save all segments, created by loader.
 
 It's possible to play with ptrace in order to get
-all these data, but I prefered an easier way - 
+all these data, but I preferred an easier way - 
 just use gdb to do all work.
 
 So, "data collection" with gdb looks like following:

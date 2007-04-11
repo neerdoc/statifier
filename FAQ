@@ -11,7 +11,7 @@ Submitted by Jack (jask-statifier-sf-net at mudshark dot com)
  > get_thread_area, and
  > set_thread_area ) to provide TLS (thread local storage), when 
  > you statify an
- > executible that uses these system calls, it will only run on 
+ > executable that uses these system calls, it will only run on 
  > a kernel that
  > supports them. The solution to this is to statify the 
  > binaries without the TLS

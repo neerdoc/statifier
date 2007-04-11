@@ -1,3 +1,6 @@
+* Wed Apr 11 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
+- Soem fixes for docs spelling.
+
 * Mon Jan  1 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
 - fep.sh - support for dummy files, like [vdso], [stack], [heap]
   in the /proc/PID/maps
@@ -8,7 +11,7 @@
 - statifier_dump.sh and statifier_lib.src adopted to deal with INIT_MAPS_FILE
 - statifier_create_exe.sh - added (and used :) FixWriteExecPermission function.
   for some reason  FC5's (and some others) kernel show in the /proc/PID/maps
-  output really non-exsist execute-permission. 
+  output really non-exist execute-permission. 
   Permission changed from '?wx' to '?w-'
 - gdb_runner.gdb - removed is_it_syscall. is_it_syscall_[24] changed to work
   with arg0...arg4
@@ -25,7 +28,7 @@
   cpus/*/clear_trace_bit.gdb
 
 * Mon Aug 22 2005 <valery_reznic@users.sourceforge.net> 1.6.7-1
-- added cpus/*/clear_trace_bit.gdb files (for dealing with 2.6.12 strange behavour)
+- added cpus/*/clear_trace_bit.gdb files (for dealing with 2.6.12 strange behavior)
 - gdb_runner.gdb now source @CLEAR_TRACE_BIT_GDB@
 - statifier_dump.sh adopted to deal with @CLEAR_TRACE_BIT_GDB@
 
@@ -60,7 +63,7 @@
 
 * Wed Feb 16 2005 <valery_reznic@users.sourceforge.net> 1.6.3-1
 - updated FAQ and doc/Porting.txt
-- thread local storage related ifdefs were moved frpm set_thread_area_addr.c
+- thread local storage related ifdefs were moved from set_thread_area_addr.c
   to cpus/*/thread_local_storage_syscall.h files
 - now really, not blind supported thread local storage on amd64:
   set_thread_area_addr.c updated to support arch_prctl syscall;
@@ -166,7 +169,7 @@
   awk magic from the statifier_common.sh
 
 * Mon Jun 28 2004 <valery_reznic@users.sourceforge.net> 1.5.0-1
-- gdb has a bad habbit sometimes (for example auto-solib-add = on and
+- gdb has a bad habit sometimes (for example auto-solib-add = on and
   LD_PRELOAD is set - at least on amd64) output messages, which
   not new-line terminated. '(no debugging symbols found)...'
   So, statifier.gdb now output file separator to the gdb's log file
