@@ -8,7 +8,7 @@ Porting ELF statifier to new CPU
    can return i386, i486, i586, i686, athlon; and
    canonical name set to i386.
    
-   If you need convertion add to the configure script
+   If you need add conversion to the configure script
    in the 'case "$PROCESSOR"' appropriative line.
 
    Otherwise, canonical_name = real_name

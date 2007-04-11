@@ -192,7 +192,7 @@ Loader do following:
 Function _dl_start load/relocate executable itself and all
 needed libraries.
 
-Function _dl_start_user invoke libraries's INIT function
+Function _dl_start_user invoke libraries' INIT function
 and jump to the executable entry point.
 
 So, the "magic address" is _dl_start_user.

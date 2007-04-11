@@ -9,11 +9,11 @@ Life is not as easy, as I think at beginning of the project.
     Linux kernels version >= 2.5 create not just stack segment but one more -
     on address 0xfffd000-0xfffe000.
     This one also created by kernel, and it's dynamic shared object (DSO) 
-    with soname 'linux-gate.so.1", so it can be easely detected.
+    with soname 'linux-gate.so.1", so it can be easily detected.
     
 
 2. _dl_start_user got some values in registers.
-   Registers's values were set somewhere in _dl_start.
+   Registers' values were set somewhere in _dl_start.
    So, I can not  just set _dl_start_user's address as entry point -
    I have adjust registers values before.
 

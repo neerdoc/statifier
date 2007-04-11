@@ -47,7 +47,7 @@ Directory for temporary files. If not set \fB/tmp/\fP used.
 Pretty trivial. Convert /bin/df to df.static
 .TP
 \fBstatifier --set=LD_BIND_NOW=yes /bin/df df.static\fP
-Something more intresting. Dynamic linker will resolve all symbols.
+Something more interesting. Dynamic linker will resolve all symbols.
 So statifing will take longer, but resulting exe will have faster
 startup.
 .TP
