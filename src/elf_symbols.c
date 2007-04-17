@@ -85,7 +85,7 @@ static const char *get_st_visibility(unsigned char val)
 	};
 	return visibilities[ELF32_ST_VISIBILITY(val)];
 }
-static char *get_st_index(ElfW(Section) val)
+static const char *get_st_index(ElfW(Section) val)
 {
 	static char buffer[6];
 	switch(val) {
