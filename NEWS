@@ -1,5 +1,5 @@
 1.6.10 17-Apr-2007
-   fixe bug, preventing build of rpm package on FC5   
+   fixed bug, preventing build of rpm package on FC5 - thanks to Eric Gerbier
 
 1.6.9  11-Apr-2007
    fix for [vdso], [heap], [stack] in the /proc/PID/maps
