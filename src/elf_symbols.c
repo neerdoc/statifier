@@ -29,7 +29,7 @@
 
 #include "./my_lib.inc.c"
 
-static const char *const  get_st_bind(unsigned char val) 
+static const char *get_st_bind(unsigned char val) 
 {
 	static const char *const binds[] = {
 		"LOCAL",
@@ -52,7 +52,7 @@ static const char *const  get_st_bind(unsigned char val)
 	return binds[ELF32_ST_BIND(val)];
 }
 
-static const char *const get_st_type(unsigned char val)
+static const char *get_st_type(unsigned char val)
 {
 	static const char *const types[] = {
 		"NOTYPE",
@@ -75,7 +75,7 @@ static const char *const get_st_type(unsigned char val)
 	return types[ELF32_ST_TYPE(val)];
 }
 
-static const char *const get_st_visibility(unsigned char val)
+static const char *get_st_visibility(unsigned char val)
 {
 	static const char *const visibilities[] = {
 		"DEFAULT",
@@ -85,7 +85,7 @@ static const char *const get_st_visibility(unsigned char val)
 	};
 	return visibilities[ELF32_ST_VISIBILITY(val)];
 }
-static char *const  get_st_index(ElfW(Section) val)
+static char *get_st_index(ElfW(Section) val)
 {
 	static char buffer[6];
 	switch(val) {
