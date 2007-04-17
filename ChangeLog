@@ -1,3 +1,7 @@
+* Tue Apr 17 2007 <valery_reznic@users.sourceforge.net> 1.6.10-1
+- fixed problem with spec file, which prevent package build on FC5 - thanks to Eric Gerbier
+- fixed compilation warnings for gcc-4.1.0
+
 * Wed Apr 11 2007 <valery_reznic@users.sourceforge.net> 1.6.9-1
 - Some fixes for docs spelling.
 
