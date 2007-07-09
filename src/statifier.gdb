@@ -110,9 +110,12 @@ end
 # We got here when the program is stopped on it's very first instruction
 
 # Print stack pointer and loader's offset
+# Please note, that val_offset can be NEGATIVE, so I have to print it
+# as '%ld', not as '%lx'
 my_separator misc.src
 	printf "val_stack_pointer=0x%lx\n", $sp
-	printf "val_offset=0x%lx\n", $val_offset
+	printf "#val_offset=0x%lx\n", $val_offset
+	printf "val_offset=%ld\n", $val_offset
 my_separator_end
 
 # I'll get process ID from here

@@ -1,3 +1,9 @@
+* Mon Jul  9 2007 <valery_reznic@users.sourceforge.net> 1.6.11-1
+- fixed bug, that sometimes prevent staifier from work on system
+  with prelinked ld-linix and memory randomization
+  (error: 32/strtoul: can't convert '0x10XXXXXXX'. Errno=34 (Numerical result out of range)
+
+
 * Tue Apr 17 2007 <valery_reznic@users.sourceforge.net> 1.6.10-1
 - fixed problem with spec file, which prevent package build on FC5 - thanks to Eric Gerbier
 - fixed compilation warnings for gcc-4.1.0
