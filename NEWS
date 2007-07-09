@@ -1,3 +1,7 @@
+1.6.11  9-Jul-2007
+   fixed bug, sometimes preventing statifier from working on systems with
+   prelinked ld-linux
+
 1.6.10 17-Apr-2007
    fixed bug, preventing build of rpm package on FC5 - thanks to Eric Gerbier
 
