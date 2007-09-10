@@ -170,7 +170,33 @@ set $val_interpreter_entry = $pc
 # val_interpreter_file_entry != 0, val_interpreter_file_entry will be real
 # loader's address and all file's addresses will be real too.
 # In this case 'val_offset' will be 0
+
+# val_offset can be zero, "small" positive (i.e < LONG_MAX),
+# big positive (i,e > LONG_MAX and < ULONG_MAX) and negative.
+# Later I'll need to print val_offset, but there is a problem:
+# If I use '%lx' format (as it was til 1.6.11), then I got wrong
+# value (i.e converted to unsigned long) when val_offset is negative.
+# If I use '%ld', (as it was in 1.6.11) then for val_offset > LONG_MAX
+# representation will be wrong - negative number insted of possitive.
+# And similar (but  I think theoretical) problem will happened if
+# val_offset is negative and val_offset < LONG_MIN.
+# So here I calculate absolute value of val_offset and it's sign
+
+# val_offset is still used in the statifir.gdb to adjust breakpoints
 set $val_offset = $val_interpreter_entry - $val_interpreter_file_entry
+
+# When I try to wrote following code as 'if else end' 
+# gdb kept complains about 'Non aripmetic argument'
+# and line number was line with 'end'
+# It's looks like gdb for some reason get confused
+# GNU gdb Red Hat Linux (6.1post-1.20040607.41rh) - FC3
+set $val_offset_positive = 1
+set $val_offset_abs = $val_offset
+if ( $val_interpreter_entry < $val_interpreter_file_entry)
+	set $val_offset_positive = 0
+	set $val_offset_abs = - $val_offset
+end
+
 
 # Ok, all theory above was nice, but...
 # In the RHEL WS release 3 (Taroon Update 1)

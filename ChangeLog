@@ -1,3 +1,6 @@
+* Mon Sep 10 2007 <valery_reznic@users.sourceforge.net> 1.6.12-1
+- fixed error: 32/strtoul: can't convert '0xXXXXXXXXX'. Errno=34 (Numerical result out of range) for the case when val_offset is positive and > LONG_MAX
+
 * Mon Jul  9 2007 <valery_reznic@users.sourceforge.net> 1.6.11-1
 - fixed bug, that sometimes prevent statifier from work on system
   with prelinked ld-linix and memory randomization

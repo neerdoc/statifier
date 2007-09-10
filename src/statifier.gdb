@@ -112,10 +112,15 @@ end
 # Print stack pointer and loader's offset
 # Please note, that val_offset can be NEGATIVE, so I have to print it
 # as '%ld', not as '%lx'
+# use val_offset_abs (absolut value) now, so revert to the '%lx'.
+# But keep in mind that sign is specified by val_offset_positive variable
 my_separator misc.src
 	printf "val_stack_pointer=0x%lx\n", $sp
-	printf "#val_offset=0x%lx\n", $val_offset
-	printf "val_offset=%ld\n", $val_offset
+	if ($val_offset_positive == 1)
+		printf "val_offset=0x%lx\n", $val_offset_abs
+	else
+		printf "val_offset=-0x%lx\n", $val_offset_abs
+	end
 my_separator_end
 
 # I'll get process ID from here
