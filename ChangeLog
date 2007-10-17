@@ -1,3 +1,9 @@
+* Sun Oct 16 2007 <valery_reznic@users.sourceforge.net> 1.6.13-1
+- fixed error on x86_64 with gdb 6.6: 
+  statifier.gdb:166: Error in sourced command file:
+  Invalid cast
+- statified (x86_64) program was killed immediatly after running - fixed 
+
 * Mon Sep 10 2007 <valery_reznic@users.sourceforge.net> 1.6.12-1
 - fixed error: 32/strtoul: can't convert '0xXXXXXXXXX'. Errno=34 (Numerical result out of range) for the case when val_offset is positive and > LONG_MAX
 
