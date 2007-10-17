@@ -127,6 +127,19 @@ function IsIgnoredSegment
 	# ignored, otherwise - to 0
 	is_ignored=1
 
+	# There are systems in the wild, where vdso IS NOT shared library
+	# with 'linux-gate' soname 
+	# (example kernel 2.6.20-16-lowlatency on Ubunty 7.04)
+	# So, IsLinuxGate will not detect them.
+	# Fortunatelly, this kernel in the /proc/PID/maps put [vdso]
+	# in the line with vdso (and [stack] on the line with stack).
+	# I make use of [vdso]/[stack] to mark this mapping to be ignored.
+	# If not, function proceed as usual.
+	case "x$Name" in
+		x\[vdso\])  return 0;;
+		x\[stack\]) return 0;;
+	esac || return
+
 	local is_stack is_linux_gate
 	IsStack                || return
 	[ $is_stack = 1 ]      && return 0
