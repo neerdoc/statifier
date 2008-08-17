@@ -142,6 +142,11 @@ echo my_count=
 	output $my_count
 echo \n
 
+# gdb 6.8 detach from debugged process on execve 
+# unless 'tcatch exec' specified
+tcatch exec
+
+
 # Reset  sighandler to defaut.
 handle SIGPIPE stop nopass
 # Do execve !
