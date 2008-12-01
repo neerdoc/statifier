@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2004-2007 Valery Reznic
+# Copyright (C) 2004-2008 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ function GetKernelStackStartStop
 		esac
 	done < $File || return
 	Echo "$0: can't find kernel stack"
-	retrun 1
+	return 1
 }
 
 # Once function IsStack was very simple:
