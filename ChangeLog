@@ -1,3 +1,7 @@
+* Mon Dec  1 2008 <valery_reznic@users.sourceforge.net> 1.6.15-1
+- fix for Slackware 12.0 (thanks to Stan Tobias)
+- fixed stupid typo in src/statifier_create_exe.sh
+
 * Sun Aug 17 2008 <valery_reznic@users.sourceforge.net> 1.6.14-1
 - support for gdb 6.8
 
