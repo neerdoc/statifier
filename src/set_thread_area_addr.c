@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004, 2005 Valery Reznic
+ * Copyright (C) 2004, 2005, 2008 Valery Reznic
  * This file is part of the Elf Statifier project
  * 
  * This project is free software; you can redistribute it and/or
@@ -53,6 +53,8 @@ unsigned long my_strtoul(const char *string)
 {
 	unsigned long result;
 	char *endptr;
+
+	errno = 0;
 	result = strtoul(string, &endptr, 0);
 	if ( (*endptr != 0) || *string == 0) {
 		fprintf(

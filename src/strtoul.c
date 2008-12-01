@@ -36,6 +36,7 @@ int do_work(int argc, char *argv[], const char *name)
 			return 1;
 		}
 
+		errno = 0;
 		nums[index - 1] = strtoul(start, &endptr, 0);
 		if (errno != 0) { /* Something wrong */
 			fprintf(
