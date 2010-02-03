@@ -6,7 +6,7 @@ Statifier convert dynamically linked executable
 to "pseudo-static".
 
 Statifier code is relative simpler.
-but in order to understand it
+But in order to understand it
 we first need to know following:
 
 1) ELF file format.
@@ -171,7 +171,7 @@ and run from the point were loader was stopped.
 Who will be so kind to do it for us ?
 Kernel !
 
-Let's save "memory snapshot", i.e all segments from executable and
+Let's save "memory snapshot", i.e. all segments from executable and
 libraries loaded by loader as ELF file with program's header of type
 'LOAD' for each segment, and entry point set to the address,
 where execution was stopped to take sharpshoot.
