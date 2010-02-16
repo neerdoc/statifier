@@ -54,6 +54,7 @@ BUILD_FILES =       \
    Makefile         \
    regs2asm.make.sh \
    regs2awk.make.sh \
+   regs2c.make.sh   \
 
 INCLUDE_FILES = \
    start.S      \
@@ -161,6 +162,7 @@ TARGETS :=                                \
    $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS) \
    $(ELF_CLASS)/regs.awk                  \
    $(ELF_CLASS)/gdb_runner                \
+   $(ELF_CLASS)/my_gdb                    \
 
 all:
 
@@ -189,6 +191,22 @@ $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 $(ELF_CLASS)/gdb_runner: gdb_runner.c
 	gcc $(FLAGS_ELF) -static -Wall -O2 -g $< -o $@
 
+MY_GDB_CFILES := \
+   breakpoints.c \
+   dump.c        \
+   my_gdb.c      \
+   my_ptrace.c   \
+   registers.c   \
+
+MY_GDB_OBJ_FILES := $(MY_GDB_CFILES:%.c=$(ELF_CLASS)/%.o)
+
+MY_GDB_CPPFLAGS := -I. -I$(CPU_DIR) -I$(ELF_CLASS)
+$(MY_GDB_OBJ_FILES): $(ELF_CLASS)/%.o: my_gdb/%.c
+	gcc -c $(FLAGS_ELF) $(MY_GDB_CPPFLAGS) -Wall -O2 -g $< -o $@
+
+$(ELF_CLASS)/my_gdb: $(MY_GDB_OBJ_FILES)
+	gcc $(FLAGS_ELF) $^ -o $@
+
 # For some unknown reason (at least) on amd64 gcc (at least gcc 3.2.2 SuSE )
 # generate a huge 'dl-var' file when used 'binary'output format.
 # Without output format (i.e. default elf) file is reasonable small.
@@ -207,8 +225,9 @@ $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 
 # Dependencies should be in correct order
 $(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
+$(ELF_CLASS)/regs.c  : regs2c.make.sh   $(CPU_DIR)/regs.list
 $(ELF_CLASS)/regs.awk: regs2awk.make.sh $(CPU_DIR)/regs.list regs.awk
-$(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
+$(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk $(ELF_CLASS)/regs.c:
 	$(RM) $@
 	/bin/sh $^ $@ || { $(RM) $@; exit 1; }
 
@@ -243,6 +262,8 @@ $(ELF_CLASS)/find_environ    : find_dl_main.inc.c
 
 $(ELF_CLASS)/elf_find_pattern: my_lib.inc.c
 $(ELF_CLASS)/elf_soname      : my_lib.inc.c
+#
+$(ELF_CLASS)/registers.o     : $(ELF_CLASS)/regs.c
 # End of additional dependencies
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
