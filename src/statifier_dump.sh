@@ -205,5 +205,23 @@ source $D/statifier_lib.src || exit
 WORK_DIR=$1
 
 SetVariables $WORK_DIR || exit
-Main                   || exit
+set -e
+	source $OPTION_SRC || return
+	source $COMMON_SRC || return
+	source $LOADER_SRC || return
+set +e
+$D/my_gdb                             \
+   $opt_orig_exe                      \
+   $val_breakpoint_start              \
+   $val_interpreter_file_entry        \
+   $MISC_SRC                          \
+   $WORK_GDB_OUT_DIR/regs_from_kernel \
+   $INIT_MAPS_FILE                    \
+   $REGISTERS_FILE                    \
+   $MAPS_FILE                         \
+   $WORK_GDB_OUT_DIR/set_thread_area  \
+   $WORK_DUMPS_DIR                    \
+|| exit
+
+#Main                   || exit
 exit 0
