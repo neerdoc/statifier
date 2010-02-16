@@ -15,6 +15,7 @@
 	#define REGISTER_SIZE 4
 	#define SYSCALL_REG   (ORIG_EAX)
 	#define PC_REG        (EIP)
+	#define SP_REG        (UESP)
 	#define PC_OFFSET_AFTER_SYSCALL 2
 
 	#ifdef __ASSEMBLER__
