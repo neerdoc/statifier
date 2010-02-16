@@ -13,6 +13,7 @@
 
 #include <dl-var.inc>
 
+	nop
 	jmp		after_func
 	#include <dl-var.s>
 after_func:
