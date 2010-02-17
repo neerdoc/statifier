@@ -52,6 +52,7 @@ SOURCES =                 \
 # Service files used to build 
 BUILD_FILES =       \
    Makefile         \
+   asm.make.sh      \
    regs2asm.make.sh \
    regs2awk.make.sh \
    regs2c.make.sh   \
@@ -207,21 +208,9 @@ $(MY_GDB_OBJ_FILES): $(ELF_CLASS)/%.o: my_gdb/%.c
 $(ELF_CLASS)/my_gdb: $(MY_GDB_OBJ_FILES)
 	gcc $(FLAGS_ELF) $^ -o $@
 
-# For some unknown reason (at least) on amd64 gcc (at least gcc 3.2.2 SuSE )
-# generate a huge 'dl-var' file when used 'binary'output format.
-# Without output format (i.e. default elf) file is reasonable small.
-# The immediate reason is the string in assemble code:
-#	.section	.eh_frame,"aw",@progbits
-# So, I need to remove it from the generated .s file
-
-# gcc version 3.2.3 put in the end of generated assembler code
-# .section .note-GNU-stack...,
-# i.e to be sure code after included file will go to the text section
-# I have to add ".text" to the end.
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
-	awk '{ if ($$2 !~ ".eh_frame") print $$0} END {print "\t.text";}' < $@.s > $@  || { $(RM) $@; exit 1; }
-
+	/bin/sh asm.make.sh < $@.s > $@ || { $(RM) $@; exit 1; }
 
 # Dependencies should be in correct order
 $(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
