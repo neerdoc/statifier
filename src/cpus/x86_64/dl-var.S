@@ -18,9 +18,6 @@
 	#include <dl-var.s>
 after_func:
 
-	GET_DATA_ADDR	%rax
-	push		%rsp	/* second argument */
-	push		%rax    /* first argument  */
+	GET_DATA_ADDR	%rdi /* first parameter */
+	movq		%rsp, %rsi /* second parameter */
 	call		do_work
-	pop		%rax
-	pop		%rax
