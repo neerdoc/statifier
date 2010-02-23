@@ -70,7 +70,6 @@ UTILS =                 \
    inject_starter       \
    non_pt_load          \
    pt_load_1            \
-   set_thread_area_addr \
    strtoul              \
    tls_test             \
    $(FIND_UTILS)        \
@@ -225,7 +224,6 @@ $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU
 # Additional dependencies:
 $(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
-$(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h $(CPU_DIR)/thread_local_storage_syscall.h
 $(ELF_CLASS)/find_dl_argc    : find_dl_main.inc.c
 $(ELF_CLASS)/find_dl_argv    : find_dl_main.inc.c
 $(ELF_CLASS)/find_dl_auxv    : find_dl_main.inc.c

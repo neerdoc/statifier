@@ -18,7 +18,6 @@
      /usr/lib/statifier/@ELF_CLASS@/non_pt_load
      /usr/lib/statifier/@ELF_CLASS@/pt_load_1
      /usr/lib/statifier/@ELF_CLASS@/regs
-     /usr/lib/statifier/@ELF_CLASS@/set_thread_area_addr
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
      /usr/lib/statifier/@ELF_CLASS@/strtoul
      /usr/lib/statifier/@ELF_CLASS@/tls_test
