@@ -11,6 +11,19 @@
 
 function DumpRegistersAndMemory
 {
+	$D/my_gdb                                  \
+   		$opt_orig_exe                      \
+   		$val_breakpoint_start              \
+   		$val_interpreter_file_entry        \
+   		$MISC_SRC                          \
+   		$WORK_GDB_OUT_DIR/regs_from_kernel \
+   		$INIT_MAPS_FILE                    \
+   		$REGISTERS_FILE                    \
+   		$MAPS_FILE                         \
+   		$WORK_GDB_OUT_DIR/set_thread_area  \
+   		$WORK_DUMPS_DIR                    \
+	|| return
+	return 0
 	rm -f $LOG_FILE || return
 	# Coding here bit tricky.
 	# I am gave up trying to write code for gdb, which will not produce 
@@ -121,7 +134,9 @@ function Main
 	local File
 
 	set -e
-		source $OPTION_SRC || return
+		set -a 
+			source $OPTION_SRC || return
+		set +a
 		source $COMMON_SRC || return
 		source $LOADER_SRC || return
 	set +e
@@ -152,40 +167,8 @@ function Main
 	VAR_GDB="$WORK_GDB_CMD_DIR/var.gdb"
 	# End of variables
 
-	# Determine debugger name
-	GDB=`GDB_Name $val_elf_class $val_uname_m` || return
-
 	# Create env.gdb
 	CreateEnv > $ENV_GDB || return
-
-	# Create env.gdb
-	CreateVar > $VAR_GDB || return
-
-	# Transform files for gdb
-	sed                                                         \
-        	-e "s#@DUMPS_GDB@#$DUMPS_GDB#g"                     \
-        	-e "s#@DUMPS_SH@#$DUMPS_SH#g"                       \
-        	-e "s#@INIT_MAPS_FILE@#$INIT_MAPS_FILE#g"           \
-        	-e "s#@LOG_FILE@#$LOG_FILE#g"                       \
-        	-e "s#@MAPS_FILE@#$MAPS_FILE#g"                     \
-        	-e "s#@MAPS_SH@#$MAPS_SH#g"                         \
-        	-e "s#@PROCESS_FILE@#$PROCESS_FILE#g"               \
-        	-e "s#@REGISTERS_FILE@#$REGISTERS_FILE#g"           \
-        	-e "s#@SET_THREAD_AREA_GDB@#$SET_THREAD_AREA_GDB#g" \
-        	-e "s#@SPLIT_SH@#$SPLIT_SH#g"                       \
-        	-e "s#@val_uname_m@#$val_uname_m#g"                 \
-        	-e "s#@WORK_DUMPS_DIR@#$WORK_DUMPS_DIR#g"           \
-	< $STATIFIER_GDB_IN > $STATIFIER_GDB || return
-
-	sed                                                         \
-        	-e "s#@CLEAR_TRACE_BIT_GDB@#$CLEAR_TRACE_BIT_GDB#g" \
-        	-e "s#@ENV_GDB@#$ENV_GDB#g"                         \
-        	-e "s#@EXECUTABLE_FILE@#$EXECUTABLE_FILE#g"         \
-        	-e "s#@GDB_RUNNER@#$GDB_RUNNER#g"                   \
-        	-e "s#@STATIFIER_GDB@#$STATIFIER_GDB#g"             \
-        	-e "s#@SYSCALL_GDB@#$SYSCALL_GDB#g"                 \
-        	-e "s#@VAR_GDB@#$VAR_GDB#g"                         \
-	< $GDB_RUNNER_GDB_IN > $GDB_RUNNER_GDB || return
 
 	DumpRegistersAndMemory || return
 	return 0
@@ -205,23 +188,5 @@ source $D/statifier_lib.src || exit
 WORK_DIR=$1
 
 SetVariables $WORK_DIR || exit
-set -e
-	source $OPTION_SRC || return
-	source $COMMON_SRC || return
-	source $LOADER_SRC || return
-set +e
-$D/my_gdb                             \
-   $opt_orig_exe                      \
-   $val_breakpoint_start              \
-   $val_interpreter_file_entry        \
-   $MISC_SRC                          \
-   $WORK_GDB_OUT_DIR/regs_from_kernel \
-   $INIT_MAPS_FILE                    \
-   $REGISTERS_FILE                    \
-   $MAPS_FILE                         \
-   $WORK_GDB_OUT_DIR/set_thread_area  \
-   $WORK_DUMPS_DIR                    \
-|| exit
-
-#Main                   || exit
+Main                   || exit
 exit 0
