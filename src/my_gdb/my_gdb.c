@@ -9,6 +9,7 @@
 #include "my_gdb.h"
 #include "breakpoints.h"
 #include "dump.h"
+#include "environment.h"
 #include "my_ptrace.h"
 #include "registers.h"
 #include "processor.h"
@@ -29,7 +30,7 @@ void print_status(FILE *file, int status, pid_t pid)
 			(unsigned long)pid,
 			WEXITSTATUS(status)
 		);
-		return;
+		exit(1);
 	}
 	if (WIFSIGNALED(status)) {
 		sig_num = WTERMSIG(status);
@@ -41,8 +42,9 @@ void print_status(FILE *file, int status, pid_t pid)
 			sig_num,
 			strsignal(sig_num)
 		);
-		return;
+		exit(1);
 	}
+	#if 0
 	if (WIFSTOPPED(status)) {
 		sig_num = WSTOPSIG(status);
 		fprintf(
@@ -55,6 +57,7 @@ void print_status(FILE *file, int status, pid_t pid)
 		);
 		return;
 	}
+	#endif
 }
 
 const char *pgm_name;
@@ -262,6 +265,7 @@ void parent(pid_t pid)
 
 	/* Wait for PTRACE_ME finish */
 	wait(&status);
+	print_status(stderr, status, pid);
 	dump_misc_src(pid, misc_src);
 	breakpoint_start += val_offset;
 	
@@ -273,7 +277,7 @@ void parent(pid_t pid)
 	while(1) {
 		MY_PTRACE(PTRACE_SYSCALL, pid, NULL, NULL, 1, 1);
 		wait(&status);
-		//print_status(stdout, status, pid);
+		print_status(stderr, status, pid);
 		user = get_registers(pid);
 		if (get_register(pid, SYSCALL_REG) == TLS_SYSCALL) {
 			if (! tls_data_dumped) {
@@ -313,6 +317,7 @@ int main(int argc, char *argv[], char *envp[])
 		exit(1);
 
 		case 0: /* child */
+			update_environment();
 			pt_res = ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 			if (pt_res == -1) {
 				fprintf(
@@ -326,7 +331,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 			new_argv[0] = (char *)program;
 			new_argv[1] = NULL;
-			execve(program, new_argv, envp);
+			execv(program, new_argv);
 			fprintf(
 				stderr,
 				"%s [CHILD]  - can't execve '%s' - '%s' (errno=%d)\n",
