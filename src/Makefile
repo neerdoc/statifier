@@ -45,7 +45,6 @@ SOURCES =                 \
    $(AWK_FILES)           \
    dl-var.c               \
    dl-var.inc             \
-   gdb_runner.c           \
    find_dl_main.inc.c     \
    my_lib.inc.c           \
 
@@ -150,7 +149,6 @@ TARGETS :=                                \
    $(UTILS_WITH_ELF_CLASS)                \
    $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS) \
    $(ELF_CLASS)/regs.awk                  \
-   $(ELF_CLASS)/gdb_runner                \
    $(ELF_CLASS)/my_gdb                    \
 
 all:
@@ -175,10 +173,6 @@ VERSION: $(TOP_DIR)/VERSION
  
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
-
-# gdb_runner should be static, because I need avoid LD_PRELOAD influence
-$(ELF_CLASS)/gdb_runner: gdb_runner.c
-	gcc $(FLAGS_ELF) -static -Wall -O2 -g $< -o $@
 
 MY_GDB_CFILES := \
    breakpoints.c \

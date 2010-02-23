@@ -14,7 +14,6 @@
      /usr/lib/statifier/@ELF_CLASS@/find_dl_auxv
      /usr/lib/statifier/@ELF_CLASS@/find_dl_platform
      /usr/lib/statifier/@ELF_CLASS@/find_environ
-     /usr/lib/statifier/@ELF_CLASS@/gdb_runner
      /usr/lib/statifier/@ELF_CLASS@/inject_starter
      /usr/lib/statifier/@ELF_CLASS@/non_pt_load
      /usr/lib/statifier/@ELF_CLASS@/pt_load_1
