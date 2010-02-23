@@ -126,17 +126,6 @@ INCLUDE_SCRIPTS =       \
 RUNNERS =    \
    statifier \
 
-# files used as command files for gdb
-GDB_SCRIPTS =     \
-   gdb_runner.gdb \
-   statifier.gdb  \
-
-# one as above, but with per-cpu difference
-PER_CPU_GDB_SCRIPTS =  \
-   clear_trace_bit.gdb \
-   set_thread_area.gdb \
-   syscall.gdb         \
-
 PER_CPU_INCLUDE_SCRIPTS = \
    properties.src         \
 
@@ -144,7 +133,6 @@ PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 
 PER_CPU_SOURCES =                 \
    $(PER_CPU_ASM_SOURCES)         \
-   $(PER_CPU_GDB_SCRIPTS)         \
    $(PER_CPU_INCLUDE_SCRIPTS)     \
    processor.h                    \
    regs.list                      \
@@ -152,8 +140,8 @@ PER_CPU_SOURCES =                 \
  
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
-LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS))
-PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS) $(PER_CPU_INCLUDE_SCRIPTS))
+LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(INCLUDE_SCRIPTS))
+PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_INCLUDE_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
@@ -265,9 +253,9 @@ install-local:
 	$(INSTALL_LOCAL_64)
 
 install-common:
-	$(MKDIR)                                                 $(LIB_DIR)
-	$(INSTALL_RUN) $(SCRIPTS)                                $(LIB_DIR)
-	$(INSTALL_RO)  VERSION $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS) $(LIB_DIR)
+	$(MKDIR)                                  $(LIB_DIR)
+	$(INSTALL_RUN) $(SCRIPTS)                 $(LIB_DIR)
+	$(INSTALL_RO)  VERSION $(INCLUDE_SCRIPTS) $(LIB_DIR)
 
 	$(MKDIR)                  $(BIN_DIR)
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
@@ -278,7 +266,6 @@ install-local-32 install-local-64:
 install-local-internal:
 	                     $(MKDIR)                             $(LIB_DIR_ELF)
 	                     $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
-	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_INCLUDE_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
 	@# Here i use mv, not link (as in all-local-internal)
