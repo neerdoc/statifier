@@ -195,6 +195,7 @@ $(ELF_CLASS)/gdb_runner: gdb_runner.c
 MY_GDB_CFILES := \
    breakpoints.c \
    dump.c        \
+   environment.c \
    my_gdb.c      \
    my_ptrace.c   \
    registers.c   \
