@@ -99,7 +99,6 @@ SCRIPTS =             \
    $(STATIFIER_PARTS) \
 
 HELPER_SCRIPTS =      \
-   dumps.sh           \
    fep.sh             \
    maps.sh            \
    regs.sh            \
