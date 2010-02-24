@@ -14,7 +14,5 @@ Statifier use following software:
 | dirname  |  sh-utils             | coreutils           |
 | mkdir    |  fileutils            | coreutils           |
 | rm       |  fileutils            | coreutils           |
-| sed      |  sed                  | sed                 |
 | uname    |  sh-utils             | coreutils           |
-| gdb      |  gdb                  | gdb                 |
 +----------+-----------------------+---------------------+
