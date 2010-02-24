@@ -39,10 +39,10 @@ SOURCES =                 \
    $(ALL_PER_CPU_SOURCES) \
    $(INCLUDE_FILES)       \
    $(SCRIPTS)             \
-   $(GDB_SCRIPTS)         \
    $(INCLUDE_SCRIPTS)     \
    $(RUNNERS)             \
    $(AWK_FILES)           \
+   $(MY_GDB_FILES)        \
    dl-var.c               \
    dl-var.inc             \
    find_dl_main.inc.c     \
@@ -129,9 +129,10 @@ PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 PER_CPU_SOURCES =                 \
    $(PER_CPU_ASM_SOURCES)         \
    $(PER_CPU_INCLUDE_SCRIPTS)     \
+   dump_tls_data.c                \
    processor.h                    \
    regs.list                      \
-   thread_local_storage_syscall.h
+   thread_local_storage_syscall.h \
  
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
@@ -177,6 +178,9 @@ MY_GDB_CFILES := \
    my_gdb.c      \
    my_ptrace.c   \
    registers.c   \
+
+MY_GDB_HFILES = $(MY_GDB_CFILES:%.c=%.h)
+MY_GDB_FILES = $(addprefix my_gdb/,$(MY_GDB_CFILES) $(MY_GDB_HFILES))
 
 MY_GDB_OBJ_FILES := $(MY_GDB_CFILES:%.c=$(ELF_CLASS)/%.o)
 
