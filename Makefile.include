@@ -11,7 +11,7 @@ RM          = rm --force
 RMDIR       = rm --force --recursive
 LN          = ln --symbolic --force --no-dereference
 INSTALL_RO  = install --mode=444
-INSTALL_RUN = install --mode=555
+INSTALL_RUN = install --mode=755
 
 define MT_Make_Recursive
    @set -e &&                                      \
