@@ -14,18 +14,18 @@ module module module                                                 ----------
  |      |      |                            |                            |   |
  |      |      |                            | Interpreter                |   |
  |      |      |                            |                            |   |
- |      |      |               +------------*-------------+              |   |
- |      |      |               |                          |              |   |
- |      |      |               V                          V              |   |
- |      |      |    +---------------------+   +----------------------+   |   |
- |      |      |    |        Script       |   | set_thread_area_addr |   |   |
- |      |      |    +---------------------+   +----------------------+   |   |
- |      |      |     |           |                  |                    |   |
- |      |      |     | _dl_vars  | _dl_start_user   | address of         |   |
- |      |      |     |           |                  | set_thread_area    |   |
- |      |      |     |           V                  V                    V   |
+ |      |      |               +------------/                            |   |
+ |      |      |               |                                         |   |
+ |      |      |               V                                         |   |
+ |      |      |    +---------------------+                              |   |
+ |      |      |    |        Script       |                              |   |
+ |      |      |    +---------------------+                              |   |
+ |      |      |     |           |                                       |   |
+ |      |      |     | _dl_vars  | _dl_start_user                        |   |
+ |      |      |     |           |                                       |   |
+ |      |      |     |           V                                       V   |
  |      |      |     |          +-----------------------------------------+  |
- |      |      |     |          |                     gdb                 |  |
+ |      |      |     |          |                  my_gdb                 |  |
  |      |      |     |          +-----------------------------------------+  |
  |      |      |     |             | tls_data   | registers  | loaded        |
  |      |      |     |             |            |            | segments      |
@@ -55,10 +55,6 @@ Notes.
 
 Script               - some program (now really script) which from shown input
                        generate shown output
-
-set_thread_area_addr - a program, which look for 
-                       set_thread_area syscall's address.
-                       This program is part of statifier package.
 
 strtoul              - program which convert string to the internal
                        'unsigned long' representation.
