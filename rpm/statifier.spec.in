@@ -12,7 +12,6 @@ ExclusiveOs:   Linux
 
 ExclusiveArch: %{ix86}
 ExclusiveArch: x86_64
-ExclusiveArch: alpha
 
 Requires:      fileutils
 Requires:      gawk
