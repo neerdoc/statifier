@@ -15,7 +15,6 @@ ExclusiveArch: x86_64
 
 Requires:      fileutils
 Requires:      gawk
-Requires:      sed
 Requires:      sh-utils
 Requires:      textutils
 
