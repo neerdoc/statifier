@@ -7,18 +7,18 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-[ $# -ne 4 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" -o "x$4" = "x" ] && {
-	echo "Usage: $0 <uname_m> <pid> <output> <output_all_mappings>" 1>&2
+[ $# -ne 3 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" ] && {
+	echo "Usage: $0 <pid> <output> <output_all_mappings>" 1>&2
 	exit 1
 }
-uname_m=$1
-pid="$2"
-output="$3"
-output_all_mappings="$4"
+pid="$1"
+output="$2"
+output_all_mappings="$3"
 
 input="/proc/$pid/maps"
 output_orig="$output".orig
 
+uname_m=`uname -m` || exit
 cat $input > $output_orig || exit
 
 awk -v uname_m="$uname_m" -v output_all_mappings="$output_all_mappings" '{

@@ -182,20 +182,12 @@ void execute_command(const char *command)
 
 void cp_proc_maps(pid_t pid, const char *filename, int output_all_mappings)
 {
-	const char *arch =
-		#ifdef __x86_64__
-			"x86_64"
-		#else
-			"dummy"
-		#endif
-	;
 	char command[10000];
 	snprintf(
 		command,
 		sizeof(command), 
-		"%s/maps.sh %s %lu %s %d", 
+		"%s/maps.sh %lu %s %d", 
 		dir_name,
-		arch,
 		(unsigned long)pid,
 		filename,
 		output_all_mappings
