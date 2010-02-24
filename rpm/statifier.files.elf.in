@@ -20,6 +20,5 @@
      /usr/lib/statifier/@ELF_CLASS@/regs
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area
      /usr/lib/statifier/@ELF_CLASS@/strtoul
-     /usr/lib/statifier/@ELF_CLASS@/tls_test
      /usr/lib/statifier/@ELF_CLASS@/properties.src
      /usr/lib/statifier/@ELF_CLASS@/regs.awk
