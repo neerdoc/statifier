@@ -104,7 +104,6 @@ HELPER_SCRIPTS =      \
    maps.sh            \
    regs.sh            \
    set_thread_area.sh \
-   split.sh           \
    statifier.sh       \
 
 # Scripts which are implement "main logic" of statifier

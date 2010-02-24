@@ -17,4 +17,3 @@
      /usr/lib/statifier/@ELF_CLASS@/maps.sh
      /usr/lib/statifier/@ELF_CLASS@/regs.sh
      /usr/lib/statifier/@ELF_CLASS@/set_thread_area.sh
-     /usr/lib/statifier/@ELF_CLASS@/split.sh
