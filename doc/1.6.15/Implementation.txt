@@ -83,10 +83,10 @@ Here we have got two questions:
 
 Data for regs module.
 
-It's quite clear that for restoring registers one should have
+It's quite clean that for restoring registers one should have
 registers' values.
 
-What's not so clear, where one can get these values from.
+What's not so clean, where one can get these values from.
 
 
 Save all segments created by loader.
@@ -109,33 +109,41 @@ That's all.
 Yes, that's all, but yet some questions are left unanswered:
 - is thread local storage in use ?
 - if so, where get set_thread_area's data from ? 
-- where get registers' value from ?
+- where got registers' value from ?
 - how save all segments, created by loader.
 - how find the place where starter can be injected ?
 
-- is thread local storage in use ?
+Is thread local storage in use ?
+
+The only way I found to detect it is following:
+I wrote two program: tls_test and set_thread_area_addr.
+tls_test do as much as exit(0).
+set_thread_area_addr is a very specialized mini-debugger.
+It's run tls_test under ptrace control and use PTRACE_SYSCALL
+to "step" from one system call to another.
+If set_thread_area_addr detect 'set_thread_area' syscall
+it print syscall's address to stdout, otherwise
+(i.e tls_test exit) nothing printed.
+
 - where get set_thread_area's data from ? 
 - where get registers' value from ?
 - how save all segments, created by loader.
-In statifier before version 1.7.0 I used gdb to do all of this.
-But I encountered too many buggy gdb in the wild
-(especially on x86_64 systems).
-I finally was fed up with it and wrote some "mini debugger" - my_gdb 
-for statifier. 
 
-So, "data collection" with my_gdb looks like following:
+It's possible to play with ptrace in order to get
+all these data, but I preferred an easier way - 
+just use gdb to do all work.
 
+So, "data collection" with gdb looks like following:
+
+- set breakpoint on 'set_thread_area' syscall address (if TLS is in use)
 - set breakpoint on '_dl_start_user' function.
-- in the loop:
--    run executable to be statified with PTRACE_SYSCALL
--    process will run till next syscall OR breakpoint
-
--    if process was stoppd due set_thread_area syscall, 
-     then dump syscall's arguments
-
--    if process was stoped due _dl_start_user breakpoint
-     then dump registers' values and loaded segments
-     After that kill application and exit.
+- run executable to be statified.
+- when hit 'set_thread_area' breakpoint dump %eax (syscall number)
+  and four set_thread_area's arguments, pointed by %ebx
+- continue executing.
+- when hit '_dl_start_user' breakpoint dump registers' values and
+  loaded segments.  
+- kill application and exit.
 
 Please note, that statifying (unlike ldd) never run libraries' init functions.
 

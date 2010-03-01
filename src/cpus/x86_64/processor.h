@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004, 2005 Valery Reznic
+ * Copyright (C) 2004, 2005, 2010 Valery Reznic
  * This file is part of the Elf Statifier project
  * 
  * This project is free software; you can redistribute it and/or
@@ -15,6 +15,7 @@
 	#define REGISTER_SIZE 8
 	#define SYSCALL_REG   (ORIG_RAX)
 	#define PC_REG        (RIP)
+	#define SP_REG        (RSP)
 	#define PC_OFFSET_AFTER_SYSCALL 2
 
 	#ifdef __ASSEMBLER__

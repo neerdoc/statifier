@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004, 2005, 2010 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ function CreateStarter
 	local STA_BIN=$WORK_OUT_DIR/set_thread_area
 	local TLS_LIST=
 
-	[ "$val_has_tls" = "1" ] && {
+	[ -f $WORK_GDB_OUT_DIR/set_thread_area ] && {
 		# Create binary file with set_thread_area parameters
 		$D/set_thread_area.sh $WORK_GDB_OUT_DIR/set_thread_area $STA_BIN || return
 		TLS_LIST="$STA $STA_BIN"

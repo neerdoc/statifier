@@ -1,4 +1,8 @@
-1.6.14  1-Dec-2008
+1.7.0  24-Feb-2010
+   statifier not depend on gdb anymore
+   dropped support for alpha
+
+1.6.15  1-Dec-2008
    added support for Slackware 12.0
 
 1.6.14 17-Aug-2008
