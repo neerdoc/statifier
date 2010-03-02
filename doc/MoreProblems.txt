@@ -62,7 +62,7 @@ All others should be restored to their values on the "snapshot time".
    
 _dl_argc is a number of arguments and it's obviously can changed from one
    invocation to another.
-all other are pointers to the kernel created segment, and depend on
+All other are pointers to the kernel created segment, and depend on
 command line arguments and environment, so they are variable too.
 
 _dl_platform and _dl_platformlen. There are loaders, which have

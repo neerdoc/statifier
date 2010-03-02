@@ -4,6 +4,8 @@
 				(added all non-allocated section)
 - rework tls_test - I'll need to specify interpreter from real exe,
   instead of hardcoded one.
+	tls_test and set_thread_area_addr where dropped altogether in favor
+        of my_gdb
 - do not use objdump for finding _dl variables - it's not work
   for striped /lib/ld-linux (for example some SuSE versions) - DONE
 - add support for RTLD environment variables. - DONE
@@ -14,6 +16,7 @@
 - think about gdb. From one side it's provide an easy
   and (I hope !) portable enough way for dump memory mappings
   and registers. From another side - it's one more dependencies.
+	I finally get rid of gdb. DONE
 - write de-statifier, which will re-create original exe file
 - write more tech documentation. - DONE
 - what about output file license

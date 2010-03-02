@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004, 2005, 2010 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ function CreateStarter
 	local STA_BIN=$WORK_OUT_DIR/set_thread_area
 	local TLS_LIST=
 
-	[ "$val_has_tls" = "1" ] && {
+	[ -f $WORK_GDB_OUT_DIR/set_thread_area ] && {
 		# Create binary file with set_thread_area parameters
 		$D/set_thread_area.sh $WORK_GDB_OUT_DIR/set_thread_area $STA_BIN || return
 		TLS_LIST="$STA $STA_BIN"
@@ -40,17 +40,18 @@ function CreateStarter
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
 	full_dl_list=`
-		printf "0x%x" $[val_interpreter_file_base_addr + $val_offset] &&
+		$D/unsigned_long_sum $val_interpreter_file_base_addr $val_offset&&
 		for i in $val_dl_list; do
 			case "$i" in
-				0 | 0x0) :;;  # do nothing
+				0 | 0x0)
+					echo "0x0"
+				;;
 				*)
-					i=$[$i + $val_offset]
+					$D/unsigned_long_sum $i $val_offset || exit
 				;;
 			esac
-			printf " 0x%x" $i
 		done
-	`
+	` || return
 	$D/strtoul $full_dl_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$D/regs.sh $REGISTERS_FILE $REGS_BIN || return

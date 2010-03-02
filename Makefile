@@ -1,4 +1,4 @@
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004, 2005, 2010 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -30,6 +30,21 @@ DOCS =       \
    TODO      \
    $(addprefix doc/,$(DOC_DOCS))
 
+DOC_1_5_0_DOCS :=            \
+   StatifiedLayout.alpha.txt \
+   StatifiedLayout.x86.txt   \
+   StatifiedLayout.txt       \
+   StarterLayout.txt         \
+
+DOC_1_5_0_DOCS :=  $(addprefix 1.5.0/, $(DOC_1_5_0_DOCS))
+
+DOC_1_6_15_DOCS =            \
+   DataFlow.txt              \
+   Implementation.txt        \
+   Porting.txt               \
+
+DOC_1_6_15_DOCS :=  $(addprefix 1.6.15/, $(DOC_1_6_15_DOCS))
+
 DOC_DOCS =                                \
    README                                 \
    Background.txt                         \
@@ -39,13 +54,8 @@ DOC_DOCS =                                \
    MoreProblems.txt                       \
    Porting.txt                            \
    StatifiedLayout.txt                    \
-   $(addprefix 1.5.0/, $(DOC_1_5_0_DOCS)) \
-
-DOC_1_5_0_DOCS =             \
-   StatifiedLayout.alpha.txt \
-   StatifiedLayout.x86.txt   \
-   StatifiedLayout.txt       \
-   StarterLayout.txt         \
+   $(DOC_1_5_0_DOCS)                      \
+   $(DOC_1_6_15_DOCS)                     \
 
 
 CONFIGS = $(addprefix configs/config.,$(SUPPORTED_CPU_LIST))

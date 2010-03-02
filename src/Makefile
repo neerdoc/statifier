@@ -1,4 +1,4 @@
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004, 2005, 2010 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -39,21 +39,22 @@ SOURCES =                 \
    $(ALL_PER_CPU_SOURCES) \
    $(INCLUDE_FILES)       \
    $(SCRIPTS)             \
-   $(GDB_SCRIPTS)         \
    $(INCLUDE_SCRIPTS)     \
    $(RUNNERS)             \
    $(AWK_FILES)           \
+   $(MY_GDB_FILES)        \
    dl-var.c               \
    dl-var.inc             \
-   gdb_runner.c           \
    find_dl_main.inc.c     \
    my_lib.inc.c           \
 
 # Service files used to build 
 BUILD_FILES =       \
    Makefile         \
+   asm.make.sh      \
    regs2asm.make.sh \
    regs2awk.make.sh \
+   regs2c.make.sh   \
 
 INCLUDE_FILES = \
    start.S      \
@@ -69,9 +70,8 @@ UTILS =                 \
    inject_starter       \
    non_pt_load          \
    pt_load_1            \
-   set_thread_area_addr \
    strtoul              \
-   tls_test             \
+   unsigned_long_sum    \
    $(FIND_UTILS)        \
 
 # Small C utilities used to find various addresses in the loader
@@ -100,12 +100,10 @@ SCRIPTS =             \
    $(STATIFIER_PARTS) \
 
 HELPER_SCRIPTS =      \
-   dumps.sh           \
    fep.sh             \
    maps.sh            \
    regs.sh            \
    set_thread_area.sh \
-   split.sh           \
    statifier.sh       \
 
 # Scripts which are implement "main logic" of statifier
@@ -124,17 +122,6 @@ INCLUDE_SCRIPTS =       \
 RUNNERS =    \
    statifier \
 
-# files used as command files for gdb
-GDB_SCRIPTS =     \
-   gdb_runner.gdb \
-   statifier.gdb  \
-
-# one as above, but with per-cpu difference
-PER_CPU_GDB_SCRIPTS =  \
-   clear_trace_bit.gdb \
-   set_thread_area.gdb \
-   syscall.gdb         \
-
 PER_CPU_INCLUDE_SCRIPTS = \
    properties.src         \
 
@@ -142,16 +129,16 @@ PER_CPU_ASM_SOURCES = $(addsuffix .S,$(FILES_TO_BE_EMBEDDED))
 
 PER_CPU_SOURCES =                 \
    $(PER_CPU_ASM_SOURCES)         \
-   $(PER_CPU_GDB_SCRIPTS)         \
    $(PER_CPU_INCLUDE_SCRIPTS)     \
+   dump_tls_data.c                \
    processor.h                    \
    regs.list                      \
-   thread_local_storage_syscall.h
+   thread_local_storage_syscall.h \
  
 ALL_PER_CPU_SOURCES = $(foreach cpu,$(SUPPORTED_CPU_LIST),$(addprefix cpus/$(cpu)/,$(PER_CPU_SOURCES)))
 
-LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS))
-PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_GDB_SCRIPTS) $(PER_CPU_INCLUDE_SCRIPTS))
+LINK_NAMES = $(addprefix ../,$(SCRIPTS) $(INCLUDE_SCRIPTS))
+PER_CPU_LINK_NAMES = $(addprefix ../$(CPU_DIR)/,$(PER_CPU_INCLUDE_SCRIPTS))
 
 UTILS_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(UTILS))
 FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addprefix $(ELF_CLASS)/,$(FILES_TO_BE_EMBEDDED))
@@ -160,7 +147,7 @@ TARGETS :=                                \
    $(UTILS_WITH_ELF_CLASS)                \
    $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS) \
    $(ELF_CLASS)/regs.awk                  \
-   $(ELF_CLASS)/gdb_runner                \
+   $(ELF_CLASS)/my_gdb                    \
 
 all:
 
@@ -185,30 +172,35 @@ VERSION: $(TOP_DIR)/VERSION
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
 	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
-# gdb_runner should be static, because I need avoid LD_PRELOAD influence
-$(ELF_CLASS)/gdb_runner: gdb_runner.c
-	gcc $(FLAGS_ELF) -static -Wall -O2 -g $< -o $@
+MY_GDB_CFILES := \
+   breakpoints.c \
+   dump.c        \
+   environment.c \
+   my_gdb.c      \
+   my_ptrace.c   \
+   registers.c   \
 
-# For some unknown reason (at least) on amd64 gcc (at least gcc 3.2.2 SuSE )
-# generate a huge 'dl-var' file when used 'binary'output format.
-# Without output format (i.e. default elf) file is reasonable small.
-# The immediate reason is the string in assemble code:
-#	.section	.eh_frame,"aw",@progbits
-# So, I need to remove it from the generated .s file
+MY_GDB_HFILES = $(MY_GDB_CFILES:%.c=%.h)
+MY_GDB_FILES = $(addprefix my_gdb/,$(MY_GDB_CFILES) $(MY_GDB_HFILES))
 
-# gcc version 3.2.3 put in the end of generated assembler code
-# .section .note-GNU-stack...,
-# i.e to be sure code after included file will go to the text section
-# I have to add ".text" to the end.
+MY_GDB_OBJ_FILES := $(MY_GDB_CFILES:%.c=$(ELF_CLASS)/%.o)
+
+MY_GDB_CPPFLAGS := -I. -I$(CPU_DIR) -I$(ELF_CLASS)
+$(MY_GDB_OBJ_FILES): $(ELF_CLASS)/%.o: my_gdb/%.c
+	gcc -c $(FLAGS_ELF) $(MY_GDB_CPPFLAGS) -Wall -O2 -g $< -o $@
+
+$(ELF_CLASS)/my_gdb: $(MY_GDB_OBJ_FILES)
+	gcc $(FLAGS_ELF) $^ -o $@
+
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
 	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
-	awk '{ if ($$2 !~ ".eh_frame") print $$0} END {print "\t.text";}' < $@.s > $@  || { $(RM) $@; exit 1; }
-
+	/bin/sh asm.make.sh < $@.s > $@ || { $(RM) $@; exit 1; }
 
 # Dependencies should be in correct order
 $(ELF_CLASS)/regs.inc: regs2asm.make.sh $(CPU_DIR)/regs.list
+$(ELF_CLASS)/regs.c  : regs2c.make.sh   $(CPU_DIR)/regs.list
 $(ELF_CLASS)/regs.awk: regs2awk.make.sh $(CPU_DIR)/regs.list regs.awk
-$(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk:
+$(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk $(ELF_CLASS)/regs.c:
 	$(RM) $@
 	/bin/sh $^ $@ || { $(RM) $@; exit 1; }
 
@@ -234,7 +226,6 @@ $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU
 # Additional dependencies:
 $(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
 $(ELF_CLASS)/dl-var.o: $(ELF_CLASS)/dl-var.s dl-var.inc
-$(ELF_CLASS)/set_thread_area_addr: $(CPU_DIR)/processor.h $(CPU_DIR)/thread_local_storage_syscall.h
 $(ELF_CLASS)/find_dl_argc    : find_dl_main.inc.c
 $(ELF_CLASS)/find_dl_argv    : find_dl_main.inc.c
 $(ELF_CLASS)/find_dl_auxv    : find_dl_main.inc.c
@@ -243,6 +234,8 @@ $(ELF_CLASS)/find_environ    : find_dl_main.inc.c
 
 $(ELF_CLASS)/elf_find_pattern: my_lib.inc.c
 $(ELF_CLASS)/elf_soname      : my_lib.inc.c
+#
+$(ELF_CLASS)/registers.o     : $(ELF_CLASS)/regs.c
 # End of additional dependencies
 
 LIB_DIR     = $(DESTDIR)/usr/lib/statifier
@@ -254,9 +247,9 @@ install-local:
 	$(INSTALL_LOCAL_64)
 
 install-common:
-	$(MKDIR)                                                 $(LIB_DIR)
-	$(INSTALL_RUN) $(SCRIPTS)                                $(LIB_DIR)
-	$(INSTALL_RO)  VERSION $(GDB_SCRIPTS) $(INCLUDE_SCRIPTS) $(LIB_DIR)
+	$(MKDIR)                                  $(LIB_DIR)
+	$(INSTALL_RUN) $(SCRIPTS)                 $(LIB_DIR)
+	$(INSTALL_RO)  VERSION $(INCLUDE_SCRIPTS) $(LIB_DIR)
 
 	$(MKDIR)                  $(BIN_DIR)
 	$(INSTALL_RUN) $(RUNNERS) $(BIN_DIR)
@@ -267,7 +260,6 @@ install-local-32 install-local-64:
 install-local-internal:
 	                     $(MKDIR)                             $(LIB_DIR_ELF)
 	                     $(INSTALL_RUN) $(TARGETS)            $(LIB_DIR_ELF)
-	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_GDB_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(CPU_DIR)     && $(INSTALL_RO) $(PER_CPU_INCLUDE_SCRIPTS) $(LIB_DIR_ELF)
 	cd $(LIB_DIR_ELF) && $(LN)         $(LINK_NAMES)          .
 	@# Here i use mv, not link (as in all-local-internal)

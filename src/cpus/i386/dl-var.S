@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004, 2005 Valery Reznic
+ * Copyright (C) 2004, 2005, 2010 Valery Reznic
  * This file is part of the Elf Statifier project
  * 
  * This project is free software; you can redistribute it and/or
@@ -13,6 +13,7 @@
 
 #include <dl-var.inc>
 
+	nop
 	jmp		after_func
 	#include <dl-var.s>
 after_func:
