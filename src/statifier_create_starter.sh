@@ -40,17 +40,18 @@ function CreateStarter
 	# Create binary file with dl-var variables
 	rm -f $DL_VAR_BIN || return
 	full_dl_list=`
-		printf "0x%x" $[val_interpreter_file_base_addr + $val_offset] &&
+		$D/unsigned_long_sum $val_interpreter_file_base_addr $val_offset&&
 		for i in $val_dl_list; do
 			case "$i" in
-				0 | 0x0) :;;  # do nothing
+				0 | 0x0)
+					echo "0x0"
+				;;
 				*)
-					i=$[$i + $val_offset]
+					$D/unsigned_long_sum $i $val_offset || exit
 				;;
 			esac
-			printf " 0x%x" $i
 		done
-	`
+	` || return
 	$D/strtoul $full_dl_list > $DL_VAR_BIN || return
 	# Create binary file with registers' values
 	$D/regs.sh $REGISTERS_FILE $REGS_BIN || return

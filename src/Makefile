@@ -71,6 +71,7 @@ UTILS =                 \
    non_pt_load          \
    pt_load_1            \
    strtoul              \
+   unsigned_long_sum    \
    $(FIND_UTILS)        \
 
 # Small C utilities used to find various addresses in the loader
