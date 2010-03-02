@@ -31,7 +31,7 @@ void get_memory(pid_t pid, const void *start, const void *stop, char *buffer)
 			"%s: start address 0x%lx is not %lu-bytes aligned\n",
 			pgm_name,
 			(unsigned long)start,
-			sizeof(long)
+			(unsigned long)sizeof(long)
 		);
 		exit(1);
 	}
@@ -41,7 +41,7 @@ void get_memory(pid_t pid, const void *start, const void *stop, char *buffer)
 			"%s: stop address 0x%lx is not %lu-bytes aligned\n",
 			pgm_name,
 			(unsigned long)stop,
-			sizeof(long)
+			(unsigned long)sizeof(long)
 		);
 		exit(1);
 	}
