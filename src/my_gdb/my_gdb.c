@@ -81,7 +81,7 @@ const char *output_dir;
 unsigned long breakpoint_start;
 unsigned long interpreter_file_entry;
 
-signed long val_offset;
+unsigned long val_offset;
 char *dir_name;
 
 void init_dir_name()
@@ -231,12 +231,7 @@ void dump_misc_src(pid_t pid, const char *filename)
 	pc = get_pc(pid);
 	sp = get_sp(pid);
 
-	if (pc > interpreter_file_entry) {
-		val_offset = pc - interpreter_file_entry;
-	} else {
-		val_offset = interpreter_file_entry - pc;
-		val_offset = - val_offset;
-	}
+	val_offset = pc - interpreter_file_entry;
 	if (val_offset  % PAGE_SIZE) {
 		fprintf(
 			stderr,
@@ -252,7 +247,7 @@ void dump_misc_src(pid_t pid, const char *filename)
 	
 	f = fopen(filename, "w");	
 		fprintf(f, "val_stack_pointer=0x%lx\n", sp);
-		fprintf(f, "val_offset=%ld # %lx\n", val_offset, val_offset);
+		fprintf(f, "val_offset=0x%lx\n", val_offset);
 	fclose(f);
 }
 

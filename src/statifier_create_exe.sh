@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2004-2008 Valery Reznic
+# Copyright (C) 2004-2008, 2010 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -162,8 +162,9 @@ function IsIgnoredSegment
 # that all of them are in the same segment ant test only for _dl_argc
 function FixLoaderDataSegmentPermission
 {
-	local full_dl_argc=$[$val__dl_argc + $val_offset]
+	local full_dl_argc
 	local is_inside
+	full_dl_argc=`$D/unsigned_long_sum $val__dl_argc $val_offset` || return
 	IsInside $full_dl_argc $Start $Stop || return
 	if [ "$is_inside" = "yes" ]; then
 		case "$Perm" in
