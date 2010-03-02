@@ -1,3 +1,7 @@
+1.7.1   2-Mar-2010
+   fixed bug sometimes preventing statifier from working on 32-bit systems
+   (Slackware 13, for example) - strtoul problem
+
 1.7.0  24-Feb-2010
    statifier not depend on gdb anymore
    dropped support for alpha
