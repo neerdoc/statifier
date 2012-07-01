@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2010 Valery Reznic
+# Copyright (C) 2010, 2012 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -28,12 +28,25 @@
 # .section .note-GNU-stack...,
 # i.e to be sure code after included file will go to the text section
 # I have to add ".text" to the end.
+###########################################################################
+# gcc 4.6.0 Fedora-15 i386 all of sudden began to use a lot of .cfi
+# directives:
+# .cfi_def_cfa_offset
+# .cfi_endproc
+# .cfi_offset
+# .cfi_remember_state
+# .cfi_restore
+# .cfi_restore_state
+# .cfi_startproc
+# I have to remove them all
+# What interesting that same gcc-4.6.0 Fedora-15 for x86-64 generate only
+# .cfi_endproc/.cfi_startproc
+###########################################################################
 awk '
 	{ 
 		if (                                \
 			($2 !~ ".eh_frame"     ) && \
-			($1 != ".cfi_startproc") && \
-			($1 != ".cfi_endproc"  )    \
+			($1 !~ "^[.]cfi_")          \
 		) {
 			# Normal string, print it
 			print $0
