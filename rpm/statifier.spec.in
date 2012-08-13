@@ -13,10 +13,8 @@ ExclusiveOs:   Linux
 ExclusiveArch: %{ix86}
 ExclusiveArch: x86_64
 
-Requires:      fileutils
+Requires:      coreutils
 Requires:      gawk
-Requires:      sh-utils
-Requires:      textutils
 
 BuildRoot:     %{_builddir}/%{buildsubdir}-install-root
 
