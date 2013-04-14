@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2004, 2005 Valery Reznic
+# Copyright (C) 2004, 2005, 2013 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ function GetSymbol
 	local MsgNotFound="$0: Symbol '$Symbol' not found in the interpreter '$val_interpreter'"
 	local MsgNoIdea="$0: internal error: no idea how to find '$Symbol' in the interpreter '$val_interpreter' without symtab."
 
-	local Value
+	local Value=""
 	if [ "X$val_interpreter_has_symtab" = "Xyes" -o "X$IsGlobal" = "Xyes" ]; then
 		# Interpreter has symtab. or symbol is global.
 		# Good. Just try to find symbol in.
@@ -49,8 +49,12 @@ function GetSymbol
 				exit 0;
 			}
 		}' < $LOADER_SYMBOLS` || return
-	else
-		# No symtab in the interpreter. Not so good.
+	fi
+
+	if [ "x$Value" = "x" ]; then
+		# No symtab in the interpreter.
+		# Or may be symbol was not found in symtab.
+		# Not so good.
 		# I'll need for each symbol run it's autodetect test.
 		local PgmName
 		case "$Symbol" in
