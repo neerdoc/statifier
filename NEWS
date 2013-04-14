@@ -1,3 +1,6 @@
+1.7.3  14-Apr-2013
+   fixed '_dl_auxv not found' error for glibc 2.16
+
 1.7.2  13-Aug-2012
    fixed compilation for i386 with gcc 4.6.0 (remove all .cfi directives)
    dependencies on fileutils, textutils and sh-utils replaced to coreutils
