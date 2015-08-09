@@ -1,0 +1,9 @@
+*.o
+/config
+/man/statifier.1
+/rpm/statifier.files
+/rpm/statifier.spec
+/src/32/
+/src/64/
+/src/VERSION
+/src/elf_class
