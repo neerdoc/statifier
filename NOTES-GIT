@@ -1,0 +1,15 @@
+# The SVN repo information has been pulled into git.  If you want to
+# manipulate newer commits to the SVN repo on sourceforge via git:
+
+git clone git://github.com/barak/statifier.git
+cd statifier
+git config svn-remote.svn.url 'svn://svn.code.sf.net/p/statifier/code'
+git config svn-remote.svn.fetch 'statifier/trunk:refs/remotes/origin/trunk'
+git config svn-remote.svn.branches 'statifier/branches/*:refs/remotes/origin/*'
+git config svn-remote.svn.tags 'statifier/tags/*:refs/remotes/origin/tags/*'
+
+# Then get them:
+
+git svn fetch
+
+# Then git merge, etc.
