@@ -41,8 +41,8 @@
  *  and try to find it in the loader's read/write memory.
  * If not found - simple exit(0) and print nothing.
  * If found - reinvoce itself with additional arguments and once again
- * try to find it. If it found in the same place - it's looks like
- * we found correct address. Print it out and exit.
+ * try to find it. If it found in the same place - it looks like
+ * we found the correct address. Print it out and exit.
  * Otherwise reinvoce itself with additional arguments again.
  */
 
@@ -169,11 +169,11 @@ int main(int argc, char *argv[], char *envp[])
 	/*
 	 * How we are going to find loader's real base address ?
 	 * I can see only two options:
-	 *   - loader know it's by itself (i.e p_vaddr != 0).
-	 *     it's a rear case, but I saw it.
+	 *   - loader knows by itself (i.e p_vaddr != 0).
+	 *     it's a rare case, but I saw it.
 	 *     In this case file_base_addr = loader_real_base
 	 *   - kernel should say to loader where it base.
-	 *     i.e, kernel will pass to interpreter this value
+	 *     i.e., kernel will pass to interpreter this value
 	 *     in the auxv (AT_BASE)
 	 *
 	 * So, i do following:

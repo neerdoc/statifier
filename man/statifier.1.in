@@ -5,7 +5,7 @@ statifier \- Elf dynamically linked executables statifier
 .B statifier [OPTION]... <exe_file> <statified_exe> 
 .SH DESCRIPTION
 Statifier make from elf dynamically linked executable and 
-all it's required libraries one stand-alone executable.
+all its required libraries one stand-alone executable.
 This executable can be copied to another machine without
 any of these shared libraries and run.
 .SH "OPTIONS"

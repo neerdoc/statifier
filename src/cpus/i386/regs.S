@@ -23,7 +23,7 @@
 	movl	EBP(%eax),	%ebp	
 					# %eax should be restored last
 	/*
-	 * It's looks like i shouldn't restore segments registers:
+	 * It looks like I shouldn't restore segments registers:
 	 * when running statified executable on the same system it's ok,
 	 * but if it moved to another system sometimes statified exe
 	 * segfault here.

@@ -8,7 +8,7 @@
  */
 
 /*
- * This program is "gdb_runner". It's aim to allow gdb to get
+ * This program is "gdb_runner". Its aim to allow gdb to get
  * control BEFORE first loader's instruction executed.
  * The problem that no one is know where kernel will load loader.
  * With exec-shield and randomization it's ever more problematic.

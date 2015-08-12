@@ -27,7 +27,7 @@ function GetSymbol
 	#  1.2. If 'IsMandatory' != 1, i.e Symbol is optional,
 	#       value '0x0' will be prined and return status 0.
 	# 2. Symbol WAS FOUND.
-	#    return status - 0  and it's value printed out
+	#    return status - 0  and its value printed out
 	[ $# -ne 3 -o "x$1" = "x" -o "x$2" = "x" -o "x$3" = "x" ] && {
 		Echo "$0: Usage: GetSymbol <Symbol> <IsMandatory> <IsGlobal>"
 		return 1
@@ -55,7 +55,7 @@ function GetSymbol
 		# No symtab in the interpreter.
 		# Or may be symbol was not found in symtab.
 		# Not so good.
-		# I'll need for each symbol run it's autodetect test.
+		# I'll need for each symbol run its autodetect test.
 		local PgmName
 		case "$Symbol" in
 			

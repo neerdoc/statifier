@@ -143,11 +143,10 @@
 - non_pt_load.c provide support for non-allocatable sections
   and non PT_LOAD segments
 - pt_load.sh integrated into statifier_create_exe.sh
-  statifier_create_exe.sh simplified (it's not use
-  prop_stack_under_executable and prop_starter_under executable
-  anymore)
+  statifier_create_exe.sh simplified (no longer uses
+  prop_stack_under_executable and prop_starter_under executable)
 - non_pt_load.c fixed for the case when page size != p_align
-- from the cpus/*/properties.src removed 
+- from the cpus/*/properties.src removed
    'prop_stack_under_executable' and
    'prop_starter_under_executable'
 
@@ -325,12 +324,12 @@
 - massive changes: statifier.sh split to lot of statifier_*.sh
 - add statifier_lib.src
 - add loader_base_test.c
-- dl_ vars format was changed: now it's not offset from DL_BASE, 
-  but absolute value. */dl-var.S were changed.
-- readlink not used.  Makefile and rpm/files adjusted. 
+- dl_ vars format was changed: no longer offset from DL_BASE,
+  but rather absolute value. */dl-var.S were changed.
+- readlink not used.  Makefile and rpm/files adjusted.
 
 * Thu Apr 22 2004 <valery_reznic@users.sourceforge.net> 1.2.1-1
-- phdrs.c accept one more arguments - 'ignored_segments' 
+- phdrs.c accept one more arguments - 'ignored_segments'
 - statifier.sh CreateExeFile now calculate and use IGNORED_SEGMENTS
 - elfinfo.c program was added.
 

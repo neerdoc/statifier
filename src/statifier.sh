@@ -7,7 +7,7 @@
 # modify it under the terms of the GNU General Public License.
 # See LICENSE file in the doc directory.
 
-# It's main script
+# Its main script
 
 function PrepareDirectoryStructure
 {

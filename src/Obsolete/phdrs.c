@@ -419,8 +419,8 @@ static int create_sections()
 	 * If starter is above executable nothing should be done for
 	 * allocated sections.
 	 * Here I assume that ALL not allocated sections after ALL allocated
-	 * ones. It's looks like reasonable from the linker/loader
-	 * points of view, but to be sure I'll need to do more 
+	 * ones. It looks reasonable from the linker/loader
+	 * points of view, but to be sure I'll need to do a more
 	 * accurate chech here.
 	 * NOTE: for now I'll trust allocation flag in the p_flags.
 	 *       but may be I'll need to verify section offset and

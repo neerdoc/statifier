@@ -175,9 +175,9 @@ void do_work(
 					 *    glibc 2.3.2-95.20
 					 * When this program was invoked as
 					 * 32/set_thread_area_addr 32/tls_test
-					 * it's work ok, but when invoked as
+					 * it works ok, but when invoked as
 					 * addr=`32/set_thread_area_addr ...`
-					 * it's hang on the exit_group(0) 
+					 * it hangs on the exit_group(0) 
 					 * syscall.
 					 * So, now I allow to tls_test program
 					 * to finish natively
@@ -222,7 +222,7 @@ int main(int argc, char *argv[], char *envp[])
 
 	child = fork();
 	switch(child) {
-		case 0: /* It's child */
+		case 0: /* Its child */
 			long_res = ptrace(PTRACE_TRACEME, 0, 0, 0);
 			if (long_res == -1) {
 				fprintf(
