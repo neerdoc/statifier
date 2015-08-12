@@ -53,7 +53,7 @@ function GetKernelStackStartStop
 # start <= $val_stack_pointer < stop
 # That's it.
 # But ld-2.3.3 is too wise:
-# if executable (or one of it's dynamic libraries) need executable stack
+# if executable (or one of its dynamic libraries) need executable stack
 # loader split stack segment, provided by the kernel to two ones:
 # with permissions 'rwx' and with 'rw-'.
 # But it's not all story ! loader also resize stack segment.
@@ -79,14 +79,14 @@ function GetKernelStackStartStop
 # So in any case both of the stack segments can be detected as following:
 # if (SegmentStart inside original stack segment) 
 # OR (SegmentStop  inside original stack segment)
-# it's stack segment.
+# its stack segment.
 # otherwise - not.
 #
 # As extra safetly i check also if a stack pointer inside segment
 # but i think it's redundant now.
 function IsStack
 {
-	# It's stack seg
+	# It's a stack seg
 	is_stack=1
 
 	local is_inside

@@ -8,7 +8,7 @@ Life is not as easy, as I think at beginning of the project.
     Note.
     Linux kernels version >= 2.5 create not just stack segment but one more -
     on address 0xfffd000-0xfffe000.
-    This one also created by kernel, and it's dynamic shared object (DSO) 
+    This one also created by kernel, and its dynamic shared object (DSO) 
     with soname 'linux-gate.so.1", so it can be easily detected.
     
 
@@ -48,7 +48,7 @@ All others should be restored to their values on the "snapshot time".
    not in the _dl_start_user, which I'll call in any case, but in _dl_start
    which I like to bypass.
 
-3. loader, during _dl_start, save some information in it's variables.
+3. loader, during _dl_start, save some information in its variables.
    This information may or may not be used after that,
    but I want to be on the safe side, and set these variables
    to the correct values.
@@ -60,7 +60,7 @@ All others should be restored to their values on the "snapshot time".
    _dl_platform    - platform name (optional)
    _dl_platformlen - length of platform name (optional) 
    
-_dl_argc is a number of arguments and it's obviously can changed from one
+_dl_argc is a number of arguments and obviously can change from one
    invocation to another.
 All other are pointers to the kernel created segment, and depend on
 command line arguments and environment, so they are variable too.

@@ -159,7 +159,7 @@ jump to executable's entry point.
 
 All above is very interesting, but how it related to statifier ?
 
-Statifier (like it's author) try to be as lazy as possible.
+Statifier (like its author) try to be as lazy as possible.
 So, it leave all the work to the loader.
 Statifier take "memory snapshot" of the process, created by loader
 when loader ALREADY finish relocation and BEFORE loader invoke any
@@ -176,7 +176,7 @@ libraries loaded by loader as ELF file with program's header of type
 'LOAD' for each segment, and entry point set to the address,
 where execution was stopped to take sharpshoot.
 
-In this case, kernel will think, it's a statically linked executable.
+In this case, kernel will think it's a statically linked executable.
 (Because there is no 'INTERP' segment)
 As we already know kernel load statically linked executable as following:
 - load all 'LOAD' segment

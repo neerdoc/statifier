@@ -83,7 +83,7 @@ Here we have got two questions:
 
 Data for regs module.
 
-It's quite clean that for restoring registers one should have
+It's quite clear that for restoring registers one should have
 registers' values.
 
 What's not so clean, where one can get these values from.

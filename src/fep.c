@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 
 		/* Sanity */
 		/* If memsz and filesz are different I don't like it.
-		 * It's looks like data segment occassionly has 
+		 * It looks like data segment occassionly has 
 		 * execute permission. I don't touch it - 
 		 * my code may destroy .bss data
 		 */

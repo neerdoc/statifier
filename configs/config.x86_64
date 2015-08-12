@@ -27,7 +27,7 @@
    # at least gcc 4.4.2 (Fedora 12) ignore regparam, anyway pass arguments
    # in registers and issued warning if -mregparm used.
    # I see no way to force gcc accept parameters on the stack, so let
-   # switch to it's native way - registers.
+   # switch to its native way - registers.
    FLAGS_C_TO_ASM_64 := 
    # Processor name (directory name for assembler sources)
    PROCESSOR_64      := x86_64
