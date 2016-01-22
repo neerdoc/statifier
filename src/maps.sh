@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2004, 2005, 2010 Valery Reznic
+# Copyright (C) 2004, 2005, 2010, 2015 Valery Reznic
 # This file is part of the Elf Statifier project
 # 
 # This project is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@ awk -v uname_m="$uname_m" -v output_all_mappings="$output_all_mappings" '{
 		if (Name == "[vdso]") next
 		if (Name == "[stack]") next
 		if (Name == "[vsyscall]") next
+		if (Name == "[vvar]") next
 		if (Start == "ffffffffff600000") {
 			if (uname_m == "x86_64") {
 				# (at least) linux 2.6.9 on amd64 

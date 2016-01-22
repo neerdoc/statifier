@@ -1,3 +1,7 @@
+* Fri Oct 23 2015 <valery_reznic@users.sourceforge.net> 1.7.4-1
+- fixed my_gdb: can't PTRACE_PEEKTEXT - 'Input/output error' (errno=5) on
+systems with [vvar] virtual mappings
+
 * Sun Apr 14 2013 <valery_reznic@users.sourceforge.net> 1.7.3-1
 - fixed '_dl_auxv not found' error for glibc 2.16
 
