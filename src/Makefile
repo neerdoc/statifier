@@ -170,7 +170,7 @@ VERSION: $(TOP_DIR)/VERSION
 	echo "VERSION='$(VERSION)'" > $@ || { $(RM) $@; exit 1; }
  
 $(UTILS_WITH_ELF_CLASS): $(ELF_CLASS)/%: %.c
-	gcc $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
+	${CC} $(FLAGS_ELF) -I$(CPU_DIR) -Wall -O2 -g $< -o $@
 
 MY_GDB_CFILES := \
    breakpoints.c \
@@ -187,13 +187,13 @@ MY_GDB_OBJ_FILES := $(MY_GDB_CFILES:%.c=$(ELF_CLASS)/%.o)
 
 MY_GDB_CPPFLAGS := -I. -I$(CPU_DIR) -I$(ELF_CLASS)
 $(MY_GDB_OBJ_FILES): $(ELF_CLASS)/%.o: my_gdb/%.c
-	gcc -c $(FLAGS_ELF) $(MY_GDB_CPPFLAGS) -Wall -O2 -g $< -o $@
+	${CC} -c $(FLAGS_ELF) $(MY_GDB_CPPFLAGS) -Wall -O2 -g $< -o $@
 
 $(ELF_CLASS)/my_gdb: $(MY_GDB_OBJ_FILES)
-	gcc $(FLAGS_ELF) $^ -o $@
+	${CC} $(FLAGS_ELF) $^ -o $@
 
 $(ELF_CLASS)/dl-var.s: dl-var.c dl-var.inc
-	gcc $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
+	${CC} $(FLAGS_ELF) $(FLAGS_C_TO_ASM_ELF) -Wall -O2 -S $< -o $@.s
 	/bin/sh asm.make.sh < $@.s > $@ || { $(RM) $@; exit 1; }
 
 # Dependencies should be in correct order
@@ -210,7 +210,7 @@ $(ELF_CLASS)/regs.inc $(ELF_CLASS)/regs.awk $(ELF_CLASS)/regs.c:
 # Because linker give warning about _start function I specify
 # pretty dummy '--entry=0x0'
 $(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%: $(ELF_CLASS)/%.o
-	gcc $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
+	${CC} $(FLAGS_ELF) -o $@ $< -Wl,--oformat,binary,--entry=0x0 -nostdlib
 
 OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WITH_ELF_CLASS))
 
@@ -221,7 +221,7 @@ OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS = $(addsuffix .o,$(FILES_TO_BE_EMBEDDED_WI
 # with -include processor.h, start.S and $<
 # 
 $(OBJECTS_TO_BE_EMBEDDED_WITH_ELF_CLASS): $(ELF_CLASS)/%.o: $(CPU_DIR)/%.S $(CPU_DIR)/processor.h ./start.S ./end.S
-	gcc $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include $(CPU_DIR)/processor.h -include ./start.S -include $< ./end.S
+	${CC} $(FLAGS_ELF) -c -o $@ -nostdinc -I$(CURDIR) -I$(CURDIR)/$(ELF_CLASS) -include $(CPU_DIR)/processor.h -include ./start.S -include $< ./end.S
 
 # Additional dependencies:
 $(ELF_CLASS)/regs.o: $(ELF_CLASS)/regs.inc
