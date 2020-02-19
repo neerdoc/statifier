@@ -8,10 +8,10 @@
 # See LICENSE file in the doc directory.
 
 PROCESSOR=`uname -m` || exit
-# Compatability translation (stollen from rpm macros)
+# Compatability translation (stolen from rpm macros)
 COMPAT_PROCESSOR="$PROCESSOR"
 case "$PROCESSOR" in
-	i386 | i486 | i586 | i686 | athlon | x86_64) COMPAT_PROCESSOR=i386;;
+	i386 | i486 | i586 | i686 | athlon) COMPAT_PROCESSOR=i386;;
 esac || exit
 
 Output=config
